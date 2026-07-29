@@ -908,6 +908,44 @@
 })();
 
 /* ===========================================================
+   CTA row width sync — .eod-cta__row (the body copy + Contact
+   button) is pinned to exactly .eod-cta__title's own rendered
+   width via --eod-cta-row-width, instead of stretching to the
+   section's full remaining width — otherwise the button could end
+   up sitting much further right than where the title above it
+   (e.g. short "UI/UX Design" vs. wide "Graphic Design") actually
+   ends. A ResizeObserver on the title re-measures automatically
+   whenever its width changes for ANY reason — a real window
+   resize, or just the word cycler swapping to a differently-sized
+   word — so this never needs to know about the cycler's own timing.
+   =========================================================== */
+(function () {
+  function initCtaRowWidthSync() {
+    const title = document.querySelector(".eod-cta__title");
+    const cta = document.querySelector(".eod-cta");
+    if (!title || !cta || cta.dataset.eodRowWidthSyncInit) return;
+    cta.dataset.eodRowWidthSyncInit = "true";
+
+    function sync() {
+      cta.style.setProperty("--eod-cta-row-width", title.getBoundingClientRect().width + "px");
+    }
+
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(sync).observe(title);
+    } else {
+      window.addEventListener("resize", sync);
+    }
+    sync();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCtaRowWidthSync);
+  } else {
+    initCtaRowWidthSync();
+  }
+})();
+
+/* ===========================================================
    Footer parallax — GSAP ScrollTrigger, scrubbed to the scroll
    position of .eod-footer-wrap itself: from the moment its top
    enters the bottom of the viewport ("clamp(top bottom)") to the
@@ -953,23 +991,18 @@
 })();
 
 /* ===========================================================
-   Button hover — .eod-btn__label and .eod-btn__icon swap sides on
-   hover/focus. flex-direction:row-reverse would do this instantly
-   (flex reflow isn't animatable), so instead this measures each
-   piece's actual rendered width and sets an inline translateX on
-   both — style.css's transition on .eod-btn__label/__icon then
-   animates that like any other transform change, so they genuinely
-   slide past each other instead of snapping.
-
-   Several of these buttons sit inside elements that move under the
-   cursor while scrolling (.eod-cta is position:sticky and slides on
-   screen right up until it engages; .eod-hero__intro scrolls
-   normally once landed) — a stationary mouse can end up crossing a
-   button's hitbox purely from page motion, firing mouseenter/leave
-   repeatedly and making the slide animation stutter/"trill". While
-   a scroll is actively happening, hover is suppressed entirely
-   (pointer-events: none via .is-scrolling on <body>) so only a
-   genuine, deliberate hover after scrolling settles triggers it.
+   Button hover jitter guard — .eod-btn__label sliding on :hover is
+   now plain CSS (a fixed-distance transform, see style.css), no JS
+   needed to drive the motion itself. But several of these buttons
+   sit inside elements that move under the cursor while scrolling
+   (.eod-cta is position:sticky and slides on screen right up until
+   it engages; .eod-hero__intro scrolls normally once landed) — a
+   stationary mouse can end up crossing a button's hitbox purely
+   from page motion, triggering :hover repeatedly and making the
+   slide stutter/"trill". While a scroll is actively happening,
+   hover is suppressed entirely (pointer-events: none via
+   .eod-is-scrolling on <body>) so only a genuine, deliberate hover
+   after scrolling settles can trigger it.
    =========================================================== */
 (function () {
   let scrollTimer = null;
@@ -982,38 +1015,4 @@
     },
     { passive: true }
   );
-
-  function initBtnHover() {
-    document.querySelectorAll(".eod-btn").forEach((btn) => {
-      if (btn.dataset.eodBtnHoverInit) return;
-      btn.dataset.eodBtnHoverInit = "true";
-
-      const label = btn.querySelector(".eod-btn__label");
-      const icon = btn.querySelector(".eod-btn__icon");
-      if (!label || !icon) return;
-
-      function enter() {
-        const gap = parseFloat(getComputedStyle(btn).columnGap || getComputedStyle(btn).gap) || 0;
-        const iconW = icon.offsetWidth;
-        const labelW = label.offsetWidth;
-        label.style.transform = `translateX(${iconW + gap}px)`;
-        icon.style.transform = `translateX(${-(labelW + gap)}px) rotate(45deg)`;
-      }
-      function leave() {
-        label.style.transform = "";
-        icon.style.transform = "";
-      }
-
-      btn.addEventListener("mouseenter", enter);
-      btn.addEventListener("mouseleave", leave);
-      btn.addEventListener("focus", enter);
-      btn.addEventListener("blur", leave);
-    });
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initBtnHover);
-  } else {
-    initBtnHover();
-  }
 })();
