@@ -53,6 +53,7 @@
   --eod-muted: #6b6b6b;
   --eod-cta-bg: #f2f2f2;
   --eod-border: rgba(0, 0, 0, 0.1);
+  --eod-icon-border: #414651; /* matches the reference site's own button icon border */
 }
 
 /* ---- Page-wide type + layout ---- */
@@ -84,60 +85,86 @@ body.eod-is-scrolling .eod-btn {
   pointer-events: none;
 }
 
-/* Two genuinely separate pieces, not one pill with an icon inset
-   into it: .eod-btn__label is its own independent rounded shape
-   that carries the text (and moves as that one unit), .eod-btn__icon
-   is a fully separate circular element next to it, with real gap
-   (not shared background/padding) between the two. */
+/* Three parts, two of them fixed in place: an accent-blue circle at
+   the very left and a white-outlined circle at the very right never
+   move — only the black label between them slides. At rest, the
+   label sits flush left, exactly covering the blue circle (which is
+   directly underneath it), and stops right before the white circle,
+   so what's actually visible is "black label + white circle". On
+   hover, the label slides right by exactly one circle's width — now
+   covering the white circle instead — which uncovers the blue
+   circle on the left by that exact same amount. Nothing rotates or
+   swaps sides; each circle already has its own fixed icon (↗ white,
+   → blue) and simply becomes visible or hidden as the label passes
+   over it. --eod-btn-circle sets that shared width once (both the
+   circles' own size and the label's slide distance/reserved space
+   read from it) so they can never drift out of sync. */
 .eod-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
+  --eod-btn-circle: 3.2em;
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
   font-size: 0.95em;
   text-decoration: none;
+  /* Reserves room for the white circle beyond the label's own
+     content width — without this, the container's auto-width would
+     just be the label's width and the right:0 circle below would
+     have nowhere of its own to sit. */
+  padding-right: var(--eod-btn-circle);
+}
+.eod-btn__circle {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: var(--eod-btn-circle);
+  height: var(--eod-btn-circle);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.eod-btn__circle svg {
+  width: 45%;
+  height: 45%;
+  stroke: currentColor;
+}
+.eod-btn__circle--accent {
+  left: 0;
+  background: var(--eod-accent);
+  color: var(--eod-white);
+}
+/* Fixed diagonal→horizontal split: the white circle's arrow points
+   ↗ (this site's own icon, unrotated), the blue one underneath it
+   points → (the same icon rotated 45°, permanently — nothing
+   animates the rotation itself, only which circle is visible). */
+.eod-btn__circle--accent svg {
+  transform: rotate(45deg);
+}
+.eod-btn__circle--white {
+  right: 0;
+  background: var(--eod-white);
+  border: 1px solid var(--eod-icon-border);
+  color: var(--eod-ink);
 }
 .eod-btn__label {
-  display: inline-flex;
+  position: relative;
+  z-index: 2;
+  display: flex;
   align-items: center;
-  padding: 0.85em 1.4em;
+  justify-content: center;
+  height: var(--eod-btn-circle);
+  padding: 0 1.4em;
   border-radius: 999px;
   font-weight: 500;
   white-space: nowrap;
-  /* script.js measures the actual rendered widths on hover and sets
-     an inline translateX — real interpolated motion, not an instant
-     flex-direction snap (which can't be animated). */
   transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
 }
 .eod-btn--dark .eod-btn__label {
   background: var(--eod-ink);
   color: var(--eod-white);
 }
-.eod-btn__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 1.8em;
-  height: 1.8em;
-  border-radius: 50%;
-  background: var(--eod-white);
-  border: 1px solid var(--eod-border);
-  color: var(--eod-ink);
-  font-size: 0.85em;
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
-}
-/* Hover: label and icon smoothly slide past each other and swap
-   sides (script.js's initBtnHover() sets the translateX on each),
-   the icon fills solid accent-blue instead of its default outline,
-   and its arrow rotates clockwise from diagonal (↗) to horizontal
-   (→) — same glyph, just turned 45deg, so no separate icon markup
-   is needed. Both the slide and the rotation are driven by the SAME
-   inline transform script.js sets on the icon, so they animate
-   together in one motion. */
-.eod-btn--dark:hover .eod-btn__icon {
-  background: var(--eod-accent);
-  border-color: var(--eod-accent);
-  color: var(--eod-white);
+.eod-btn--dark:hover .eod-btn__label {
+  transform: translateX(var(--eod-btn-circle));
 }
 
 /* One continuous frame that scrolls NORMALLY — the tornado itself is
@@ -540,14 +567,14 @@ body.eod-is-scrolling .eod-btn {
   padding-left: clamp(1.25em, 14vw, 11.25rem);
   padding-right: clamp(1.25em, 14vw, 11.25rem);
   /* Shared indent for .eod-cta__title and .eod-cta__row (below) —
-     same formula as .eod-cta__title's own font-size (clamp(1.6em,
-     7vw, 5em)) × the 3.5em margin it used to carry directly, just
+     same formula as .eod-cta__title's own font-size (clamp(2.8em,
+     9vw, 8em)) × the 3.5em margin it used to carry directly, just
      expressed in rem/vw instead of em so it doesn't depend on which
      element's own (very different) font-size is doing the
      multiplying. Without this, .eod-cta__row — much smaller text —
      computed a 3.5em margin against ITS OWN size and landed nowhere
      near .eod-cta__title's actual indent. */
-  --eod-cta-indent: clamp(5.6rem, 24.5vw, 17.5rem);
+  --eod-cta-indent: clamp(9.8rem, 31.5vw, 28rem);
   /* Sticks in place while the footer (its very next sibling) scrolls
      up and over it — that's what makes the footer look like it's
      coming out from underneath this section instead of just being
@@ -566,20 +593,24 @@ body.eod-is-scrolling .eod-btn {
     padding-right: 1.25em;
   }
 }
-/* Two-line composition: "I am a [badge]" as a small lede line, then
-   "Motion Design" as the big display line right under it, indented
-   to start roughly under the badge. Each line enters from its own
-   outer side (see [data-eod-reveal="left"/"right"] below) instead of
-   a plain fade+rise. Font: Mori Regular throughout this section. */
-/* Same font-size as .eod-cta__title (and a negative margin on the
-   title, below) so the two lines slightly overlap instead of
-   stacking with a clean gap between them. */
+/* "I am a [badge]" as a small lede line, then "Motion Design" as the
+   big display line right under it, indented to start roughly under
+   the badge. Each line enters from its own outer side (see
+   [data-eod-reveal="left"/"right"] below) instead of a plain
+   fade+rise. Font: Mori Regular throughout this section.
+
+   Plain inline text flow (not flex) — "I am a" is one real sentence
+   with the badge sitting inline inside it like an image in a
+   paragraph, so on a narrow screen it wraps naturally word-by-word
+   (confirmed against the live reference: at mobile widths it really
+   does break across 3 lines, it isn't a deliberately-stacked
+   layout). .eod-cta__title stays nowrap (see below) — that one's a
+   single headline, not a sentence. */
 .eod-cta__lede {
-  display: flex;
-  align-items: center;
-  gap: 0.6em;
-  font-size: clamp(1.6em, 7vw, 5em);
+  margin: 0;
+  font-size: clamp(2.8em, 9vw, 8em);
   font-weight: 400;
+  line-height: 1.05;
 }
 .eod-cta__accent {
   color: var(--eod-accent);
@@ -588,15 +619,24 @@ body.eod-is-scrolling .eod-btn {
    share data-eod-cycle="cta-role" — script.js's initCyclers() steps
    every element carrying the same value together, on one interval,
    so they can never drift out of sync). Same grid-stack + is-active/
-   is-exit pattern as .eod-cta__word-item. Its own font-size is reset
-   to a fixed value — its width/height are in em, and it shouldn't
-   balloon just because .eod-cta__lede's text got bigger above. */
+   is-exit pattern as .eod-cta__word-item.
+
+   Sized directly off the surrounding text (font-size: inherit, from
+   .eod-cta__lede) at EVERY width, not just on mobile — an earlier
+   version gave it its own independent, viewport-based clamp() for
+   desktop specifically to mimic the reference site's own (much
+   larger, non-text-relative) sizing there, but that meant the badge
+   and the text it sits inline with could end up wildly mismatched
+   in between the tuned breakpoints. Matching the actual text height
+   it's next to, everywhere, is simpler and can't drift. */
 .eod-cta__badge {
   display: inline-grid;
   position: relative;
-  font-size: 1rem;
-  width: 2.6em;
-  height: 1.6em;
+  font-size: inherit;
+  width: auto;
+  height: 1em;
+  aspect-ratio: 200 / 156;
+  margin: 0 0.15em;
   border-radius: 0.3em;
   overflow: hidden;
   vertical-align: middle;
@@ -631,7 +671,7 @@ body.eod-is-scrolling .eod-btn {
      so the two lines slightly overlap instead of sitting with a
      clean gap between them. */
   margin: -0.2em 0 1em var(--eod-cta-indent);
-  font-size: clamp(1.6em, 7vw, 5em);
+  font-size: clamp(2.8em, 9vw, 8em);
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
@@ -676,7 +716,15 @@ body.eod-is-scrolling .eod-btn {
 }
 /* Same left indent as .eod-cta__title, and the same right-side
    reveal direction (data-eod-reveal="right" in the HTML) — grouped
-   with the title rather than fading in on its own separate line. */
+   with the title rather than fading in on its own separate line.
+
+   Width: script.js's syncCtaRowWidth() sets --eod-cta-row-width to
+   .eod-cta__title's own actual rendered width (re-measured whenever
+   the word cycler swaps, since "Motion" vs "Graphic" etc. aren't
+   the same width) — without it, this row would stretch to the
+   section's full remaining width via flex's default stretch, and
+   the button would end up far further right than where the title
+   above it actually ends. */
 .eod-cta__row {
   display: flex;
   align-items: center;
@@ -684,6 +732,9 @@ body.eod-is-scrolling .eod-btn {
   flex-wrap: wrap;
   gap: 1.5em;
   margin-left: var(--eod-cta-indent);
+  width: var(--eod-cta-row-width, auto);
+  max-width: 100%;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (max-width: 767px) {
   .eod-cta__title,
