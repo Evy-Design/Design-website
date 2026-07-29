@@ -1,0 +1,783 @@
+/* ===========================================================
+   Evy Diepenbroek — Hero tornado + scroll "eject" interaction
+   Built on the Osmo "3D Cards Tornado" component (GSAP +
+   Observer). Paste this file's content into your Slater CSS.
+
+   The tornado spins freely and continuously, the whole time —
+   scrolling never stops it. Only one thing is scroll-linked:
+   whichever card happens to be nearest the visual center at the
+   moment you start scrolling gets pulled out of the orbit, flips
+   over (revealing your portrait on its back face) and slides
+   down, while the rest of the tornado keeps spinning behind it.
+
+   Text/next-section content comes later — this pass is just the
+   tornado + the scroll "eject" motion.
+
+   REQUIRES, loaded BEFORE script.js (head custom code):
+     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
+   =========================================================== */
+
+/* PP Mori — self-hosted. These 3 files (fonts/PPMori-*.woff2) need to
+   be uploaded to your host (Slater's asset manager or Figma) and the
+   url() paths below updated to wherever they end up living — a
+   relative "fonts/…" path only resolves for local testing. */
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Extralight.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --eod-black: #0a0a0a;
+  --eod-white: #fafafa;
+  --eod-radius: 1em;
+  --eod-accent: #212aff; /* matches the Navigation component's link/hover colour */
+  --eod-ink: #1a1a1a;
+  --eod-muted: #6b6b6b;
+  --eod-cta-bg: #f2f2f2;
+  --eod-border: rgba(0, 0, 0, 0.1);
+}
+
+/* ---- Page-wide type + layout ---- */
+.eod-page {
+  font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  color: var(--eod-ink);
+  overflow-x: clip; /* the tornado's edge cards intentionally bleed past the viewport */
+}
+.eod-page * { box-sizing: border-box; }
+.eod-page section,
+.eod-page footer {
+  padding-left: 2.5em;
+  padding-right: 2.5em;
+}
+@media (max-width: 767px) {
+  .eod-page section,
+  .eod-page footer {
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+  }
+}
+
+/* script.js toggles this on <body> while a scroll is actively in
+   progress, so a stationary cursor that a moving/sticky button
+   happens to scroll past can't trigger its hover (see the button
+   hover comment in script.js for why that was causing a jitter). */
+body.eod-is-scrolling .eod-btn {
+  pointer-events: none;
+}
+
+/* Two genuinely separate pieces, not one pill with an icon inset
+   into it: .eod-btn__label is its own independent rounded shape
+   that carries the text (and moves as that one unit), .eod-btn__icon
+   is a fully separate circular element next to it, with real gap
+   (not shared background/padding) between the two. */
+.eod-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 0.95em;
+  text-decoration: none;
+}
+.eod-btn__label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85em 1.4em;
+  border-radius: 999px;
+  font-weight: 500;
+  white-space: nowrap;
+  /* script.js measures the actual rendered widths on hover and sets
+     an inline translateX — real interpolated motion, not an instant
+     flex-direction snap (which can't be animated). */
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.eod-btn--dark .eod-btn__label {
+  background: var(--eod-ink);
+  color: var(--eod-white);
+}
+.eod-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 1.8em;
+  height: 1.8em;
+  border-radius: 50%;
+  background: var(--eod-white);
+  border: 1px solid var(--eod-border);
+  color: var(--eod-ink);
+  font-size: 0.85em;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* Hover: label and icon smoothly slide past each other and swap
+   sides (script.js's initBtnHover() sets the translateX on each),
+   the icon fills solid accent-blue instead of its default outline,
+   and its arrow rotates clockwise from diagonal (↗) to horizontal
+   (→) — same glyph, just turned 45deg, so no separate icon markup
+   is needed. Both the slide and the rotation are driven by the SAME
+   inline transform script.js sets on the icon, so they animate
+   together in one motion. */
+.eod-btn--dark:hover .eod-btn__icon {
+  background: var(--eod-accent);
+  border-color: var(--eod-accent);
+  color: var(--eod-white);
+}
+
+/* One continuous frame that scrolls NORMALLY — the tornado itself is
+   never pinned, it scrolls away like any other content. .eod-hero
+   carries the background colour (set from JS), so the area the
+   tornado sits in and the area the card lands in are always painted
+   with the exact same colour by construction.
+
+   The only thing that "stays with you" is the ejected card itself —
+   it becomes position:sticky once picked, so it rides along, centred
+   on screen, for as long as you're still scrolling through this
+   frame, then releases into its resting spot once you scroll past it.
+
+   Height is 220svh — 2.2x the viewport, fluid per device (svh, not
+   dvh: stays put as mobile browser chrome collapses/expands, which
+   is what stableViewportHeight in script.js's scroll math assumes). */
+.eod-hero {
+  position: relative;
+  height: 220svh;
+  background: var(--eod-black);
+  perspective: 75em;
+  font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
+}
+.eod-hero__stage {
+  position: relative; /* NOT sticky — scrolls away normally with the page */
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+.eod-backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--eod-black);
+  z-index: 0;
+}
+
+/* ---- Hero overlay text (heading) ----
+   A sibling of .eod-hero__stage, not a child — sits above the stage
+   (z-index) but below an ejected/landed card (z-index up to 9999,
+   set in script.js) once one is out and flipping/growing — that's
+   intentional, the card becomes the focal point at that point.
+   Only the first screen (100svh) — it scrolls away with the stage
+   as you continue down, same as before. */
+.eod-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  height: 100svh;
+  padding: 2.5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: var(--eod-white);
+  pointer-events: none;
+}
+.eod-hero__heading {
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(1.8em, 5vw, 3.5em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ---- Hero intro (title + bio) — flanks the landed card ----
+   NOT inside .eod-hero__overlay: this needs to sit wherever the
+   card actually lands, further down the 220%-tall hero, not just
+   within the first screen. Hidden/inert until script.js's settle()
+   adds .is-landed to .eod-hero (and sets --eod-card-h + this row's
+   `top` to the same value it just gave the card, so the two share
+   one vertical anchor) — unsettle() (scrolling back up) removes it
+   again. The card itself — already flipped to its portrait face by
+   then — is the "photo" in the middle; no separate image needed.
+
+   Title/body carry their own opacity+transform (not the row) so
+   each can enter from its own direction: sideways from off-screen
+   on desktop (flanking the card), or vertically from behind the
+   card itself on mobile (see the media query below). */
+.eod-hero__intro {
+  position: absolute;
+  left: 2.5em;
+  right: 2.5em;
+  top: 50vh;
+  transform: translateY(-50%);
+  z-index: 5; /* above the stage, below the landed card (9999) */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5em;
+  flex-wrap: wrap;
+  /* Dark, not white: by the time this becomes visible (the card has
+     landed), .eod-hero's own background has already crossfaded to
+     white (see updateScroll()'s colorProgress in script.js) — white
+     text here would sit on a white background. */
+  color: var(--eod-ink);
+  pointer-events: none;
+}
+.eod-hero.is-landed .eod-hero__intro {
+  pointer-events: auto;
+}
+.eod-hero__intro-title,
+.eod-hero__intro-body {
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eod-hero.is-landed .eod-hero__intro-title,
+.eod-hero.is-landed .eod-hero__intro-body {
+  opacity: 1;
+  transform: translate(0);
+}
+.eod-hero__intro-title {
+  flex: 0 1 auto;
+  margin: 0;
+  font-size: clamp(1.8em, 4vw, 2.75em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  transform: translateX(-3em); /* enters from the left, off past the card */
+}
+.eod-hero__intro-body {
+  flex: 1 1 20em;
+  max-width: 24em;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2em;
+  transform: translateX(3em); /* enters from the right, off past the card */
+}
+.eod-hero__intro-body p {
+  margin: 0;
+  font-size: 0.95em;
+  font-weight: 300;
+  line-height: 1.5;
+  color: var(--eod-muted);
+}
+@media (max-width: 767px) {
+  .eod-hero__heading {
+    font-size: 1.4em;
+  }
+  /* Stacked instead of flanking: title above the card, body below.
+     Flexbox column+gap can't do this reliably (centering the whole
+     stack only lands the gap on the card's true center when title
+     and body happen to be the same height) — instead .eod-hero__intro
+     collapses to a zero-height anchor line at the card's vertical
+     center (top + translateY(-50%), same shared anchor as desktop),
+     and title/body each position themselves independently off of
+     THAT line via bottom/top, so their own heights can't throw the
+     other one off. --eod-card-h is set by script.js's settle(). */
+  .eod-hero__intro {
+    display: block;
+    height: 0;
+  }
+  .eod-hero__intro-title,
+  .eod-hero__intro-body {
+    position: absolute;
+    left: 0;
+    right: 0;
+    max-width: none;
+    margin: 0;
+    text-align: center;
+  }
+  /* "From behind the card": each rests just clear of it (bottom/top)
+     but starts pulled in further toward that center line — roughly
+     at the card itself, hidden behind it (z-index 5 vs. the card's
+     9999) — and travels out to its resting spot as it fades in. */
+  .eod-hero__intro-title {
+    bottom: calc(var(--eod-card-h, 20em) / 2 + 1.5em);
+    transform: translateY(calc(var(--eod-card-h, 20em) / 2 + 1em));
+  }
+  .eod-hero__intro-body {
+    top: calc(var(--eod-card-h, 20em) / 2 + 1.5em);
+    align-items: center;
+    transform: translateY(calc(var(--eod-card-h, 20em) / -2 - 1em));
+  }
+}
+
+/* ---- Scroll-reveal-in: fade + rise (default), applied to any
+   element carrying data-eod-reveal. script.js observes each one and
+   adds .is-inview the first time it enters the viewport (load-time
+   for anything already on screen, e.g. the hero heading). Stagger
+   within a group via data-eod-reveal-delay="1" / "2" / … — script.js
+   turns that into a transition-delay. The attribute's VALUE picks
+   the entrance direction — data-eod-reveal="left"/"right" slide in
+   from that outer side instead of rising from below. */
+[data-eod-reveal] {
+  opacity: 0;
+  transform: translateY(2.2em);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-eod-reveal="left"] {
+  transform: translateX(-3em);
+}
+[data-eod-reveal="right"] {
+  transform: translateX(3em);
+}
+[data-eod-reveal].is-inview {
+  opacity: 1;
+  transform: translate(0);
+}
+
+/* ---- Cards tornado (Osmo component) ---- */
+.cards-tornado {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: grab;
+  /* pan-y (not none): a touch swipe here must still scroll the page
+     normally on mobile/tablet — it only additionally feeds the drag
+     gesture into the tornado's spin velocity, same as a wheel event
+     does on desktop. touch-action:none would swallow the swipe as a
+     drag-only gesture and trap visitors on the first screen. */
+  touch-action: pan-y;
+  overflow: visible;
+}
+.cards-tornado__collection { width: 100%; height: 100%; position: relative; }
+.cards-tornado__list {
+  font-size: clamp(0.6em, 0.85vw, 1.5em);
+  width: 100%;
+  height: 100%;
+  perspective: 75em;
+  transform-style: preserve-3d;
+  position: relative;
+}
+.cards-tornado__item {
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform, filter;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* The card itself gets a second, independent 3D rotation (the
+   flip) nested inside the item's orbital transform. */
+.demo-card {
+  aspect-ratio: 4 / 5;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  border-radius: var(--eod-radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  width: 15em;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.demo-card__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: inherit;
+  overflow: hidden;
+  background-color: #222;
+}
+.demo-card__face--back { transform: rotateY(180deg); }
+
+/* Once a card is pulled out of the tornado for the hand-off, it's
+   re-parented directly under .eod-hero (escaping the clipped/3D
+   orbit context) and given an explicit pixel size inline — make
+   its inner demo-card fill that box. */
+.eod-hero > .cards-tornado__item .demo-card { width: 100%; height: 100%; }
+
+.cover-image {
+  object-fit: cover;
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* ===========================================================
+   Rest of the page — Awards / CTA / Footer
+   =========================================================== */
+
+/* ---- Awards ---- */
+/* Top/bottom padding matches .eod-cta's (6em desktop, 3em mobile —
+   same ratio) so the two sections feel like part of one consistent
+   rhythm going down the page. */
+.eod-awards {
+  background: var(--eod-white);
+  padding-top: 6em;
+  padding-bottom: 6em;
+}
+@media (max-width: 767px) {
+  .eod-awards {
+    padding-top: 3em;
+    padding-bottom: 3em;
+  }
+}
+.eod-awards__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 3em;
+}
+.eod-awards__title {
+  flex: 0 0 auto;
+  font-size: clamp(2em, 4vw, 2.75em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.eod-awards__list {
+  flex: 1 1 auto;
+  max-width: 50em;
+  margin-left: auto;
+  list-style: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+  border-top: 1px solid var(--eod-border);
+}
+@media (max-width: 767px) {
+  .eod-awards__row {
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  .eod-awards__list {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+.eod-awards__item {
+  border-bottom: 1px solid var(--eod-border);
+}
+.eod-awards__item-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  padding: 1.4em 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.eod-awards__item-title {
+  flex: 1 1 auto;
+  font-size: 1em;
+}
+.eod-awards__item-year {
+  flex: none;
+  color: var(--eod-muted);
+  font-size: 0.9em;
+}
+.eod-awards__item-chevron {
+  flex: none;
+  display: inline-flex;
+  transition: transform 0.25s ease;
+}
+.eod-awards__item-header[aria-expanded="true"] .eod-awards__item-chevron {
+  transform: rotate(180deg);
+}
+.eod-awards__item-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.eod-awards__item-body p {
+  margin: 0 0 1.4em;
+  max-width: 40em;
+  color: var(--eod-muted);
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+/* ---- CTA: "I am a [ ] Motion Design" ---- */
+/* .eod-page .eod-cta (not just .eod-cta): needs to out-specificity
+   .eod-page section's generic 2.5em padding rule above, which — as
+   a class+element selector — otherwise beats a plain single-class
+   .eod-cta rule regardless of which comes later in the file. */
+.eod-page .eod-cta {
+  background: var(--eod-cta-bg);
+  /* svh, not vh: .eod-cta is position:sticky, and on mobile 100vh
+     recalculates continuously as the browser chrome (address bar)
+     animates in/out WHILE you scroll — combined with sticky, that
+     reads as the whole section trembling/jittering as you scroll
+     through it. 100svh is pinned to the smallest possible viewport,
+     so it can't fluctuate mid-scroll (same fix as .eod-hero — see
+     script.js's stableViewportHeight comment for the same root
+     cause on the tornado's own scroll math). */
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 6em;
+  padding-bottom: 6em;
+  /* 180px at the reference 1280px-wide desktop (14vw ≈ 180px there),
+     but scales DOWN below that instead of staying rigidly fixed —
+     at in-between viewport widths (tablet-ish), holding a flat 180px
+     left almost no room for .eod-cta__title's content (the cycling
+     word + "Design", which must never clip — see .eod-cta__word
+     below) and would force the whole two-line block to overflow.
+     Prioritising the word staying fully readable over the frame
+     keeping an exact 180px margin at every width. */
+  padding-left: clamp(1.25em, 14vw, 11.25rem);
+  padding-right: clamp(1.25em, 14vw, 11.25rem);
+  /* Shared indent for .eod-cta__title and .eod-cta__row (below) —
+     same formula as .eod-cta__title's own font-size (clamp(1.6em,
+     7vw, 5em)) × the 3.5em margin it used to carry directly, just
+     expressed in rem/vw instead of em so it doesn't depend on which
+     element's own (very different) font-size is doing the
+     multiplying. Without this, .eod-cta__row — much smaller text —
+     computed a 3.5em margin against ITS OWN size and landed nowhere
+     near .eod-cta__title's actual indent. */
+  --eod-cta-indent: clamp(5.6rem, 24.5vw, 17.5rem);
+  /* Sticks in place while the footer (its very next sibling) scrolls
+     up and over it — that's what makes the footer look like it's
+     coming out from underneath this section instead of just being
+     the next block in line. See .eod-footer-wrap below for the
+     other half. Full-viewport height so there's real room for that
+     reveal (and the footer's own parallax) to play out. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+@media (max-width: 767px) {
+  .eod-page .eod-cta {
+    padding-top: 3em;
+    padding-bottom: 3em;
+    padding-left: 1.25em;
+    padding-right: 1.25em;
+  }
+}
+/* Two-line composition: "I am a [badge]" as a small lede line, then
+   "Motion Design" as the big display line right under it, indented
+   to start roughly under the badge. Each line enters from its own
+   outer side (see [data-eod-reveal="left"/"right"] below) instead of
+   a plain fade+rise. Font: Mori Regular throughout this section. */
+/* Same font-size as .eod-cta__title (and a negative margin on the
+   title, below) so the two lines slightly overlap instead of
+   stacking with a clean gap between them. */
+.eod-cta__lede {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: clamp(1.6em, 7vw, 5em);
+  font-weight: 400;
+}
+.eod-cta__accent {
+  color: var(--eod-accent);
+}
+/* Badge: swaps its image in lockstep with the word cycler below (both
+   share data-eod-cycle="cta-role" — script.js's initCyclers() steps
+   every element carrying the same value together, on one interval,
+   so they can never drift out of sync). Same grid-stack + is-active/
+   is-exit pattern as .eod-cta__word-item. Its own font-size is reset
+   to a fixed value — its width/height are in em, and it shouldn't
+   balloon just because .eod-cta__lede's text got bigger above. */
+.eod-cta__badge {
+  display: inline-grid;
+  position: relative;
+  font-size: 1rem;
+  width: 2.6em;
+  height: 1.6em;
+  border-radius: 0.3em;
+  overflow: hidden;
+  vertical-align: middle;
+  background: var(--eod-ink);
+}
+.eod-cta__badge-item {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.eod-cta__badge-item.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.eod-cta__badge-item.is-exit {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+.eod-cta__title {
+  display: flex;
+  /* Never wraps — the cycling word and "Design" always stay on one
+     line, at any viewport width (the clamp() below shrinks the font
+     to fit rather than letting it break into two lines). */
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.2em;
+  /* Negative top margin: pulls it up into .eod-cta__lede just above,
+     so the two lines slightly overlap instead of sitting with a
+     clean gap between them. */
+  margin: -0.2em 0 1em var(--eod-cta-indent);
+  font-size: clamp(1.6em, 7vw, 5em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+/* Word cycler: every candidate word occupies the SAME grid cell, so
+   the container's width is naturally set by the widest one (no jump
+   as it swaps between "Motion" / "Brand" / "UI/UX" / "Graphic").
+   script.js just toggles which one carries .is-active.
+   flex: none + min-width: max-content: without these, this being a
+   flex item inside .eod-cta__title (nowrap) let the flex algorithm
+   shrink it below its own widest-word content size at in-between
+   viewport widths — clipping "Graphic"/"Brand" mid-word instead of
+   ever wrapping or overflowing. The word must always render at its
+   full natural width; see .eod-page .eod-cta's padding below for
+   the other half of making room for that. */
+.eod-cta__word {
+  display: inline-grid;
+  flex: none;
+  min-width: max-content;
+  vertical-align: bottom;
+  overflow: hidden;
+}
+.eod-cta__word-item {
+  grid-area: 1 / 1;
+  /* The box is always sized for the WIDEST word (min-width above),
+     so a shorter one (e.g. "Motion" vs "Graphic") needs to hug the
+     right edge — flush against "Design" right after it — rather
+     than left-align and leave a gap before it. */
+  text-align: right;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  white-space: nowrap;
+}
+.eod-cta__word-item.is-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.eod-cta__word-item.is-exit {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+/* Same left indent as .eod-cta__title, and the same right-side
+   reveal direction (data-eod-reveal="right" in the HTML) — grouped
+   with the title rather than fading in on its own separate line. */
+.eod-cta__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5em;
+  margin-left: var(--eod-cta-indent);
+}
+@media (max-width: 767px) {
+  .eod-cta__title,
+  .eod-cta__row {
+    margin-left: 1.25em;
+  }
+}
+.eod-cta__body {
+  max-width: 30em;
+  margin: 0;
+  font-size: 0.95em;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--eod-muted);
+}
+
+/* ---- Footer ----
+   Three-layer structure (matches the GSAP ScrollTrigger parallax
+   recipe in script.js's initFooterParallax()):
+     .eod-footer-wrap        — outer block, normal document flow.
+                                Next sibling right after .eod-cta, so
+                                it's what actually scrolls up over the
+                                sticky CTA (the "reveal"); also the
+                                ScrollTrigger trigger element.
+     .eod-footer             — the real content, parallax-lifted
+                                (yPercent) as the wrap scrolls into
+                                view — settles at 0 once fully in view.
+     .eod-footer-wrap__dark  — a dark overlay above it, fading out
+                                over the same scroll range, so the
+                                footer reads as emerging from shadow. */
+.eod-footer-wrap {
+  position: relative;
+  z-index: 2;
+  background: var(--eod-accent);
+  border-radius: 1.5em 1.5em 0 0;
+  /* Clips the parallax-lifted content below so it can't spill past
+     the rounded top corners while it's still catching up on scroll. */
+  overflow: hidden;
+}
+.eod-footer-wrap__dark {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+.eod-footer {
+  position: relative;
+  color: var(--eod-white);
+  padding-top: 3em;
+  padding-bottom: 2em;
+  will-change: transform;
+}
+.eod-footer__top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2em;
+  padding-bottom: 6em;
+}
+.eod-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  font-size: 0.9em;
+}
+.eod-footer__col--right {
+  text-align: right;
+  align-items: flex-end;
+}
+.eod-footer__label {
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  font-size: 0.8em;
+}
+.eod-footer__link {
+  color: inherit;
+  text-decoration: none;
+}
+.eod-footer__link:hover {
+  text-decoration: underline;
+}
+/* Full-width version of the same logo mark used top-left in the nav
+   (see Navigation embad.html) — fill: currentColor, so it picks up
+   .eod-footer's white. */
+.eod-footer__logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 767px) {
+  .eod-footer__top {
+    padding-bottom: 3em;
+  }
+}

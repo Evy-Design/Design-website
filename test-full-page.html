@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Full page test</title>
+  <link rel="stylesheet" href="test-navigation.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=19" />
+  <style>body { margin: 0; }</style>
+</head>
+<body>
+
+  <!-- Nav HTML -->
+  <div class="underlay-nav">
+    <header class="underlay-nav__header">
+      <div class="underlay-nav__bar">
+        <div class="underlay-nav__container">
+          <a href="/" class="underlay-nav__logo">Evy</a>
+          <button data-underlay-nav-toggle aria-expanded="false" aria-label="open menu" class="underlay-nav__toggle">
+            <span class="underlay-nav__toggle-text">
+              <span class="underlay-nav__toggle-label">Menu</span>
+              <span class="underlay-nav__toggle-label">Close</span>
+            </span>
+            <span class="underlay-nav__toggle-icon">
+              <span class="underlay-nav__toggle-bar"></span>
+              <span class="underlay-nav__toggle-bar"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <nav data-underlay-nav-menu class="underlay-nav__menu">
+      <div class="underlay-nav__inner">
+        <ul class="underlay-nav__list">
+          <li data-reveal-l><a href="/" class="underlay-nav__link-large w--current"><span class="underlay-nav__link-label">Home</span></a></li>
+          <li data-reveal-l><span class="underlay-nav__link-large is--soon" aria-disabled="true"><span class="underlay-nav__link-label">Projects</span><span class="underlay-nav__soon-badge">Coming soon</span></span></li>
+          <li data-reveal-l><a href="/about" class="underlay-nav__link-large"><span class="underlay-nav__link-label">About</span></a></li>
+          <li data-reveal-l><a href="/contact" class="underlay-nav__link-large"><span class="underlay-nav__link-label">Contact</span></a></li>
+        </ul>
+        <div class="underlay-nav__bottom">
+          <div class="underlay-nav__bottom-col">
+            <div data-reveal-s><span class="underlay-nav__link-small is--faded">Socials</span></div>
+            <ul class="underlay-nav__list is--small">
+              <li data-reveal-s><a href="#" class="underlay-nav__link-small">Instagram</a></li>
+              <li data-reveal-s><a href="#" class="underlay-nav__link-small">LinkedIn</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+    <div data-underlay-nav-overlay class="underlay-nav__overlay">
+      <div class="underlay-nav__dark"></div>
+      <div class="underlay-nav__borders">
+        <div class="underlay-nav__border-row">
+          <div class="underlay-nav__border"></div>
+          <div class="underlay-nav__corner"></div>
+        </div>
+        <div class="underlay-nav__border-row">
+          <div class="underlay-nav__corner is--bottom"></div>
+          <div class="underlay-nav__border"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="eod-page">
+    <section class="eod-hero">
+      <div class="eod-hero__stage">
+        <div class="eod-backdrop"></div>
+        <div class="cards-tornado" data-3d-tornado-init>
+          <div class="cards-tornado__collection">
+            <div class="cards-tornado__list" data-3d-tornado-list></div>
+          </div>
+        </div>
+      </div>
+      <div class="eod-hero__overlay">
+        <div class="eod-hero__heading">
+          <span data-eod-reveal="left">Have a look</span>
+          <span data-eod-reveal="right">at all my work</span>
+        </div>
+      </div>
+
+      <div class="eod-hero__intro">
+        <h1 class="eod-hero__intro-title">Hi, I&rsquo;m<br />Evy Olivia<br />Diepenbroek</h1>
+        <div class="eod-hero__intro-body">
+          <p>I&rsquo;m a software engineer and Framer creator with a strong focus on building modern, scalable, and conversion-driven web experiences.</p>
+          <p>Over the years, I&rsquo;ve created and shipped multiple SaaS products and Framer templates used by global customers, helping them launch faster.</p>
+          <a href="/about" class="eod-btn eod-btn--dark"><span class="eod-btn__label">More about me</span><span class="eod-btn__icon">&#8599;</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="eod-awards" id="awards">
+      <div class="eod-awards__row">
+        <h2 class="eod-awards__title" data-eod-reveal>Awards</h2>
+        <ul class="eod-awards__list">
+          <li class="eod-awards__item" data-eod-reveal data-eod-reveal-delay="1">
+            <button class="eod-awards__item-header" data-eod-award-toggle aria-expanded="false">
+              <span class="eod-awards__item-title">Motion Graphic Honorable Mention Prize &ndash; Your Craft DOOH&#8209;design challenge</span>
+              <span class="eod-awards__item-year">2024</span>
+              <span class="eod-awards__item-chevron" aria-hidden="true">&#8964;</span>
+            </button>
+            <div class="eod-awards__item-body">
+              <p>Recognised for a motion graphic entry in the Your Craft DOOH&#8209;design challenge.</p>
+            </div>
+          </li>
+          <li class="eod-awards__item" data-eod-reveal data-eod-reveal-delay="2">
+            <button class="eod-awards__item-header" data-eod-award-toggle aria-expanded="false">
+              <span class="eod-awards__item-title">Motion Graphic Honorable Mention Prize &ndash; Your Craft DOOH&#8209;design challenge</span>
+              <span class="eod-awards__item-year">2024</span>
+              <span class="eod-awards__item-chevron" aria-hidden="true">&#8964;</span>
+            </button>
+            <div class="eod-awards__item-body">
+              <p>Recognised for a motion graphic entry in the Your Craft DOOH&#8209;design challenge.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="eod-cta">
+      <div class="eod-cta__lede" data-eod-reveal="left">
+        I am a
+        <span class="eod-cta__badge" aria-hidden="true" data-eod-cycle="cta-role">
+          <img class="eod-cta__badge-item is-active" src="https://images.unsplash.com/photo-1523294587484-bae6cc870010?w=500&h=700&fit=crop" alt="" />
+          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&h=700&fit=crop" alt="" />
+          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500&h=700&fit=crop" alt="" />
+          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?w=500&h=700&fit=crop" alt="" />
+        </span>
+      </div>
+      <h2 class="eod-cta__title" data-eod-reveal="right">
+        <span class="eod-cta__word" data-eod-cycle="cta-role">
+          <span class="eod-cta__word-item eod-cta__accent is-active">Motion</span>
+          <span class="eod-cta__word-item eod-cta__accent">Brand</span>
+          <span class="eod-cta__word-item eod-cta__accent">UI/UX</span>
+          <span class="eod-cta__word-item eod-cta__accent">Graphic</span>
+        </span>
+        Design
+      </h2>
+      <div class="eod-cta__row" data-eod-reveal="right" data-eod-reveal-delay="1">
+        <p class="eod-cta__body">Lets have a coffee and talk about what I can be for you, text here longer need</p>
+        <a href="/contact" class="eod-btn eod-btn--dark"><span class="eod-btn__label">Contact me</span><span class="eod-btn__icon">&#8599;</span></a>
+      </div>
+    </section>
+
+    <div class="eod-footer-wrap" data-eod-footer-parallax>
+      <footer class="eod-footer" data-eod-footer-parallax-inner>
+        <div class="eod-footer__top">
+          <div class="eod-footer__col" data-eod-reveal>
+            <span class="eod-footer__label">CONTACT</span>
+            <a href="mailto:Evy@Diepenbroek.com" class="eod-footer__link">Evy@Diepenbroek.com</a>
+          </div>
+          <div class="eod-footer__col eod-footer__col--right" data-eod-reveal data-eod-reveal-delay="1">
+            <span class="eod-footer__label">SOCIAL</span>
+            <a href="#" class="eod-footer__link">Instagram</a>
+            <a href="#" class="eod-footer__link">LinkedIn</a>
+          </div>
+        </div>
+        <svg class="eod-footer__logo" data-eod-reveal data-eod-reveal-delay="2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1250 247.922">
+          <path d="M0 192.433V14.2543H125.743V40.7265H30.7994V87.5619H116.325V113.525H30.7994V165.96H128.034V192.433H0Z" fill="currentColor"/>
+          <path d="M186.242 192.433L131.516 57.5261H163.333L201.26 161.379L239.186 57.5261H271.004L216.278 192.433H186.242Z" fill="currentColor"/>
+          <path d="M287.599 245.886V221.959H308.471C319.162 221.959 322.725 218.396 325.78 209.996L329.598 199.305L272.835 57.5261H305.162L344.361 165.706L381.524 57.5261H414.105L351.997 218.905C344.361 238.504 335.452 245.886 312.798 245.886H287.599Z" fill="currentColor"/>
+          <path d="M481.012 192.433V14.2543H550.247C600.391 14.2543 634.5 49.6354 634.5 102.325C634.5 156.033 600.391 192.433 550.247 192.433H481.012ZM547.956 166.215C581.81 166.215 602.682 142.034 602.682 102.325C602.682 63.8896 581.81 40.4719 547.956 40.4719H512.066V166.215H547.956Z" fill="currentColor"/>
+          <path d="M717.665 195.742C675.92 195.742 648.939 166.979 648.939 125.488C648.939 80.4348 678.72 53.9626 715.119 53.9626C756.1 53.9626 780.282 83.2347 779.263 130.07H677.956C679.484 155.015 694.247 172.069 717.919 172.069C735.482 172.069 746.682 163.924 751.518 149.161H778.754C772.391 177.415 748.464 195.742 717.665 195.742ZM679.484 109.198H749.991C746.173 88.8346 734.464 77.3803 715.374 77.3803C697.301 77.3803 683.556 89.5982 679.484 109.198Z" fill="currentColor"/>
+          <path d="M852.591 195.742C814.664 195.742 793.028 180.215 790.738 151.961H818.992C821.028 165.197 832.228 172.578 851.573 172.578C868.627 172.578 878.554 165.96 878.554 153.742C878.554 146.87 873.972 142.034 863.791 139.997L828.155 132.616C806.519 128.288 793.792 116.325 793.792 96.7254C793.792 72.544 814.155 53.9626 845.718 53.9626C876.263 53.9626 897.135 70.2532 900.444 97.489H873.209C871.172 85.271 859.973 77.1257 845.718 77.1257C830.446 77.1257 821.537 84.2529 821.537 94.1799C821.537 102.071 826.882 106.398 838.082 108.689L873.209 115.816C895.863 120.398 906.299 132.616 906.299 151.961C906.299 178.178 884.663 195.742 852.591 195.742Z" fill="currentColor"/>
+          <path d="M923.021 192.433V57.5261H953.057V192.433H923.021ZM938.293 40.4719C926.839 40.4719 917.93 31.3085 917.93 20.1087C917.93 8.65437 926.839 0 938.293 0C949.493 0 958.148 8.65437 958.148 20.1087C958.148 31.3085 949.493 40.4719 938.293 40.4719Z" fill="currentColor"/>
+          <path d="M1038.42 247.922C1000.75 247.922 977.588 230.105 974.788 201.851H1003.55C1005.33 214.832 1018.06 224.759 1038.17 224.759C1062.6 224.759 1075.08 210.25 1075.08 190.142V169.524C1065.4 183.015 1050.39 190.651 1030.79 190.651C995.406 190.651 970.461 162.906 970.461 122.943C970.461 82.2165 995.406 53.9626 1030.79 53.9626C1050.64 53.9626 1066.68 62.6169 1075.84 77.1257L1078.39 57.5261H1104.86V187.596C1104.86 224.25 1080.68 247.922 1038.42 247.922ZM1037.41 165.96C1059.3 165.96 1074.57 148.143 1074.57 122.179C1074.57 96.4708 1059.3 78.653 1037.41 78.653C1015.77 78.653 1000.75 96.4708 1000.75 122.688C1000.75 148.397 1015.77 165.96 1037.41 165.96Z" fill="currentColor"/>
+          <path d="M1129.35 192.433V57.5261H1155.82L1158.11 78.3984C1167.78 62.8715 1183.82 53.9626 1202.91 53.9626C1231.42 53.9626 1250 72.7986 1250 102.071V192.433H1220.22V107.671C1220.22 89.5982 1210.8 79.1621 1192.98 79.1621C1172.87 79.1621 1159.13 93.9254 1159.13 117.089V192.433H1129.35Z" fill="currentColor"/>
+        </svg>
+      </footer>
+      <div class="eod-footer-wrap__dark" data-eod-footer-parallax-dark aria-hidden="true"></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <script src="test-navigation.js"></script>
+  <script src="script.js?v=9"></script>
+</body>
+</html>

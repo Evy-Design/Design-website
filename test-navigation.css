@@ -1,0 +1,364 @@
+/* PP Mori — same font as the Home page's style.css, duplicated here
+   because this file loads site-wide (every page) while style.css is
+   scoped to just the Home embed. Point these url()s at wherever the
+   3 .woff2 files (fonts/PPMori-Extralight/Regular/Semibold.woff2)
+   end up hosted — same files, same values, in both places. */
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Extralight.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "PP Mori";
+  src: url("fonts/PPMori-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --menu-width: 30em;
+}
+
+.underlay-nav {
+  font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
+}
+
+@media screen and (max-width: 767px) {
+  :root {
+    --menu-width: 80vw;
+  }
+}
+
+/* Nav header */
+.underlay-nav__header {
+  z-index: 10000;
+  color: #fff;
+  position: fixed;
+  inset: 0% 0% auto;
+  pointer-events: none;
+  transition: color .3s ease;
+}
+
+.underlay-nav__header.is--dark {
+  color: #1a1a1a;
+}
+
+.underlay-nav__header.is--dark .underlay-nav__toggle {
+  color: #1a1a1a;
+}
+
+.underlay-nav__bar {
+  width: 100%;
+}
+
+.underlay-nav__container {
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5em;
+  display: flex;
+}
+
+.underlay-nav__logo {
+  pointer-events: auto;
+  mix-blend-mode: multiply;
+  justify-content: center;
+  align-items: center;
+  width: 6.875em;
+  display: flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.underlay-nav__logo-svg {
+  width: 100%;
+}
+
+.underlay-nav__toggle {
+  pointer-events: auto;
+  grid-column-gap: .75em;
+  grid-row-gap: .75em;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  margin: -1em;
+  padding: 1em;
+  display: flex;
+  font-family: inherit;
+}
+
+.underlay-nav__toggle-text {
+  flex-flow: column;
+  flex: none;
+  justify-content: flex-start;
+  align-items: flex-end;
+  height: 1.5em;
+  display: flex;
+  overflow: hidden;
+}
+
+.underlay-nav__toggle-label {
+  font-size: 1.25em;
+  line-height: 1.2;
+}
+
+.underlay-nav__toggle-icon {
+  grid-column-gap: .375em;
+  grid-row-gap: .375em;
+  flex-flow: column;
+  flex: none;
+  justify-content: center;
+  align-items: center;
+  width: 1.5em;
+  margin-bottom: -.3em;
+  display: flex;
+}
+
+.underlay-nav__toggle-bar {
+  background-color: currentColor;
+  flex: none;
+  width: 100%;
+  height: .125em;
+  padding: 0;
+}
+
+/* Menu panel */
+.underlay-nav__menu {
+  z-index: 1;
+  width: var(--menu-width);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  color: #312e2e;
+  background-color: #fff;
+  font-family: inherit;
+}
+
+.underlay-nav__inner {
+  grid-column-gap: 2em;
+  grid-row-gap: 2em;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  padding: 7.5em 2em 2em;
+  display: flex;
+  overflow: auto;
+}
+
+.underlay-nav__list {
+  flex-flow: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+
+.underlay-nav__list.is--small {
+  grid-column-gap: .75em;
+  grid-row-gap: .75em;
+}
+
+.underlay-nav__link-large {
+  border-radius: .25em;
+  width: 100%;
+  padding: .75em 1em;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+.underlay-nav__link-large:hover {
+  color: #fff;
+  background-color: #212AFF;
+}
+
+.underlay-nav__link-large.w--current {
+  color: #212AFF !important;
+  background-color: transparent !important;
+}
+
+.underlay-nav__link-large.is--soon {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* Not a real link — no hover highlight, unlike every other item in
+   this list. Specificity (2 classes + :hover) beats the generic
+   .underlay-nav__link-large:hover rule regardless of source order. */
+.underlay-nav__link-large.is--soon:hover {
+  color: inherit;
+  background-color: transparent;
+}
+
+.underlay-nav__soon-badge {
+  flex: none;
+  font-size: 0.28em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.5em 0.85em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+}
+
+.underlay-nav__link-label {
+  letter-spacing: -.04em;
+  font-size: 3.25em;
+  line-height: .9;
+}
+
+.underlay-nav__bottom {
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  padding-top: 1.5em;
+  display: flex;
+  position: relative;
+}
+
+.underlay-nav__bottom-col {
+  grid-column-gap: 1em;
+  grid-row-gap: 1em;
+  flex-flow: column;
+  flex: 1;
+  justify-content: flex-start;
+  align-items: flex-start;
+  display: flex;
+}
+
+.underlay-nav__link-small {
+  font-size: 1em;
+  line-height: 1.1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.underlay-nav__link-small.is--faded {
+  opacity: .5;
+}
+
+.underlay-nav__bottom-border {
+  opacity: .15;
+  transform-origin: 0%;
+  background-color: currentColor;
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  inset: 0% 0% auto;
+}
+
+/* Overlay */
+.underlay-nav__overlay {
+  z-index: 9999;
+  pointer-events: none;
+  cursor: pointer;
+  visibility: hidden;
+  position: fixed;
+  inset: 0% -1px 0% 0%;
+  overflow: clip;
+  color: #212AFF;
+}
+
+.underlay-nav__dark {
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  position: absolute;
+  inset: 0%;
+}
+
+.underlay-nav__borders {
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: stretch;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+.underlay-nav__border {
+  background-color: #fff;
+  width: 100%;
+  height: 1em;
+}
+
+.underlay-nav__border-row {
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: flex-end;
+  display: flex;
+}
+
+.underlay-nav__corner {
+  transform-origin: 100% 0;
+  background-image: radial-gradient(circle farthest-side at 0 100%, transparent 99%, #fff);
+  width: 2em;
+  height: 2em;
+}
+
+.underlay-nav__corner.is--bottom {
+  transform-origin: 100% 100%;
+  background-image: radial-gradient(circle farthest-side at 0 0, transparent 99%, #fff);
+}
+
+/* Figma Sites page wrapper - gets moved by GSAP */
+[data-main] {
+  position: relative;
+  z-index: 2;
+  background-color: inherit;
+}
+
+/* Responsive */
+@media screen and (max-width: 767px) {
+  .underlay-nav__container {
+    padding: 1.25em;
+  }
+
+  .underlay-nav__logo {
+    width: 5em;
+  }
+
+  .underlay-nav__toggle-text {
+    height: 1.25em;
+  }
+
+  .underlay-nav__toggle-label {
+    font-size: 1em;
+  }
+
+  .underlay-nav__inner {
+    padding: 5em 1.25em 1.25em;
+  }
+
+  .underlay-nav__link-label {
+    font-size: 2em;
+  }
+
+  .underlay-nav__bottom {
+    grid-column-gap: 2em;
+    grid-row-gap: 2em;
+    flex-flow: column;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+}
