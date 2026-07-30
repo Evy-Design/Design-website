@@ -34,14 +34,14 @@
     cards: [
       { src: "https://glass-music-01613391.figma.site/_assets/v11/f4607dfef1f252d36baff380cd218bfb7296de58.png", alt: "Architecture study" },
       { src: "https://glass-music-01613391.figma.site/_assets/v11/2d8f6295f3054cb1971dfc6e7ce86f1ab150bc64.png?w=3584", alt: "Landscape sketch" },
-      { src: "assets/Tornado Images/1.png", alt: "Plek UX Design - Website design" },
-      { src: "assets/Tornado Images/2.jpg", alt: "Penguin shortlisted book cover" },
-      { src: "assets/Tornado Images/3.jpg", alt: "Typografic Illustrations" },
-      { src: "assets/Tornado Images/4.jpg", alt: "editorial design" },
-      { src: "assets/Tornado Images/5.jpg", alt: "design, editorial design" },
-      { src: "assets/Tornado Images/6.jpg", alt: "Illustration" },
-      { src: "assets/Tornado Images/7.gif", alt: "Studio 3D material" },
-      { src: "assets/Tornado Images/8-Cense.jpg", alt: "Cense website design" },
+      { src: "Assets/Tornado Images/1.png", alt: "Plek UX Design - Website design" },
+      { src: "Assets/Tornado Images/2.jpg", alt: "Penguin shortlisted book cover" },
+      { src: "Assets/Tornado Images/3.jpg", alt: "Typografic Illustrations" },
+      { src: "Assets/Tornado Images/4.jpg", alt: "editorial design" },
+      { src: "Assets/Tornado Images/5.jpg", alt: "design, editorial design" },
+      { src: "Assets/Tornado Images/6.jpg", alt: "Illustration" },
+      { src: "Assets/Tornado Images/7.gif", alt: "Studio 3D material" },
+      { src: "Assets/Tornado Images/8-Cense.jpg", alt: "Cense website design" },
     ],
   };
 
