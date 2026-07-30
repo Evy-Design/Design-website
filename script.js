@@ -702,6 +702,28 @@
         introRow.style.setProperty("--eod-card-h", cardRect.height + "px");
       }
       hero.classList.add("is-landed");
+
+      // .eod-hero__intro-title/-body are position:absolute (see
+      // style.css — needed so title-above/body-below on mobile can't
+      // throw each other off), so they don't contribute to .eod-hero's
+      // own height at all. Long bio copy can then genuinely extend
+      // past .eod-hero's fixed 220svh bottom edge and overlap Awards
+      // right below it. Once the reveal transition has had a moment
+      // to run (rAF x2 — one for the .is-landed class to apply, one
+      // for the fade/slide transition's layout to catch up), measure
+      // the real bottom edge and stretch the hero taller if needed.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const body = hero.querySelector(".eod-hero__intro-body");
+          if (!body || !isLanded) return;
+          const heroRect = hero.getBoundingClientRect();
+          const bodyRect = body.getBoundingClientRect();
+          const overflow = bodyRect.bottom - heroRect.bottom;
+          if (overflow > 0) {
+            hero.style.height = heroRect.height + overflow + 48 + "px";
+          }
+        });
+      });
     }
 
     // Scrolling back up past the point where it landed hands the card
@@ -714,6 +736,9 @@
       card.style.top = "50vh";
       card.style.left = "50%";
       hero.classList.remove("is-landed");
+      // Undo settle()'s height stretch, if any — back to the normal
+      // CSS-driven 220svh now that the intro text is hidden again.
+      hero.style.height = "";
     }
 
     let scrollTicking = false;
