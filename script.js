@@ -34,14 +34,14 @@
     cards: [
       { src: "https://glass-music-01613391.figma.site/_assets/v11/f4607dfef1f252d36baff380cd218bfb7296de58.png", alt: "Architecture study" },
       { src: "https://glass-music-01613391.figma.site/_assets/v11/2d8f6295f3054cb1971dfc6e7ce86f1ab150bc64.png?w=3584", alt: "Landscape sketch" },
-      { src: "https://images.unsplash.com/photo-1523294587484-bae6cc870010?w=500&h=700&fit=crop", alt: "Colour study, orange" },
-      { src: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&h=700&fit=crop", alt: "Product shot, sunglasses" },
-      { src: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500&h=700&fit=crop", alt: "Floral illustration" },
-      { src: "https://images.unsplash.com/photo-1465101162946-4377e57745c3?w=500&h=700&fit=crop", alt: "Interior detail" },
-      { src: "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?w=500&h=700&fit=crop", alt: "Sneaker, product design" },
-      { src: "https://images.unsplash.com/photo-1502741224143-90386d7f8c82?w=500&h=700&fit=crop", alt: "Fruit, colour reference" },
-      { src: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&h=700&fit=crop", alt: "Studio detail" },
-      { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&h=700&fit=crop", alt: "Product shot, footwear" },
+      { src: "assets/Tornado Images/1.png", alt: "Plek UX Design - Website design" },
+      { src: "assets/Tornado Images/2.jpg", alt: "Penguin shortlisted book cover" },
+      { src: "assets/Tornado Images/3.jpg", alt: "Typografic Illustrations" },
+      { src: "assets/Tornado Images/4.jpg", alt: "editorial design" },
+      { src: "assets/Tornado Images/5.jpg", alt: "design, editorial design" },
+      { src: "assets/Tornado Images/6.jpg", alt: "Illustration" },
+      { src: "assets/Tornado Images/7.gif", alt: "Studio 3D material" },
+      { src: "assets/Tornado Images/8-Cense.jpg", alt: "Cense website design" },
     ],
   };
 
