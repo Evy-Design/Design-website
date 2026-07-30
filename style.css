@@ -303,7 +303,7 @@ body.eod-is-scrolling .eod-btn {
 }
 @media (max-width: 767px) {
   .eod-hero__heading {
-    font-size: 1.4em;
+    font-size: 2.2em;
   }
   /* Stacked instead of flanking: title above the card, body below.
      Flexbox column+gap can't do this reliably (centering the whole
@@ -326,6 +326,12 @@ body.eod-is-scrolling .eod-btn {
     max-width: none;
     margin: 0;
     text-align: center;
+  }
+  .eod-hero__intro-title {
+    font-size: 2.2em;
+  }
+  .eod-hero__intro-body p {
+    font-size: 1.05em;
   }
   /* "From behind the card": each rests just clear of it (bottom/top)
      but starts pulled in further toward that center line — roughly
@@ -487,6 +493,12 @@ body.eod-is-scrolling .eod-btn {
   .eod-awards__list {
     margin-left: 0;
     width: 100%;
+  }
+  .eod-awards__item-title {
+    font-size: 1.1em;
+  }
+  .eod-awards__item-body p {
+    font-size: 1em;
   }
 }
 .eod-awards__item {
@@ -830,5 +842,11 @@ body.eod-is-scrolling .eod-btn {
 @media (max-width: 767px) {
   .eod-footer__top {
     padding-bottom: 3em;
+  }
+  .eod-footer__col {
+    font-size: 1.1em;
+  }
+  .eod-footer__label {
+    font-size: 0.9em;
   }
 }
