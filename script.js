@@ -723,9 +723,21 @@
     }
     function scheduleHugHeight() {
       clearTimeout(hugResizeTimer);
+      // 850ms, not 200: .eod-hero__intro-title/-body (style.css) have
+      // their OWN 0.7s reveal transition, sliding out from behind the
+      // card once .is-landed lands — a 200ms debounce fired well
+      // before that finished, so applyHugHeight() below measured them
+      // still mid-slide (shorter than their real resting position),
+      // under-shooting the hug height. Landed as "Awards sits right
+      // up against the hero, then jumps to its correct spot the
+      // moment you scroll again" — the second measurement, triggered
+      // by that scroll, finally landed after the transition had
+      // actually finished. 850ms safely clears the 700ms transition
+      // with a little margin, so the FIRST measurement is already the
+      // right one.
       hugResizeTimer = setTimeout(() => {
         requestAnimationFrame(() => requestAnimationFrame(applyHugHeight));
-      }, 200);
+      }, 850);
     }
 
     // Once landed, stop tracking the viewport (position:sticky) and pin
