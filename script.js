@@ -723,21 +723,19 @@
     }
     function scheduleHugHeight() {
       clearTimeout(hugResizeTimer);
-      // 850ms, not 200: .eod-hero__intro-title/-body (style.css) have
-      // their OWN 0.7s reveal transition, sliding out from behind the
-      // card once .is-landed lands — a 200ms debounce fired well
-      // before that finished, so applyHugHeight() below measured them
-      // still mid-slide (shorter than their real resting position),
-      // under-shooting the hug height. Landed as "Awards sits right
-      // up against the hero, then jumps to its correct spot the
-      // moment you scroll again" — the second measurement, triggered
-      // by that scroll, finally landed after the transition had
-      // actually finished. 850ms safely clears the 700ms transition
-      // with a little margin, so the FIRST measurement is already the
-      // right one.
+      // Fallback only — see settle()'s transitionend listener for the
+      // real trigger. A fixed delay here was an earlier attempt at
+      // this same problem (guessing "long enough" to clear
+      // .eod-hero__intro-title/-body's own 0.7s reveal transition
+      // before measuring where they landed) but kept coming up short
+      // in practice — main-thread contention from the landing
+      // animation itself can push the transition's actual start back
+      // by a frame or more, so no fixed guess is reliably safe. Kept
+      // here, generously long, purely as a safety net in case
+      // transitionend never fires for some reason (it always should).
       hugResizeTimer = setTimeout(() => {
         requestAnimationFrame(() => requestAnimationFrame(applyHugHeight));
-      }, 850);
+      }, 1500);
     }
 
     // Once landed, stop tracking the viewport (position:sticky) and pin
@@ -767,6 +765,24 @@
         introRow.style.setProperty("--eod-card-h", cardRect.height + "px");
       }
       hero.classList.add("is-landed");
+      // Precise trigger for the hug-height measurement: wait for
+      // .eod-hero__intro-body's own reveal transition (opacity +
+      // transform, 0.7s — see style.css) to ACTUALLY finish before
+      // measuring where it landed, rather than guessing a fixed delay
+      // is "long enough" (kept coming up short in practice — see
+      // scheduleHugHeight's own comment). transitionend fires once
+      // per transitioned property, so this can fire twice in a row;
+      // {once:true} means only the first one (whichever property
+      // happens to finish first — they share the same duration, so
+      // effectively simultaneous) actually triggers the measurement.
+      const introBody = hero.querySelector(".eod-hero__intro-body");
+      if (introBody) {
+        introBody.addEventListener(
+          "transitionend",
+          () => requestAnimationFrame(() => requestAnimationFrame(applyHugHeight)),
+          { once: true }
+        );
+      }
       scheduleHugHeight();
     }
 
