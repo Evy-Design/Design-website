@@ -706,22 +706,27 @@
       // .eod-hero__intro-title/-body are position:absolute (see
       // style.css — needed so title-above/body-below on mobile can't
       // throw each other off), so they don't contribute to .eod-hero's
-      // own height at all. Long bio copy can then genuinely extend
-      // past .eod-hero's fixed 220svh bottom edge and overlap Awards
-      // right below it. Once the reveal transition has had a moment
-      // to run (rAF x2 — one for the .is-landed class to apply, one
-      // for the fade/slide transition's layout to catch up), measure
-      // the real bottom edge and stretch the hero taller if needed.
+      // own height at all. .eod-hero's fixed 220svh is sized for the
+      // desktop composition; on mobile the stacked, more compact intro
+      // ends far above that edge, leaving a large dead gap before
+      // Awards (reads as "the section isn't hugging its content").
+      // Once the reveal transition has had a moment to run (rAF x2 —
+      // one for the .is-landed class to apply, one for the fade/slide
+      // transition's layout to catch up), measure the real bottom edge
+      // of everything landed (card + title + body) and resize the
+      // hero to hug it, with a small buffer matching TAIL_BUFFER_VH's
+      // own "breathing room before Awards" intent.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
+          if (!isLanded) return;
+          const title = hero.querySelector(".eod-hero__intro-title");
           const body = hero.querySelector(".eod-hero__intro-body");
-          if (!body || !isLanded) return;
           const heroRect = hero.getBoundingClientRect();
-          const bodyRect = body.getBoundingClientRect();
-          const overflow = bodyRect.bottom - heroRect.bottom;
-          if (overflow > 0) {
-            hero.style.height = heroRect.height + overflow + 48 + "px";
-          }
+          const contentBottom = Math.max(
+            ...[card, title, body].filter(Boolean).map((el) => el.getBoundingClientRect().bottom)
+          );
+          const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
+          hero.style.height = contentBottom - heroRect.top + bufferPx + "px";
         });
       });
     }
