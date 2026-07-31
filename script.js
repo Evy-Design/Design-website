@@ -30,7 +30,7 @@
   // second copy and abort the entire script — scoping it here means each
   // inclusion gets its own local copy instead of colliding.
   const EOD_DATA = {
-    portrait: "https://glass-music-01613391.figma.site/_assets/v11/335c0d6ac419aeb77dc0fd7aa99e064d423ef055.png?h=3072",
+    portrait: "assets/tornado Images/back-card-image/evy-portrait.jpg",
     cards: [
       { src: "https://glass-music-01613391.figma.site/_assets/v11/f4607dfef1f252d36baff380cd218bfb7296de58.png", alt: "Architecture study" },
       { src: "https://glass-music-01613391.figma.site/_assets/v11/2d8f6295f3054cb1971dfc6e7ce86f1ab150bc64.png?w=3584", alt: "Landscape sketch" },
@@ -682,6 +682,59 @@
     // Captured with getBoundingClientRect() at the exact instant of the
     // swap, so this never causes a jump (see the eject/return-to-orbit
     // glides above for the same measure-before-you-mutate approach).
+    // .eod-hero's fixed 220svh is sized for the desktop composition;
+    // on mobile the stacked, more compact intro ends far above that
+    // edge, leaving a large dead gap before Awards (reads as "the
+    // section isn't hugging its content"). Shrinking .eod-hero to hug
+    // its real content fixes that — but doing it the instant the card
+    // lands means mutating the document's height WHILE the user's
+    // finger/momentum-scroll is still actively moving through it,
+    // which snaps everything below (Awards onward) up underneath
+    // them — that's the glitch/shake reported on mobile. Deferred
+    // instead until scrolling has actually gone idle (same debounce
+    // idea as the .eod-is-scrolling hover guard elsewhere in this
+    // file), and animated via .eod-hero.is-landed's own CSS
+    // transition (see style.css) rather than snapping, so even that
+    // idle-time resize reads as a settle, not a cut.
+    let hugResizeTimer = null;
+    let hugRefreshTimer = null;
+    function applyHugHeight() {
+      if (!isLanded || !ejectedItem) return;
+      const title = hero.querySelector(".eod-hero__intro-title");
+      const body = hero.querySelector(".eod-hero__intro-body");
+      const heroRect = hero.getBoundingClientRect();
+      const contentBottom = Math.max(
+        ...[ejectedItem, title, body].filter(Boolean).map((el) => el.getBoundingClientRect().bottom)
+      );
+      const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
+      hero.style.height = contentBottom - heroRect.top + bufferPx + "px";
+      // ScrollTrigger (the footer parallax, see initFooterParallax
+      // below) caches each trigger's start/end pixel positions at
+      // setup time and has no way to know this height change just
+      // moved everything below it — without a refresh, its reveal
+      // could get stuck partway even at genuine max scroll. Delayed
+      // to match .eod-hero.is-landed's own CSS transition (style.css)
+      // finishing, so ScrollTrigger measures the settled layout, not
+      // a mid-transition frame.
+      if (typeof ScrollTrigger !== "undefined") {
+        clearTimeout(hugRefreshTimer);
+        hugRefreshTimer = setTimeout(() => ScrollTrigger.refresh(), 480);
+      }
+    }
+    function scheduleHugHeight() {
+      clearTimeout(hugResizeTimer);
+      hugResizeTimer = setTimeout(() => {
+        requestAnimationFrame(() => requestAnimationFrame(applyHugHeight));
+      }, 200);
+    }
+
+    // Once landed, stop tracking the viewport (position:sticky) and pin
+    // the card to the exact document spot it's already sitting at — it
+    // then scrolls away normally like any other element, which is what
+    // actually creates visible room below it as you keep scrolling.
+    // Captured with getBoundingClientRect() at the exact instant of the
+    // swap, so this never causes a jump (see the eject/return-to-orbit
+    // glides above for the same measure-before-you-mutate approach).
     function settle() {
       if (isLanded || !ejectedItem) return;
       isLanded = true;
@@ -702,33 +755,7 @@
         introRow.style.setProperty("--eod-card-h", cardRect.height + "px");
       }
       hero.classList.add("is-landed");
-
-      // .eod-hero__intro-title/-body are position:absolute (see
-      // style.css — needed so title-above/body-below on mobile can't
-      // throw each other off), so they don't contribute to .eod-hero's
-      // own height at all. .eod-hero's fixed 220svh is sized for the
-      // desktop composition; on mobile the stacked, more compact intro
-      // ends far above that edge, leaving a large dead gap before
-      // Awards (reads as "the section isn't hugging its content").
-      // Once the reveal transition has had a moment to run (rAF x2 —
-      // one for the .is-landed class to apply, one for the fade/slide
-      // transition's layout to catch up), measure the real bottom edge
-      // of everything landed (card + title + body) and resize the
-      // hero to hug it, with a small buffer matching TAIL_BUFFER_VH's
-      // own "breathing room before Awards" intent.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          if (!isLanded) return;
-          const title = hero.querySelector(".eod-hero__intro-title");
-          const body = hero.querySelector(".eod-hero__intro-body");
-          const heroRect = hero.getBoundingClientRect();
-          const contentBottom = Math.max(
-            ...[card, title, body].filter(Boolean).map((el) => el.getBoundingClientRect().bottom)
-          );
-          const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
-          hero.style.height = contentBottom - heroRect.top + bufferPx + "px";
-        });
-      });
+      scheduleHugHeight();
     }
 
     // Scrolling back up past the point where it landed hands the card
@@ -741,9 +768,16 @@
       card.style.top = "50vh";
       card.style.left = "50%";
       hero.classList.remove("is-landed");
+      clearTimeout(hugResizeTimer);
+      clearTimeout(hugRefreshTimer);
       // Undo settle()'s height stretch, if any — back to the normal
       // CSS-driven 220svh now that the intro text is hidden again.
       hero.style.height = "";
+      // Same reasoning as applyHugHeight's own refresh — this height
+      // change needs to invalidate ScrollTrigger's cached positions
+      // too. No transition to wait out here (unsettle isn't inside
+      // .is-landed by the time this runs), so no delay needed.
+      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
     }
 
     let scrollTicking = false;
@@ -772,9 +806,18 @@
       if (progress <= 0 && ejectedItem) returnToOrbit();
       // Math.min() inside updateEject already makes this safe to call
       // unconditionally, at any progress, in either scroll direction.
-      if (ejectedItem) updateEject(progress);
+      // Skipped once landed — the card is position:absolute by then
+      // (settle() already gave it its final transform/placement), so
+      // this would just keep rewriting the exact same values on every
+      // remaining scroll tick for no visible effect.
+      if (ejectedItem && !isLanded) updateEject(progress);
       if (ejectedItem && progress >= 1) settle();
       if (ejectedItem && progress < 1) unsettle();
+      // Re-arms the idle-debounced hug-resize (see scheduleHugHeight)
+      // on every tick while landed — covers a slow/discrete scroll
+      // (e.g. a trackpad or button-press scroll) that could otherwise
+      // stop scrolling in the exact same tick settle() itself fires.
+      if (isLanded) scheduleHugHeight();
     }
     function onScroll() {
       if (!scrollTicking) {
@@ -915,6 +958,97 @@
       let current = itemSets[0].findIndex((el) => el.classList.contains("is-active"));
       if (current < 0) current = 0;
 
+      // .eod-cta__word opts into width-tracking (see style.css): its
+      // box is meant to track whichever candidate is actually active,
+      // not stay pre-reserved to the widest one — so "Design" right
+      // after it visibly shifts as the word's own width changes.
+      // Each candidate's true natural width is measured once, up
+      // front, via a detached clone (so the measurement isn't
+      // contaminated by the live grid cell's own current size), then
+      // just looked up by index on every swap.
+      const widthTrackedWraps = wraps.filter((w) => w.classList.contains("eod-cta__word"));
+      const wordWidths = new Map();
+      // Appended into the WRAP itself (not document.body): font-size,
+      // letter-spacing etc. are all inherited from .eod-cta__title's
+      // own cascade, which document.body doesn't have — measuring
+      // there was silently sizing every word against a plain 16px
+      // fallback instead of the title's real (~100px+) font-size,
+      // which would have squeezed every word into a tiny box. The
+      // clone is position:absolute, so it doesn't affect the wrap's
+      // own layout/size while its natural width is read.
+      function measureNaturalWidth(item, wrap) {
+        const clone = item.cloneNode(true);
+        clone.style.position = "absolute";
+        clone.style.visibility = "hidden";
+        clone.style.opacity = "1";
+        clone.style.transform = "none";
+        clone.style.whiteSpace = "nowrap";
+        clone.classList.remove("is-exit");
+        clone.classList.add("is-active");
+        wrap.appendChild(clone);
+        const width = clone.getBoundingClientRect().width;
+        clone.remove();
+        return width;
+      }
+      function syncWordWidths() {
+        widthTrackedWraps.forEach((wrap) => {
+          const items = Array.from(wrap.children);
+          const widths = items.map((item) => measureNaturalWidth(item, wrap));
+          wordWidths.set(wrap, widths);
+          const maxWidth = Math.max(...widths);
+          // .eod-cta__group (style.css) is width: fit-content so it can
+          // be centred as a block — but sizing it off whichever word
+          // happens to be active meant every swap that changed the
+          // word's own width ALSO reflowed the group's centred
+          // position, dragging .eod-cta__lede and the body/button row
+          // sideways with it, even though only "Design" is meant to
+          // move. Pinned instead to the WIDEST candidate's width,
+          // measured once here (and again on resize) — momentarily
+          // sizing the word box to its widest case, reading the
+          // group's natural width at that size, then restoring the
+          // word box to whichever word is actually active. The
+          // group's own width var only changes on resize from here on,
+          // never on a plain word swap.
+          const group = wrap.closest(".eod-cta__group");
+          if (group) {
+            wrap.style.setProperty("--eod-cta-word-width", maxWidth + "px");
+            group.style.removeProperty("--eod-cta-group-width");
+            const naturalGroupWidth = group.getBoundingClientRect().width;
+            // Guards against the very first call landing before the
+            // page's own layout has actually settled (confirmed: right
+            // at script execution the hero is still mid async-height-
+            // settling, and everything below it — including this
+            // section — briefly measures 0 wide) — a 0 reading here
+            // would otherwise get set as a REAL, permanent value
+            // (unlike the unset var's own fit-content fallback) and
+            // never self-correct until the next resize. Skipping it
+            // just leaves the fit-content fallback in place for one
+            // more tick; the initial call is also deferred a frame
+            // below specifically to avoid hitting this in practice.
+            if (naturalGroupWidth > 0) {
+              group.style.setProperty("--eod-cta-group-width", naturalGroupWidth + "px");
+            }
+          }
+          const idx = items.findIndex((el) => el.classList.contains("is-active"));
+          wrap.style.setProperty("--eod-cta-word-width", widths[idx < 0 ? 0 : idx] + "px");
+        });
+      }
+      if (widthTrackedWraps.length) {
+        // Deferred a frame (not called synchronously): at the moment
+        // this script actually executes, the page's own layout hasn't
+        // fully settled yet (.eod-hero's height is still being
+        // determined asynchronously — see initHero above), so an
+        // immediate measurement here can read 0 for everything below
+        // it. One rAF is enough in practice; the >0 guard above is the
+        // real safety net if it isn't.
+        requestAnimationFrame(syncWordWidths);
+        let wordWidthResizeTimer = null;
+        window.addEventListener("resize", () => {
+          clearTimeout(wordWidthResizeTimer);
+          wordWidthResizeTimer = setTimeout(syncWordWidths, 150);
+        });
+      }
+
       setInterval(() => {
         const next = (current + 1) % count;
         itemSets.forEach((items) => {
@@ -924,6 +1058,10 @@
           currentEl.classList.add("is-exit");
           nextEl.classList.add("is-active");
           setTimeout(() => currentEl.classList.remove("is-exit"), 500);
+        });
+        widthTrackedWraps.forEach((wrap) => {
+          const widths = wordWidths.get(wrap);
+          if (widths) wrap.style.setProperty("--eod-cta-word-width", widths[next] + "px");
         });
         current = next;
       }, 2600);
@@ -1004,7 +1142,16 @@
         scrollTrigger: {
           trigger: wrap,
           start: "clamp(top bottom)",
-          end: "clamp(top top)",
+          // "top top" (the wrap's OWN top reaching the viewport top) is
+          // unreachable whenever the footer's content is taller than the
+          // viewport — by the time you've scrolled to the very bottom of
+          // the page, the wrap's top still hasn't reached the viewport
+          // top, so the timeline could never complete and the reveal got
+          // stuck partway (reported on tablet, where the footer's two
+          // columns + full-width logo mark push it past viewport height).
+          // "bottom bottom" instead completes exactly at the page's own
+          // max scroll — always reachable, at any content/viewport ratio.
+          end: "clamp(bottom bottom)",
           scrub: true,
         },
       });

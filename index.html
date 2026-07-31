@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — Design</title>
   <link rel="stylesheet" href="test-navigation.css?v=4" />
-  <link rel="stylesheet" href="style.css?v=24" />
+  <link rel="stylesheet" href="style.css?v=31" />
   <style>body { margin: 0; }</style>
 </head>
 <body>
@@ -15,7 +15,19 @@
     <header class="underlay-nav__header">
       <div class="underlay-nav__bar">
         <div class="underlay-nav__container">
-          <a href="/" class="underlay-nav__logo">Evy</a>
+          <a href="/" class="underlay-nav__logo">
+            <svg class="underlay-nav__logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1228 244" fill="none">
+              <path d="M0 189V14H123.5V40H30.25V86H114.25V111.5H30.25V163H125.75V189H0Z" fill="currentColor"/>
+              <path d="M182.92 189L129.17 56.5H160.42L197.67 158.5L234.92 56.5H266.17L212.42 189H182.92Z" fill="currentColor"/>
+              <path d="M282.469 241.5V218H302.969C313.469 218 316.969 214.5 319.969 206.25L323.719 195.75L267.969 56.5H299.719L338.219 162.75L374.719 56.5H406.719L345.719 215C338.219 234.25 329.469 241.5 307.219 241.5H282.469Z" fill="currentColor"/>
+              <path d="M472.432 189V14H540.432C589.682 14 623.182 48.75 623.182 100.5C623.182 153.25 589.682 189 540.432 189H472.432ZM538.182 163.25C571.432 163.25 591.932 139.5 591.932 100.5C591.932 62.75 571.432 39.75 538.182 39.75H502.932V163.25H538.182Z" fill="currentColor"/>
+              <path d="M704.863 192.25C663.863 192.25 637.363 164 637.363 123.25C637.363 79 666.613 53 702.363 53C742.613 53 766.363 81.75 765.363 127.75H665.863C667.363 152.25 681.863 169 705.113 169C722.363 169 733.363 161 738.113 146.5H764.863C758.613 174.25 735.113 192.25 704.863 192.25ZM667.363 107.25H736.613C732.863 87.25 721.363 76 702.613 76C684.863 76 671.363 88 667.363 107.25Z" fill="currentColor"/>
+              <path d="M837.383 192.25C800.133 192.25 778.883 177 776.633 149.25H804.383C806.383 162.25 817.383 169.5 836.383 169.5C853.133 169.5 862.883 163 862.883 151C862.883 144.25 858.383 139.5 848.383 137.5L813.383 130.25C792.133 126 779.633 114.25 779.633 95C779.633 71.25 799.633 53 830.633 53C860.633 53 881.133 69 884.383 95.75H857.633C855.633 83.75 844.633 75.75 830.633 75.75C815.633 75.75 806.883 82.75 806.883 92.5C806.883 100.25 812.133 104.5 823.133 106.75L857.633 113.75C879.883 118.25 890.133 130.25 890.133 149.25C890.133 175 868.883 192.25 837.383 192.25Z" fill="currentColor"/>
+              <path d="M906.557 189V56.5H936.057V189H906.557ZM921.557 39.75C910.307 39.75 901.557 30.75 901.557 19.75C901.557 8.5 910.307 0 921.557 0C932.557 0 941.057 8.5 941.057 19.75C941.057 30.75 932.557 39.75 921.557 39.75Z" fill="currentColor"/>
+              <path d="M1019.9 243.5C982.9 243.5 960.15 226 957.4 198.25H985.65C987.4 211 999.9 220.75 1019.65 220.75C1043.65 220.75 1055.9 206.5 1055.9 186.75V166.5C1046.4 179.75 1031.65 187.25 1012.4 187.25C977.65 187.25 953.15 160 953.15 120.75C953.15 80.75 977.65 53 1012.4 53C1031.9 53 1047.65 61.5 1056.65 75.75L1059.15 56.5H1085.15V184.25C1085.15 220.25 1061.4 243.5 1019.9 243.5ZM1018.9 163C1040.4 163 1055.4 145.5 1055.4 120C1055.4 94.75 1040.4 77.25 1018.9 77.25C997.65 77.25 982.9 94.75 982.9 120.5C982.9 145.75 997.65 163 1018.9 163Z" fill="currentColor"/>
+              <path d="M1109.2 189V56.5H1135.2L1137.45 77C1146.95 61.75 1162.7 53 1181.45 53C1209.45 53 1227.7 71.5 1227.7 100.25V189H1198.45V105.75C1198.45 88 1189.2 77.75 1171.7 77.75C1151.95 77.75 1138.45 92.25 1138.45 115V189H1109.2Z" fill="currentColor"/>
+            </svg>
+          </a>
           <button data-underlay-nav-toggle aria-expanded="false" aria-label="open menu" class="underlay-nav__toggle">
             <span class="underlay-nav__toggle-text">
               <span class="underlay-nav__toggle-label">Menu</span>
@@ -123,31 +135,33 @@
     </section>
 
     <section class="eod-cta">
-      <div class="eod-cta__lede" data-eod-reveal="left">
-        I am a
-        <span class="eod-cta__badge" aria-hidden="true" data-eod-cycle="cta-role">
-          <img class="eod-cta__badge-item is-active" src="https://images.unsplash.com/photo-1523294587484-bae6cc870010?w=500&h=700&fit=crop" alt="" />
-          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&h=700&fit=crop" alt="" />
-          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500&h=700&fit=crop" alt="" />
-          <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?w=500&h=700&fit=crop" alt="" />
-        </span>
-      </div>
-      <h2 class="eod-cta__title" data-eod-reveal="right">
-        <span class="eod-cta__word" data-eod-cycle="cta-role">
-          <span class="eod-cta__word-item eod-cta__accent is-active">Motion</span>
-          <span class="eod-cta__word-item eod-cta__accent">Brand</span>
-          <span class="eod-cta__word-item eod-cta__accent">UI/UX</span>
-          <span class="eod-cta__word-item eod-cta__accent">Graphic</span>
-        </span>
-        Design
-      </h2>
-      <div class="eod-cta__row" data-eod-reveal="right" data-eod-reveal-delay="1">
-        <p class="eod-cta__body">Lets have a coffee and talk about what I can be for you, text here longer need</p>
-        <a href="/contact" class="eod-btn eod-btn--dark">
-          <span class="eod-btn__label">Contact me</span>
-          <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-          <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-        </a>
+      <div class="eod-cta__group">
+        <div class="eod-cta__lede" data-eod-reveal="left">
+          I am a
+          <span class="eod-cta__badge" aria-hidden="true" data-eod-cycle="cta-role">
+            <img class="eod-cta__badge-item is-active" src="https://images.unsplash.com/photo-1523294587484-bae6cc870010?w=500&h=700&fit=crop" alt="" />
+            <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500&h=700&fit=crop" alt="" />
+            <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=500&h=700&fit=crop" alt="" />
+            <img class="eod-cta__badge-item" src="https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?w=500&h=700&fit=crop" alt="" />
+          </span>
+        </div>
+        <h2 class="eod-cta__title" data-eod-reveal="right">
+          <span class="eod-cta__word" data-eod-cycle="cta-role">
+            <span class="eod-cta__word-item eod-cta__accent is-active">Motion</span>
+            <span class="eod-cta__word-item eod-cta__accent">Brand</span>
+            <span class="eod-cta__word-item eod-cta__accent">UI/UX</span>
+            <span class="eod-cta__word-item eod-cta__accent">Graphic</span>
+          </span>
+          <span class="eod-cta__suffix">Design</span>
+        </h2>
+        <div class="eod-cta__row" data-eod-reveal="right" data-eod-reveal-delay="1">
+          <p class="eod-cta__body">Lets have a coffee and talk about what I can be for you, text here longer need</p>
+          <a href="/contact" class="eod-btn eod-btn--dark">
+            <span class="eod-btn__label">Contact me</span>
+            <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+            <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -164,16 +178,16 @@
             <a href="#" class="eod-footer__link">LinkedIn</a>
           </div>
         </div>
-        <svg class="eod-footer__logo" data-eod-reveal data-eod-reveal-delay="2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1250 247.922">
-          <path d="M0 192.433V14.2543H125.743V40.7265H30.7994V87.5619H116.325V113.525H30.7994V165.96H128.034V192.433H0Z" fill="currentColor"/>
-          <path d="M186.242 192.433L131.516 57.5261H163.333L201.26 161.379L239.186 57.5261H271.004L216.278 192.433H186.242Z" fill="currentColor"/>
-          <path d="M287.599 245.886V221.959H308.471C319.162 221.959 322.725 218.396 325.78 209.996L329.598 199.305L272.835 57.5261H305.162L344.361 165.706L381.524 57.5261H414.105L351.997 218.905C344.361 238.504 335.452 245.886 312.798 245.886H287.599Z" fill="currentColor"/>
-          <path d="M481.012 192.433V14.2543H550.247C600.391 14.2543 634.5 49.6354 634.5 102.325C634.5 156.033 600.391 192.433 550.247 192.433H481.012ZM547.956 166.215C581.81 166.215 602.682 142.034 602.682 102.325C602.682 63.8896 581.81 40.4719 547.956 40.4719H512.066V166.215H547.956Z" fill="currentColor"/>
-          <path d="M717.665 195.742C675.92 195.742 648.939 166.979 648.939 125.488C648.939 80.4348 678.72 53.9626 715.119 53.9626C756.1 53.9626 780.282 83.2347 779.263 130.07H677.956C679.484 155.015 694.247 172.069 717.919 172.069C735.482 172.069 746.682 163.924 751.518 149.161H778.754C772.391 177.415 748.464 195.742 717.665 195.742ZM679.484 109.198H749.991C746.173 88.8346 734.464 77.3803 715.374 77.3803C697.301 77.3803 683.556 89.5982 679.484 109.198Z" fill="currentColor"/>
-          <path d="M852.591 195.742C814.664 195.742 793.028 180.215 790.738 151.961H818.992C821.028 165.197 832.228 172.578 851.573 172.578C868.627 172.578 878.554 165.96 878.554 153.742C878.554 146.87 873.972 142.034 863.791 139.997L828.155 132.616C806.519 128.288 793.792 116.325 793.792 96.7254C793.792 72.544 814.155 53.9626 845.718 53.9626C876.263 53.9626 897.135 70.2532 900.444 97.489H873.209C871.172 85.271 859.973 77.1257 845.718 77.1257C830.446 77.1257 821.537 84.2529 821.537 94.1799C821.537 102.071 826.882 106.398 838.082 108.689L873.209 115.816C895.863 120.398 906.299 132.616 906.299 151.961C906.299 178.178 884.663 195.742 852.591 195.742Z" fill="currentColor"/>
-          <path d="M923.021 192.433V57.5261H953.057V192.433H923.021ZM938.293 40.4719C926.839 40.4719 917.93 31.3085 917.93 20.1087C917.93 8.65437 926.839 0 938.293 0C949.493 0 958.148 8.65437 958.148 20.1087C958.148 31.3085 949.493 40.4719 938.293 40.4719Z" fill="currentColor"/>
-          <path d="M1038.42 247.922C1000.75 247.922 977.588 230.105 974.788 201.851H1003.55C1005.33 214.832 1018.06 224.759 1038.17 224.759C1062.6 224.759 1075.08 210.25 1075.08 190.142V169.524C1065.4 183.015 1050.39 190.651 1030.79 190.651C995.406 190.651 970.461 162.906 970.461 122.943C970.461 82.2165 995.406 53.9626 1030.79 53.9626C1050.64 53.9626 1066.68 62.6169 1075.84 77.1257L1078.39 57.5261H1104.86V187.596C1104.86 224.25 1080.68 247.922 1038.42 247.922ZM1037.41 165.96C1059.3 165.96 1074.57 148.143 1074.57 122.179C1074.57 96.4708 1059.3 78.653 1037.41 78.653C1015.77 78.653 1000.75 96.4708 1000.75 122.688C1000.75 148.397 1015.77 165.96 1037.41 165.96Z" fill="currentColor"/>
-          <path d="M1129.35 192.433V57.5261H1155.82L1158.11 78.3984C1167.78 62.8715 1183.82 53.9626 1202.91 53.9626C1231.42 53.9626 1250 72.7986 1250 102.071V192.433H1220.22V107.671C1220.22 89.5982 1210.8 79.1621 1192.98 79.1621C1172.87 79.1621 1159.13 93.9254 1159.13 117.089V192.433H1129.35Z" fill="currentColor"/>
+        <svg class="eod-footer__logo" data-eod-reveal data-eod-reveal-delay="2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1228 244">
+          <path d="M0 189V14H123.5V40H30.25V86H114.25V111.5H30.25V163H125.75V189H0Z" fill="currentColor"/>
+          <path d="M182.92 189L129.17 56.5H160.42L197.67 158.5L234.92 56.5H266.17L212.42 189H182.92Z" fill="currentColor"/>
+          <path d="M282.469 241.5V218H302.969C313.469 218 316.969 214.5 319.969 206.25L323.719 195.75L267.969 56.5H299.719L338.219 162.75L374.719 56.5H406.719L345.719 215C338.219 234.25 329.469 241.5 307.219 241.5H282.469Z" fill="currentColor"/>
+          <path d="M472.432 189V14H540.432C589.682 14 623.182 48.75 623.182 100.5C623.182 153.25 589.682 189 540.432 189H472.432ZM538.182 163.25C571.432 163.25 591.932 139.5 591.932 100.5C591.932 62.75 571.432 39.75 538.182 39.75H502.932V163.25H538.182Z" fill="currentColor"/>
+          <path d="M704.863 192.25C663.863 192.25 637.363 164 637.363 123.25C637.363 79 666.613 53 702.363 53C742.613 53 766.363 81.75 765.363 127.75H665.863C667.363 152.25 681.863 169 705.113 169C722.363 169 733.363 161 738.113 146.5H764.863C758.613 174.25 735.113 192.25 704.863 192.25ZM667.363 107.25H736.613C732.863 87.25 721.363 76 702.613 76C684.863 76 671.363 88 667.363 107.25Z" fill="currentColor"/>
+          <path d="M837.383 192.25C800.133 192.25 778.883 177 776.633 149.25H804.383C806.383 162.25 817.383 169.5 836.383 169.5C853.133 169.5 862.883 163 862.883 151C862.883 144.25 858.383 139.5 848.383 137.5L813.383 130.25C792.133 126 779.633 114.25 779.633 95C779.633 71.25 799.633 53 830.633 53C860.633 53 881.133 69 884.383 95.75H857.633C855.633 83.75 844.633 75.75 830.633 75.75C815.633 75.75 806.883 82.75 806.883 92.5C806.883 100.25 812.133 104.5 823.133 106.75L857.633 113.75C879.883 118.25 890.133 130.25 890.133 149.25C890.133 175 868.883 192.25 837.383 192.25Z" fill="currentColor"/>
+          <path d="M906.557 189V56.5H936.057V189H906.557ZM921.557 39.75C910.307 39.75 901.557 30.75 901.557 19.75C901.557 8.5 910.307 0 921.557 0C932.557 0 941.057 8.5 941.057 19.75C941.057 30.75 932.557 39.75 921.557 39.75Z" fill="currentColor"/>
+          <path d="M1019.9 243.5C982.9 243.5 960.15 226 957.4 198.25H985.65C987.4 211 999.9 220.75 1019.65 220.75C1043.65 220.75 1055.9 206.5 1055.9 186.75V166.5C1046.4 179.75 1031.65 187.25 1012.4 187.25C977.65 187.25 953.15 160 953.15 120.75C953.15 80.75 977.65 53 1012.4 53C1031.9 53 1047.65 61.5 1056.65 75.75L1059.15 56.5H1085.15V184.25C1085.15 220.25 1061.4 243.5 1019.9 243.5ZM1018.9 163C1040.4 163 1055.4 145.5 1055.4 120C1055.4 94.75 1040.4 77.25 1018.9 77.25C997.65 77.25 982.9 94.75 982.9 120.5C982.9 145.75 997.65 163 1018.9 163Z" fill="currentColor"/>
+          <path d="M1109.2 189V56.5H1135.2L1137.45 77C1146.95 61.75 1162.7 53 1181.45 53C1209.45 53 1227.7 71.5 1227.7 100.25V189H1198.45V105.75C1198.45 88 1189.2 77.75 1171.7 77.75C1151.95 77.75 1138.45 92.25 1138.45 115V189H1109.2Z" fill="currentColor"/>
         </svg>
       </footer>
       <div class="eod-footer-wrap__dark" data-eod-footer-parallax-dark aria-hidden="true"></div>
@@ -185,6 +199,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
   <script src="test-navigation.js"></script>
-  <script src="script.js?v=11"></script>
+  <script src="script.js?v=23"></script>
 </body>
 </html>

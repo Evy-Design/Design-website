@@ -188,6 +188,16 @@ body.eod-is-scrolling .eod-btn {
   perspective: 75em;
   font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
 }
+/* script.js only ever resizes .eod-hero (via .style.height) once
+   scrolling has gone idle after landing, never while actively
+   scrolling — this transition is what makes that idle-time resize
+   read as a smooth settle instead of a snap. Scoped to .is-landed
+   only, so it never fights the scroll-scrubbed fall/flip/grow phase
+   before that (which has no reason to animate — it's already
+   tracking the scroll position 1:1 every frame). */
+.eod-hero.is-landed {
+  transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
 .eod-hero__stage {
   position: relative; /* NOT sticky — scrolls away normally with the page */
   height: 100svh;
@@ -302,7 +312,21 @@ body.eod-is-scrolling .eod-btn {
   color: var(--eod-muted);
 }
 @media (max-width: 767px) {
+  /* Desktop lays "Have a look" / "at all my work" side by side in one
+     row (space-between). On a narrow screen that crams both phrases
+     into one cramped line fighting the spinning cards for space —
+     stacked top/bottom instead (own reference screenshot), centered
+     horizontally (mobile-only — desktop's own space-between stays
+     left/right, unaffected). height:52% (not 100%) keeps the pair
+     hugging close above/below the card stack itself — the cards sit
+     roughly centered within .eod-hero__stage's own 100svh, so
+     stretching this text to the full height pushed it out to the
+     literal screen edges, far from the cards it's meant to bookend. */
   .eod-hero__heading {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 52%;
     font-size: 2.2em;
   }
   /* Stacked instead of flanking: title above the card, body below.
@@ -344,6 +368,14 @@ body.eod-is-scrolling .eod-btn {
   .eod-hero__intro-body {
     top: calc(var(--eod-card-h, 20em) / 2 + 1.5em);
     align-items: center;
+    /* The shared rule above resets max-width: none (needed so left:0;
+       right:0 can center title/body against the full screen width) —
+       but that let the bio paragraph run edge-to-edge, hurting
+       readability on a wide phone. Capped again here and centered
+       within that full-width box via auto margins. */
+    max-width: 26em;
+    margin-left: auto;
+    margin-right: auto;
     transform: translateY(calc(var(--eod-card-h, 20em) / -2 - 1em));
   }
 }
@@ -449,18 +481,24 @@ body.eod-is-scrolling .eod-btn {
    =========================================================== */
 
 /* ---- Awards ---- */
-/* Top/bottom padding matches .eod-cta's (6em desktop, 3em mobile —
-   same ratio) so the two sections feel like part of one consistent
-   rhythm going down the page. */
+/* min-height + flex-centering follows the same pattern as .eod-cta
+   below (min-height:70svh, column + justify-center) so a short award
+   list never reads as a cramped little strip between two much taller
+   sections — padding alone can't guarantee a floor height the way
+   min-height does when the list itself is short. */
 .eod-awards {
   background: var(--eod-white);
-  padding-top: 6em;
-  padding-bottom: 6em;
+  min-height: 70svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 8em;
+  padding-bottom: 8em;
 }
 @media (max-width: 767px) {
   .eod-awards {
-    padding-top: 3em;
-    padding-bottom: 3em;
+    padding-top: 5em;
+    padding-bottom: 5em;
   }
 }
 .eod-awards__row {
@@ -566,6 +604,12 @@ body.eod-is-scrolling .eod-btn {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /* Centers .eod-cta__group (below) as a shrink-wrapped block within
+     the section — without this, align-items defaults to stretch and
+     the group (a plain block div) just fills the section's full
+     available width, leaving whatever's left over after its own
+     (much narrower) content as empty space stuck on ONE side only. */
+  align-items: center;
   padding-top: 6em;
   padding-bottom: 6em;
   /* 180px at the reference 1280px-wide desktop (14vw ≈ 180px there),
@@ -575,9 +619,14 @@ body.eod-is-scrolling .eod-btn {
      word + "Design", which must never clip — see .eod-cta__word
      below) and would force the whole two-line block to overflow.
      Prioritising the word staying fully readable over the frame
-     keeping an exact 180px margin at every width. */
-  padding-left: clamp(1.25em, 14vw, 11.25rem);
-  padding-right: clamp(1.25em, 14vw, 11.25rem);
+     keeping an exact 180px margin at every width. Promoted to a
+     custom property (not just a literal value here) so
+     .eod-cta__lede/__title's own font-size formula, below, can read
+     it back — see --eod-cta-indent's own comment for why that
+     matters. */
+  --eod-cta-side-padding: clamp(1.25em, 14vw, 11.25rem);
+  padding-left: var(--eod-cta-side-padding);
+  padding-right: var(--eod-cta-side-padding);
   /* Shared indent for .eod-cta__title and .eod-cta__row (below) —
      same formula as .eod-cta__title's own font-size (clamp(2.8em,
      9vw, 8em)) × the 3.5em margin it used to carry directly, just
@@ -618,9 +667,43 @@ body.eod-is-scrolling .eod-btn {
    does break across 3 lines, it isn't a deliberately-stacked
    layout). .eod-cta__title stays nowrap (see below) — that one's a
    single headline, not a sentence. */
+/* Wraps lede + title + row as one unit so .eod-page .eod-cta's
+   align-items: center (above) can centre the WHOLE composition as a
+   block, rather than each line independently stretching to the
+   section's full width and just leaving its own unused space on the
+   right. width: var(--eod-cta-group-width, fit-content) — script.js
+   pins this to the group's own natural width AT THE WIDEST possible
+   cycling word (not whichever one is currently active) once up
+   front (and again on resize), specifically so a plain word swap —
+   which can change .eod-cta__word's own width, see below — never
+   also reflows this group's centred position and drags
+   .eod-cta__lede/the body+button row sideways with it. Only
+   "Design" is meant to visibly move on a swap. fit-content is just
+   the fallback before that JS runs. */
+.eod-cta__group {
+  width: var(--eod-cta-group-width, fit-content);
+  max-width: 100%;
+}
+/* font-size is derived, not a flat vw guess: the old clamp(2.8em,
+   9vw, 8em) let the cycling word + "Design" genuinely run past the
+   viewport edge and get clipped by .eod-page's overflow-x: clip —
+   confirmed at 768px, 1024px AND even a full 1440px desktop (the
+   widest word, "Graphic", overflowed by 56–74px at every one of
+   those). Measuring the real rendered word+"Design" combo showed its
+   width tracks very close to 6.86× the font-size at any size — the
+   calc() below works backwards from that: whatever space is actually
+   left after --eod-cta-side-padding and --eod-cta-indent are taken
+   out of the viewport, divided by that ratio (7.5, not 6.86 — a
+   ~7-9% safety margin so it never sits flush against the edge)
+   IS the largest font-size that's still guaranteed to fit, at any
+   viewport width, by construction — no more re-discovering an
+   overflow at some untested in-between width. The 8em ceiling still
+   applies once the viewport is wide enough (~1500px+, once padding/
+   indent have maxed out their own clamps) that a flat 8em provably
+   fits again. */
 .eod-cta__lede {
   margin: 0;
-  font-size: clamp(2.8em, 9vw, 8em);
+  font-size: clamp(2.8em, calc((100vw - var(--eod-cta-side-padding) - var(--eod-cta-indent)) / 7.5), 8em);
   font-weight: 400;
   line-height: 1.05;
 }
@@ -646,7 +729,16 @@ body.eod-is-scrolling .eod-btn {
   position: relative;
   font-size: inherit;
   width: auto;
-  height: 1em;
+  /* 0.65em, not a full 1em: an em box includes ascender/descender
+     space the letters themselves don't actually use (real cap-height
+     is usually ~70-75% of font-size, and even that read as still a
+     bit tall against the actual glyphs here) — sized to the full em,
+     the badge visibly hung lower than the text's own glyphs, far
+     enough to collide with .eod-cta__title's line right below it
+     (that title's own -0.2em margin-top is a deliberate slight
+     overlap with THIS line, see below — not with the badge
+     specifically). */
+  height: 0.65em;
   aspect-ratio: 200 / 156;
   margin: 0 0.15em;
   border-radius: 0.3em;
@@ -683,36 +775,62 @@ body.eod-is-scrolling .eod-btn {
      so the two lines slightly overlap instead of sitting with a
      clean gap between them. */
   margin: -0.2em 0 1em var(--eod-cta-indent);
-  font-size: clamp(2.8em, 9vw, 8em);
+  /* Same derived formula as .eod-cta__lede above (see its comment) —
+     shared so the two lines stay the same size, per the earlier
+     requirement, and because this is really the element the formula
+     was derived FOR (the widest word + "Design" living here is what
+     was overflowing). */
+  font-size: clamp(2.8em, calc((100vw - var(--eod-cta-side-padding) - var(--eod-cta-indent)) / 7.5), 8em);
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
 }
-/* Word cycler: every candidate word occupies the SAME grid cell, so
-   the container's width is naturally set by the widest one (no jump
-   as it swaps between "Motion" / "Brand" / "UI/UX" / "Graphic").
-   script.js just toggles which one carries .is-active.
-   flex: none + min-width: max-content: without these, this being a
-   flex item inside .eod-cta__title (nowrap) let the flex algorithm
-   shrink it below its own widest-word content size at in-between
-   viewport widths — clipping "Graphic"/"Brand" mid-word instead of
-   ever wrapping or overflowing. The word must always render at its
-   full natural width; see .eod-page .eod-cta's padding below for
-   the other half of making room for that. */
+@media (max-width: 767px) {
+  /* The shared clamp above floors at 2.8em (44.8px) and never shrinks
+     below that no matter how narrow the phone gets — on a 375px-wide
+     screen that floor genuinely doesn't leave enough room for the
+     cycling word's widest candidate ("Graphic") + "Design" side by
+     side (both protected from flex-shrinking so they never squeeze/
+     clip instead — see .eod-cta__word and .eod-cta__suffix below), so
+     the line quietly overflowed the viewport and got cut by
+     .eod-page's own overflow-x: clip. A lower mobile-only floor (2em)
+     lets it keep shrinking all the way down to the smallest common
+     phone width instead of hitting a hard wall. Placed AFTER the base
+     rule above (not just inside a later media query) — same
+     specificity, so source order is what makes this one win. */
+  .eod-cta__lede,
+  .eod-cta__title {
+    font-size: clamp(2em, 10.5vw, 8em);
+  }
+}
+/* Word cycler: every candidate word occupies the SAME grid cell (so
+   the crossfade between e.g. "Motion" and "Graphic" can play out with
+   both briefly overlapping), but the BOX itself now tracks the width
+   of whichever one is actually active — script.js's initCyclers()
+   measures each candidate's natural width once up front and pushes
+   the active one to --eod-cta-word-width on every swap (falling back
+   to max-content before that JS runs). Left-aligned (below) so the
+   word always starts at the exact same x — matching .eod-cta__row's
+   own margin-left: var(--eod-cta-indent) right below it — and
+   "Design" right after is what visibly shifts as the word's width
+   changes, not the other way around.
+   flex: none: without it, being a flex item inside .eod-cta__title
+   (nowrap) let the flex algorithm shrink this below its own natural
+   width at in-between viewport widths — clipping the word mid-word
+   instead of ever wrapping or overflowing. The word must always
+   render at its full natural width; see .eod-page .eod-cta's padding
+   below for the other half of making room for that. */
 .eod-cta__word {
   display: inline-grid;
   flex: none;
-  min-width: max-content;
+  width: var(--eod-cta-word-width, max-content);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   vertical-align: bottom;
   overflow: hidden;
 }
 .eod-cta__word-item {
   grid-area: 1 / 1;
-  /* The box is always sized for the WIDEST word (min-width above),
-     so a shorter one (e.g. "Motion" vs "Graphic") needs to hug the
-     right edge — flush against "Design" right after it — rather
-     than left-align and leave a gap before it. */
-  text-align: right;
+  text-align: left;
   opacity: 0;
   transform: translateY(100%);
   transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
@@ -725,6 +843,14 @@ body.eod-is-scrolling .eod-btn {
 .eod-cta__word-item.is-exit {
   opacity: 0;
   transform: translateY(-100%);
+}
+/* Same flex-shrink protection as .eod-cta__word above, for the same
+   reason: as a plain (default flex-shrink:1) flex item, "Design"
+   could get squeezed narrower than its own text when the row runs
+   short on space — text can't actually compress, so it would just
+   overflow its own shrunk box instead, past the viewport edge. */
+.eod-cta__suffix {
+  flex: none;
 }
 /* Same left indent as .eod-cta__title, and the same right-side
    reveal direction (data-eod-reveal="right" in the HTML) — grouped
@@ -740,7 +866,15 @@ body.eod-is-scrolling .eod-btn {
 .eod-cta__row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* flex-start, not space-between: space-between pushed the button
+     all the way to this row's far edge — which, synced to match the
+     title's own (often much wider) rendered width above, could land
+     the button far past the body text with a lot of dead space
+     between them. flex-start keeps the button right next to the
+     text; the row still doesn't exceed the title's width above, that
+     extra width (if any) just goes unused past the button instead of
+     being spent pushing it away. */
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 1.5em;
   margin-left: var(--eod-cta-indent);
@@ -752,6 +886,18 @@ body.eod-is-scrolling .eod-btn {
   .eod-cta__title,
   .eod-cta__row {
     margin-left: 1.25em;
+  }
+  /* .eod-cta__lede's data-eod-reveal="left" (base rule, applies at
+     every width) slides it in from the left on entry — on mobile
+     it should come from the right instead, same direction as
+     .eod-cta__title/__row right below it. A class+attribute
+     selector (specificity 0,2,0) beats the generic
+     [data-eod-reveal="left"] (0,1,0) regardless of source order, so
+     this doesn't need to touch that shared rule — which
+     .eod-hero__heading's own "Have a look" span also depends on,
+     unaffected here since it isn't .eod-cta__lede. */
+  .eod-cta__lede[data-eod-reveal="left"] {
+    transform: translateX(3em);
   }
 }
 .eod-cta__body {
