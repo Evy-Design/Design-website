@@ -700,6 +700,17 @@
     let hugRefreshTimer = null;
     function applyHugHeight() {
       if (!isLanded || !ejectedItem) return;
+      // NOT skipped on mobile (a flat CSS height was tried here and
+      // reverted): the card doesn't land at a fixed offset from
+      // .eod-hero's own top — it lands wherever the scroll position
+      // happens to be once the fall/flip/grow animation finishes,
+      // which is itself derived from the 220svh scroll-track and so
+      // scales with viewport HEIGHT. A hand-picked flat number was
+      // measured (via a forced real landing) to undershoot by 300px+
+      // — no single constant is correct across phone heights here.
+      // Measuring live and subtracting heroRect.top (below) is what
+      // actually makes this adapt correctly regardless of where
+      // landing happens to occur.
       const title = hero.querySelector(".eod-hero__intro-title");
       const body = hero.querySelector(".eod-hero__intro-body");
       const heroRect = hero.getBoundingClientRect();

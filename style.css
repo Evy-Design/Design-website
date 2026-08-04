@@ -188,13 +188,21 @@ body.eod-is-scrolling .eod-btn {
   perspective: 75em;
   font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
 }
-/* script.js only ever resizes .eod-hero (via .style.height) once
-   scrolling has gone idle after landing, never while actively
-   scrolling — this transition is what makes that idle-time resize
-   read as a smooth settle instead of a snap. Scoped to .is-landed
-   only, so it never fights the scroll-scrubbed fall/flip/grow phase
-   before that (which has no reason to animate — it's already
-   tracking the scroll position 1:1 every frame). */
+/* script.js measures the landed intro text and resizes .eod-hero
+   (via .style.height) to hug it — once scrolling has gone idle after
+   landing, never while actively scrolling. This transition is what
+   makes that idle-time resize read as a smooth settle instead of a
+   snap. Scoped to .is-landed only, so it never fights the
+   scroll-scrubbed fall/flip/grow phase before that (which has no
+   reason to animate — it's already tracking the scroll position 1:1
+   every frame).
+   A flat height for mobile was tried here instead (script.js's own
+   measurement kept tripping over timing edge cases) and reverted —
+   a forced real landing measured the card settling 300px+ lower than
+   any single hand-picked constant accounted for, because the card's
+   landing position isn't a fixed offset from .eod-hero's own top; it
+   scales with viewport height via the 220svh scroll-track. Only a
+   live measurement (script.js) adapts to that correctly. */
 .eod-hero.is-landed {
   transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
