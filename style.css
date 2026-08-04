@@ -349,6 +349,15 @@ body.eod-is-scrolling .eod-btn {
   .eod-hero__intro {
     display: block;
     height: 0;
+    /* Base rule (unscoped) carries left/right: 2.5em, matching the
+       desktop gutter — every OTHER section uses 1.25em on mobile
+       (.eod-page section's own mobile padding), so the bio text sat
+       noticeably narrower/more inset than the rest of the page.
+       Matched here for consistency; title/body's own left:0; right:0
+       (below) is relative to THIS box, so this is the one place that
+       actually needs to change. */
+    left: 1.25em;
+    right: 1.25em;
   }
   .eod-hero__intro-title,
   .eod-hero__intro-body {
@@ -364,6 +373,16 @@ body.eod-is-scrolling .eod-btn {
   }
   .eod-hero__intro-body p {
     font-size: 1.05em;
+    /* Clamped to 3 lines each (of 2 paragraphs) on mobile — the full
+       bio is long enough that it was a major contributor to how much
+       height .eod-hero needs to hug on a narrow screen, and reads as
+       a lot of text to land on right as the card settles in. Ellipsis
+       marks the cut; the full bio is still one tap away via "More
+       about me" below it. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
   }
   /* "From behind the card": each rests just clear of it (bottom/top)
      but starts pulled in further toward that center line — roughly
