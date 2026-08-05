@@ -1,0 +1,301 @@
+/* ===========================================================
+   Evy Diepenbroek — About page
+   Everything shared with Home/Contact (fonts, colours, spacing
+   tokens, .eod-page, .eod-btn, [data-eod-reveal], Awards, CTA,
+   Footer) lives in shared.css, loaded before this file — this one
+   only holds what's unique to the About page: the scroll-driven
+   hero, the design-journey timeline, and the logo tile grid.
+   =========================================================== */
+
+/* ---- Hero: title/photo/body start stacked on top of one another
+   (the photo overlapping the title, per the reference screenshot),
+   then — pinned in place while you scroll — the title slides up and
+   the body (bio + button) slides down/in, the photo settling
+   between them. .eod-about-hero provides the scroll DISTANCE (tall,
+   normal flow); .eod-about-hero__pin is what actually gets pinned
+   (about.js), sized to exactly one viewport so nothing scrolls
+   away half-transitioned. Release is automatic and immediate: the
+   pin (and the scrub tied to it) simply ends when scroll reaches
+   the bottom of this section — no separate "stop" step needed. */
+.eod-about-hero {
+  position: relative;
+  height: 240svh;
+  background: var(--eod-white);
+}
+.eod-about-hero__pin {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.eod-about-hero__title,
+.eod-about-hero__body {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90%, 34em);
+  text-align: center;
+}
+.eod-about-hero__title {
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(2em, 6vw, 4.25em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--eod-ink);
+}
+.eod-about-hero__body {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3em;
+  /* Starting state (about.js sets the scrubbed values; this is just
+     the pre-JS/no-JS fallback so it isn't wrongly visible at rest). */
+  opacity: 0;
+}
+.eod-about-hero__body-title {
+  margin: 0;
+  font-size: clamp(1.6em, 3.2vw, 2.25em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--eod-ink);
+}
+.eod-about-hero__body-text {
+  margin: 0;
+  max-width: 28em;
+  font-size: 1em;
+  font-weight: 300;
+  line-height: 1.55;
+  color: var(--eod-muted);
+}
+.eod-about-hero__photo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: min(62vw, 20em);
+  aspect-ratio: 4 / 5;
+  border-radius: var(--eod-radius);
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+@media (max-width: 767px) {
+  .eod-about-hero {
+    height: 220svh;
+  }
+  .eod-about-hero__photo {
+    width: min(58vw, 16em);
+  }
+}
+
+/* ---- "My Design Journey" timeline ----
+   Desktop/tablet (min-width: 1025px): a horizontal, scroll-scrubbed
+   filmstrip — about.js pins the section and translates .eod-timeline__list
+   sideways as you scroll vertically, while .eod-timeline__line-progress
+   fills in lockstep (both driven by the same scrub, so they can't
+   drift apart). Below that width, this same DOM instead lays out as
+   a plain vertical stack (see the media query at the bottom) — no JS
+   pin/scrub there, since a horizontal drag-scrub reads poorly on a
+   touch device and the reference site itself switches to a vertical
+   list at this width too. */
+.eod-timeline {
+  background: var(--eod-black);
+  color: var(--eod-white);
+  padding-top: 6em;
+  padding-bottom: 6em;
+  overflow: hidden;
+}
+.eod-timeline__heading {
+  margin: 0 0 3.5em;
+  text-align: center;
+  font-size: clamp(2em, 5vw, 3.25em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.eod-timeline__line {
+  position: relative;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  margin-bottom: 3.5em;
+}
+.eod-timeline__line-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  background: var(--eod-accent);
+}
+.eod-timeline__list {
+  display: flex;
+  gap: 4em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: max-content;
+}
+.eod-timeline__item {
+  flex: 0 0 auto;
+  width: 18em;
+}
+.eod-timeline__marker {
+  position: relative;
+  top: -3.7em;
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  margin-bottom: -1.2em;
+  white-space: nowrap;
+}
+.eod-timeline__dot {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 50%;
+  background: var(--eod-white);
+  flex: none;
+}
+.eod-timeline__year {
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.7);
+}
+.eod-timeline__card {
+  margin: 0;
+}
+.eod-timeline__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--eod-radius);
+}
+.eod-timeline__caption {
+  margin: 0.9em 0 0;
+  font-size: 1.05em;
+  font-weight: 400;
+}
+
+@media (max-width: 1024px) {
+  .eod-timeline__line,
+  .eod-timeline__marker {
+    display: none;
+  }
+  .eod-timeline__list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.75em;
+    width: auto;
+  }
+  .eod-timeline__item {
+    position: relative;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    padding-left: 1.75em;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+  }
+  .eod-timeline__item::before {
+    content: "";
+    position: absolute;
+    left: -0.45em;
+    top: 0.3em;
+    width: 0.85em;
+    height: 0.85em;
+    border-radius: 50%;
+    background: var(--eod-accent);
+  }
+  .eod-timeline__item-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .eod-timeline__year {
+    display: block;
+    margin-bottom: 0.3em;
+  }
+  .eod-timeline__caption {
+    margin: 0;
+    font-size: 1.15em;
+  }
+  .eod-timeline__card {
+    flex: none;
+    width: 7em;
+  }
+  .eod-timeline__image {
+    aspect-ratio: 1 / 1;
+  }
+}
+@media (max-width: 767px) {
+  .eod-timeline {
+    padding-top: 4em;
+    padding-bottom: 4em;
+  }
+  .eod-timeline__heading {
+    margin-bottom: 2.5em;
+  }
+  .eod-timeline__card {
+    width: 5.5em;
+  }
+}
+
+/* ---- Logo tile grid ----
+   Static for now (per the brief, the hover/interaction pass on this
+   grid is deferred to later) — a plain responsive grid of square
+   tiles, each holding one currentColor-independent brand mark
+   (simple-icons SVGs render at their own fixed black by default,
+   which reads fine as a quiet monochrome "worked with" strip against
+   the light background here — matching the rest of the site's own
+   black-on-white treatment elsewhere, e.g. Awards/nav). */
+.eod-logos {
+  background: var(--eod-white);
+  padding-top: 6em;
+  padding-bottom: 6em;
+}
+.eod-logos__grid {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: var(--eod-content-max);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--eod-border);
+  border: 1px solid var(--eod-border);
+}
+.eod-logos__tile {
+  aspect-ratio: 3 / 2;
+  background: var(--eod-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5em;
+}
+.eod-logos__tile img {
+  width: 100%;
+  height: 100%;
+  max-width: 3.5em;
+  max-height: 3.5em;
+  object-fit: contain;
+}
+@media (max-width: 767px) {
+  .eod-logos {
+    padding-top: 4em;
+    padding-bottom: 4em;
+  }
+  .eod-logos__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eod-logos__tile {
+    padding: 1.25em;
+  }
+  .eod-logos__tile img {
+    max-width: 2.75em;
+    max-height: 2.75em;
+  }
+}

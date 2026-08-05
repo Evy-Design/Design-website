@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evy Diepenbroek — Design</title>
+  <title>Evy Diepenbroek — About</title>
   <link rel="stylesheet" href="shared.css?v=1" />
   <link rel="stylesheet" href="test-navigation.css?v=5" />
-  <link rel="stylesheet" href="style.css?v=37" />
+  <link rel="stylesheet" href="about.css?v=1" />
   <style>body { margin: 0; }</style>
 </head>
 <body>
@@ -45,9 +45,9 @@
     <nav data-underlay-nav-menu class="underlay-nav__menu">
       <div class="underlay-nav__inner">
         <ul class="underlay-nav__list">
-          <li data-reveal-l><a href="/" class="underlay-nav__link-large w--current"><span class="underlay-nav__link-label">Home</span></a></li>
+          <li data-reveal-l><a href="/" class="underlay-nav__link-large"><span class="underlay-nav__link-label">Home</span></a></li>
           <li data-reveal-l><span class="underlay-nav__link-large is--soon" aria-disabled="true"><span class="underlay-nav__link-label">Projects</span><span class="underlay-nav__soon-badge">Coming soon</span></span></li>
-          <li data-reveal-l><a href="/about" class="underlay-nav__link-large"><span class="underlay-nav__link-label">About</span></a></li>
+          <li data-reveal-l><a href="/about" class="underlay-nav__link-large w--current"><span class="underlay-nav__link-label">About</span></a></li>
           <li data-reveal-l><a href="/contact" class="underlay-nav__link-large"><span class="underlay-nav__link-label">Contact</span></a></li>
         </ul>
         <div class="underlay-nav__bottom">
@@ -77,28 +77,20 @@
   </div>
 
   <main class="eod-page">
-    <section class="eod-hero">
-      <div class="eod-hero__stage">
-        <div class="eod-backdrop"></div>
-        <div class="cards-tornado" data-3d-tornado-init>
-          <div class="cards-tornado__collection">
-            <div class="cards-tornado__list" data-3d-tornado-list></div>
-          </div>
+    <!-- Hero: photo starts overlapping the title; about.js pins this
+         section and, as you scroll, slides the title up and reveals
+         the body (bio + button) below, settling once separated. -->
+    <section class="eod-about-hero" data-eod-about-hero>
+      <div class="eod-about-hero__pin" data-eod-about-hero-pin>
+        <h1 class="eod-about-hero__title" data-eod-about-hero-title>Hi, I&rsquo;m<br />Evy Olivia<br />Diepenbroek.</h1>
+        <div class="eod-about-hero__photo" data-eod-about-hero-photo>
+          <img class="cover-image" src="assets/tornado Images/back-card-image/evy-portrait.jpg" alt="Evy Olivia Diepenbroek" />
         </div>
-      </div>
-      <div class="eod-hero__overlay">
-        <div class="eod-hero__heading">
-          <span data-eod-reveal="left">Have a look</span>
-          <span data-eod-reveal="right">at all my work</span>
-        </div>
-      </div>
-
-      <div class="eod-hero__intro">
-        <h1 class="eod-hero__intro-title">Hi, I&rsquo;m<br />Evy Olivia<br />Diepenbroek</h1>
-        <div class="eod-hero__intro-body">
-          <p>I&rsquo;A Graphic Designer. always chasing what's next. I'm currently a nominated graphic designer with two degrees in the field and over 4 years of agency experience. </p>
-          <a href="/about" class="eod-btn eod-btn--dark">
-            <span class="eod-btn__label">More about me</span>
+        <div class="eod-about-hero__body" data-eod-about-hero-body>
+          <h2 class="eod-about-hero__body-title">Nice to meet you!</h2>
+          <p class="eod-about-hero__body-text">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next &mdash; currently a nominated designer with two degrees in the field and over 4 years of agency experience across motion, brand and UI/UX work.</p>
+          <a href="/projects" class="eod-btn eod-btn--dark">
+            <span class="eod-btn__label">Go to my work</span>
             <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
             <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
           </a>
@@ -106,9 +98,100 @@
       </div>
     </section>
 
+    <!-- Timeline: horizontal scroll-scrub on desktop/tablet, plain
+         vertical list on mobile/small-tablet — see about.css/about.js. -->
+    <section class="eod-timeline" data-eod-timeline>
+      <h2 class="eod-timeline__heading" data-eod-reveal>My Design Journey</h2>
+      <div class="eod-timeline__track" data-eod-timeline-track>
+        <div class="eod-timeline__line">
+          <div class="eod-timeline__line-progress" data-eod-timeline-progress></div>
+        </div>
+        <ul class="eod-timeline__list" data-eod-timeline-list>
+          <li class="eod-timeline__item" data-eod-reveal>
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2024</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2024</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/5.jpg" alt="A magazine spread from a print typography project" />
+                <figcaption class="eod-timeline__caption">Nominated Graphic Designer</figcaption>
+              </figure>
+            </div>
+          </li>
+          <li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="1">
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2023 &ndash; Relaunch</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2023 &ndash; Relaunch</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/8-Cense.jpg" alt="UI screens from the Cense web project" />
+                <figcaption class="eod-timeline__caption">Portfolio Website Redesign</figcaption>
+              </figure>
+            </div>
+          </li>
+          <li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="2">
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2022 &ndash; Award</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2022 &ndash; Award</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/2.jpg" alt="The Girl, Woman, Other Penguin book cover design" />
+                <figcaption class="eod-timeline__caption">The Penguin Cover Design Award</figcaption>
+              </figure>
+            </div>
+          </li>
+          <li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="3">
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2020</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2020</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/4.jpg" alt="Spreads from a design-research graduation publication" />
+                <figcaption class="eod-timeline__caption">Second Design Degree</figcaption>
+              </figure>
+            </div>
+          </li>
+          <li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="4">
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2021</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2021</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/3.jpg" alt="An experimental bold typography poster" />
+                <figcaption class="eod-timeline__caption">Typography Experiments</figcaption>
+              </figure>
+            </div>
+          </li>
+          <li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="5">
+            <div class="eod-timeline__marker">
+              <span class="eod-timeline__dot" aria-hidden="true"></span>
+              <span class="eod-timeline__year">2018</span>
+            </div>
+            <div class="eod-timeline__item-text">
+              <span class="eod-timeline__year">2018</span>
+              <figure class="eod-timeline__card">
+                <img class="eod-timeline__image" src="assets/tornado Images/6.jpg" alt="A hand-drawn illustration sheet" />
+                <figcaption class="eod-timeline__caption">First Illustration Series</figcaption>
+              </figure>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <!-- Awards list is rendered by content.js from window.EOD_CONTENT.awards
-         (see content.js?v=1 below) — edit the text there, not here, so
-         the About page's identical Awards section stays in sync. -->
+         (see content.js?v=1 below) — identical to the Home page section,
+         edit the text there and it updates on both pages at once. -->
     <section class="eod-awards" id="awards">
       <div class="eod-awards__row">
         <h2 class="eod-awards__title" data-eod-reveal>Awards</h2>
@@ -116,9 +199,24 @@
       </div>
     </section>
 
+    <!-- Logo tile grid — static layout for now, the interaction/animation
+         pass on this section is a deferred follow-up. -->
+    <section class="eod-logos">
+      <ul class="eod-logos__grid">
+        <li class="eod-logos__tile" data-eod-reveal><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/webflow.svg" alt="Webflow" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="1"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/microsoft.svg" alt="Microsoft" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="2"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/asana.svg" alt="Asana" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="3"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/medium.svg" alt="Medium" /></li>
+        <li class="eod-logos__tile" data-eod-reveal><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/bluesky.svg" alt="Bluesky" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="1"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/openai.svg" alt="OpenAI" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="2"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/linkedin.svg" alt="LinkedIn" /></li>
+        <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="3"><img src="https://cdn.jsdelivr.net/npm/simple-icons@13/icons/behance.svg" alt="Behance" /></li>
+      </ul>
+    </section>
+
     <!-- Cycling word/badge, suffix and body copy are rendered by
-         content.js from window.EOD_CONTENT.cta — edit the text there,
-         not here, so the About page's identical CTA stays in sync. -->
+         content.js from window.EOD_CONTENT.cta — identical to the
+         Home page section, edit the text there to update both. -->
     <section class="eod-cta">
       <div class="eod-cta__group">
         <div class="eod-cta__lede" data-eod-reveal="left">
@@ -176,5 +274,6 @@
   <script src="test-navigation.js?v=4"></script>
   <script src="content.js?v=1"></script>
   <script src="script.js?v=26"></script>
+  <script src="about.js?v=2"></script>
 </body>
 </html>

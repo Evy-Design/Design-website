@@ -1,29 +1,5 @@
-/* PP Mori — same font as the Home page's style.css, duplicated here
-   because this file loads site-wide (every page) while style.css is
-   scoped to just the Home embed. Point these url()s at wherever the
-   3 .woff2 files (fonts/PPMori-Extralight/Regular/Semibold.woff2)
-   end up hosted — same files, same values, in both places. */
-@font-face {
-  font-family: "PP Mori";
-  src: url("fonts/PPMori-Extralight.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "PP Mori";
-  src: url("fonts/PPMori-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "PP Mori";
-  src: url("fonts/PPMori-Semibold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
+/* PP Mori @font-face now lives in shared.css (loaded site-wide,
+   before this file, on every page) — no longer duplicated here. */
 
 :root {
   --menu-width: 30em;
