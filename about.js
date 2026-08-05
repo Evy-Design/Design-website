@@ -210,11 +210,13 @@
       group.add(heading);
       meshes.heading = heading;
 
-      // Bio — lede (right-aligned, flanking the photo's LEFT) and
-      // detail (left-aligned, flanking the photo's RIGHT), rendered as
-      // one simultaneous flanking pair — matches the reference's own
-      // leftText/rightText chapter structure (confirmed straight from
-      // their JS bundle), not a sequential per-paragraph reveal.
+      // Bio — lede (right-aligned, flanking the photo's LEFT) and TWO
+      // separate detail paragraphs, stacked in the right column. Each
+      // of these 3 blocks is its OWN mesh with its OWN push timing
+      // (see update() below) — genuinely one at a time as the photo
+      // descends, not one combined "block" moving together (confirmed
+      // against the reference by watching it directly: each paragraph
+      // reacts in its own turn, not simultaneously).
       var colMaxW = isNarrow ? Math.min(vw * 0.86, 30 * 16) : Math.min(vw * 0.34, 26 * 16);
       var ledeFontStr = "400 " + ledeFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
       var detailFontStr = "300 " + detailFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
@@ -224,16 +226,16 @@
       group.add(lede);
       meshes.lede = lede;
 
-      var detailText = "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.\n\nI have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.";
-      var detailParas = detailText.split("\n\n");
-      var detailLines = [];
-      for (var dp = 0; dp < detailParas.length; dp++) {
-        if (dp > 0) detailLines.push("");
-        detailLines = detailLines.concat(wrapWords(measureCtx, detailParas[dp], detailFontStr, colMaxW));
-      }
-      var detail = makeTextMesh(detailLines, detailFontStr, detailFont * 1.6, "#6b6b6b", isNarrow ? "center" : "left");
-      group.add(detail);
-      meshes.detail = detail;
+      var detailPara1 = "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.";
+      var detailPara2 = "I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.";
+      var detail1Lines = wrapWords(measureCtx, detailPara1, detailFontStr, colMaxW);
+      var detail2Lines = wrapWords(measureCtx, detailPara2, detailFontStr, colMaxW);
+      var detail1 = makeTextMesh(detail1Lines, detailFontStr, detailFont * 1.6, "#6b6b6b", isNarrow ? "center" : "left");
+      var detail2 = makeTextMesh(detail2Lines, detailFontStr, detailFont * 1.6, "#6b6b6b", isNarrow ? "center" : "left");
+      group.add(detail1);
+      group.add(detail2);
+      meshes.detail1 = detail1;
+      meshes.detail2 = detail2;
 
       var photo = makePhotoMesh(portraitImg, photoW, photoH, radius);
       group.add(photo);
@@ -245,9 +247,11 @@
       // header comment). ----
       var headingWorldY = 0; // dead centre of the viewport, unscrolled
       var gapBig = clampPx(3 * 16, 0.08, 7 * 16);
+      var detailGap = detailFont * 1.2;
+      var detailColH = detail1.userData.h + detailGap + detail2.userData.h;
       var bioRowH = isNarrow
-        ? lede.userData.h + 24 + detail.userData.h
-        : Math.max(lede.userData.h, detail.userData.h);
+        ? lede.userData.h + 24 + detailColH
+        : Math.max(lede.userData.h, detailColH);
       // Directly below the heading in screen space — heading's own
       // bottom edge, plus a gap, plus half the row's own height lands
       // on the row's centre.
@@ -256,12 +260,16 @@
 
       heading.position.set(0, headingWorldY, TEXT_Z);
       if (isNarrow) {
-        var half = bioRowH / 2;
-        lede.position.set(0, bioWorldY + half - lede.userData.h / 2, TEXT_Z);
-        detail.position.set(0, bioWorldY - half + detail.userData.h / 2, TEXT_Z);
+        var y0 = bioWorldY + bioRowH / 2;
+        lede.position.set(0, y0 - lede.userData.h / 2, TEXT_Z);
+        y0 -= lede.userData.h + 24;
+        detail1.position.set(0, y0 - detail1.userData.h / 2, TEXT_Z);
+        y0 -= detail1.userData.h + detailGap;
+        detail2.position.set(0, y0 - detail2.userData.h / 2, TEXT_Z);
       } else {
         lede.position.set(0, bioWorldY, TEXT_Z);
-        detail.position.set(0, bioWorldY, TEXT_Z);
+        detail1.position.set(0, bioWorldY + detailColH / 2 - detail1.userData.h / 2, TEXT_Z);
+        detail2.position.set(0, bioWorldY - detailColH / 2 + detail2.userData.h / 2, TEXT_Z);
       }
 
       // Photo travels straight down from overlapping the heading to a
@@ -271,7 +279,12 @@
       var photoStartY = headingWorldY;
       var photoTargetY = bioTopWorldY - photoH / 2;
       var ledeRestX = isNarrow ? 0 : -(photoW / 2 + GAP_PX) - lede.userData.w / 2;
-      var detailRestX = isNarrow ? 0 : (photoW / 2 + GAP_PX) + detail.userData.w / 2;
+      // Same LEFT edge for both right-column paragraphs (their own
+      // widths differ, so their centres — what position.x actually
+      // sets — don't, but the column still reads as flush-left).
+      var detailLeftEdge = photoW / 2 + GAP_PX;
+      var detail1RestX = isNarrow ? 0 : detailLeftEdge + detail1.userData.w / 2;
+      var detail2RestX = isNarrow ? 0 : detailLeftEdge + detail2.userData.w / 2;
 
       // Fixed scroll room for the descent + push to read as a real
       // scrub, not an instant snap — not derived from content height
@@ -282,13 +295,25 @@
       meshes._photoStartY = photoStartY;
       meshes._photoTargetY = photoTargetY;
       meshes._ledeRestX = ledeRestX;
-      meshes._detailRestX = detailRestX;
+      meshes._detail1RestX = detail1RestX;
+      meshes._detail2RestX = detail2RestX;
 
       update();
     }
 
     function easeInOutCubic(t) {
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    // Starts from PUSH_FROM (already mostly separated, still legible),
+    // not from 0/overlapping — two paragraphs stacked dead-centre on
+    // top of each other just reads as illegible noise; the "push"
+    // only needs to read as the photo nudging each one the rest of
+    // the way into place, not a full entrance.
+    var PUSH_FROM = 0.7;
+    function pushAmount(t, tStart, tEnd) {
+      var p = Math.min(Math.max((t - tStart) / (tEnd - tStart), 0), 1);
+      return PUSH_FROM + (1 - PUSH_FROM) * easeInOutCubic(p);
     }
 
     function update() {
@@ -300,13 +325,13 @@
       var photoT = easeInOutCubic(t);
       meshes.photo.position.y = meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT;
 
-      // The push only kicks in once the photo's descent is mostly
-      // done — it's the photo ARRIVING that displaces the text, not
-      // something that starts the instant you begin scrolling.
-      var pushT = Math.min(Math.max((t - 0.45) / 0.55, 0), 1);
-      pushT = easeInOutCubic(pushT);
-      meshes.lede.position.x = meshes._ledeRestX * pushT;
-      meshes.detail.position.x = meshes._detailRestX * pushT;
+      // Three separate, staggered windows across the SAME descent —
+      // lede reacts first (photo still well above), then the first
+      // detail paragraph, then the second, finishing right as the
+      // photo itself arrives. One paragraph at a time, not a block.
+      meshes.lede.position.x = meshes._ledeRestX * pushAmount(t, 0.25, 0.5);
+      meshes.detail1.position.x = meshes._detail1RestX * pushAmount(t, 0.5, 0.75);
+      meshes.detail2.position.x = meshes._detail2RestX * pushAmount(t, 0.75, 1);
 
       renderer.render(scene, camera);
     }
