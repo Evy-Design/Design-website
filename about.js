@@ -210,32 +210,45 @@
       group.add(heading);
       meshes.heading = heading;
 
-      // Bio — lede (right-aligned, flanking the photo's LEFT) and TWO
-      // separate detail paragraphs, stacked in the right column. Each
-      // of these 3 blocks is its OWN mesh with its OWN push timing
-      // (see update() below) — genuinely one at a time as the photo
-      // descends, not one combined "block" moving together (confirmed
-      // against the reference by watching it directly: each paragraph
-      // reacts in its own turn, not simultaneously).
+      // Bio — every WRAPPED LINE (lede's, then both detail paragraphs')
+      // is its OWN independent mesh with its OWN push timing (see
+      // update() below), cascading one line at a time as the photo
+      // descends. The wrapping itself (wrapWords) still runs fresh on
+      // every build() — which reruns on resize — so this stays correct
+      // at any viewport width: it's the per-line MESH that's dynamic,
+      // never a hand-picked line break baked into the copy. Hard-
+      // splitting the text into "one sentence per line" instead would
+      // only be right at the exact width it was tuned for; wrap it at
+      // a narrower one and every line's content shifts, breaking the
+      // line-to-animation mapping entirely — this is why it has to
+      // be "wrap first, then animate whatever that produced," not
+      // the other way round.
       var colMaxW = isNarrow ? Math.min(vw * 0.86, 30 * 16) : Math.min(vw * 0.34, 26 * 16);
       var ledeFontStr = "400 " + ledeFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
       var detailFontStr = "300 " + detailFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
+      var ledeLineH = ledeFont * 1.5;
+      var detailLineH = detailFont * 1.6;
+      var ledeAlign = isNarrow ? "center" : "right";
+      var detailAlign = isNarrow ? "center" : "left";
 
-      var ledeLines = wrapWords(measureCtx, "I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.", ledeFontStr, colMaxW);
-      var lede = makeTextMesh(ledeLines, ledeFontStr, ledeFont * 1.5, "#1a1a1a", isNarrow ? "center" : "right");
-      group.add(lede);
-      meshes.lede = lede;
-
+      var ledeText = "I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.";
       var detailPara1 = "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.";
       var detailPara2 = "I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.";
-      var detail1Lines = wrapWords(measureCtx, detailPara1, detailFontStr, colMaxW);
-      var detail2Lines = wrapWords(measureCtx, detailPara2, detailFontStr, colMaxW);
-      var detail1 = makeTextMesh(detail1Lines, detailFontStr, detailFont * 1.6, "#6b6b6b", isNarrow ? "center" : "left");
-      var detail2 = makeTextMesh(detail2Lines, detailFontStr, detailFont * 1.6, "#6b6b6b", isNarrow ? "center" : "left");
-      group.add(detail1);
-      group.add(detail2);
-      meshes.detail1 = detail1;
-      meshes.detail2 = detail2;
+
+      function makeLineMeshes(text, font, lineH, color, align) {
+        return wrapWords(measureCtx, text, font, colMaxW).map(function (line) {
+          var m = makeTextMesh([line], font, lineH, color, align);
+          group.add(m);
+          return m;
+        });
+      }
+
+      var ledeLineMeshes = makeLineMeshes(ledeText, ledeFontStr, ledeLineH, "#1a1a1a", ledeAlign);
+      var detail1LineMeshes = makeLineMeshes(detailPara1, detailFontStr, detailLineH, "#6b6b6b", detailAlign);
+      var detail2LineMeshes = makeLineMeshes(detailPara2, detailFontStr, detailLineH, "#6b6b6b", detailAlign);
+      meshes.ledeLines = ledeLineMeshes;
+      meshes.detail1Lines = detail1LineMeshes;
+      meshes.detail2Lines = detail2LineMeshes;
 
       var photo = makePhotoMesh(portraitImg, photoW, photoH, radius);
       group.add(photo);
@@ -248,10 +261,9 @@
       var headingWorldY = 0; // dead centre of the viewport, unscrolled
       var gapBig = clampPx(3 * 16, 0.08, 7 * 16);
       var detailGap = detailFont * 1.2;
-      var detailColH = detail1.userData.h + detailGap + detail2.userData.h;
-      var bioRowH = isNarrow
-        ? lede.userData.h + 24 + detailColH
-        : Math.max(lede.userData.h, detailColH);
+      var ledeH = ledeLineMeshes.length * ledeLineH;
+      var detailColH = detail1LineMeshes.length * detailLineH + detailGap + detail2LineMeshes.length * detailLineH;
+      var bioRowH = isNarrow ? (ledeH + 24 + detailColH) : Math.max(ledeH, detailColH);
       // Directly below the heading in screen space — heading's own
       // bottom edge, plus a gap, plus half the row's own height lands
       // on the row's centre.
@@ -259,44 +271,68 @@
       var bioTopWorldY = bioWorldY + bioRowH / 2;
 
       heading.position.set(0, headingWorldY, TEXT_Z);
+
+      // Stacks one column's line meshes top-to-bottom starting at
+      // `topY`. Returns per-line {mesh, width, align, edge} — NOT a
+      // precomputed rest position: each line's own alignment (right
+      // for lede, left for detail) is anchored to the column's shared
+      // edge, and that edge is what actually animates (see update()).
+      // Scaling each line's already-offset CENTRE by the push amount
+      // instead (an earlier version of this did exactly that) breaks
+      // alignment mid-transition — different-width lines land at
+      // different fractional offsets from their own edge, so the
+      // column reads as a ragged mess instead of a straight edge that
+      // just grows/shrinks its margin. Deriving x fresh from a single
+      // shared edge value every frame is what keeps it a straight
+      // edge at every point along the animation, not just at the
+      // very start and very end.
+      function layoutColumn(lineMeshes, lineH, topY, align, sharedEdgeX) {
+        var y = topY - lineH / 2;
+        var items = [];
+        lineMeshes.forEach(function (m) {
+          m.position.set(0, y, TEXT_Z);
+          items.push({ mesh: m, width: m.userData.w, align: align, edge: isNarrow ? 0 : sharedEdgeX });
+          y -= lineH;
+        });
+        return items;
+      }
+
+      var detailLeftEdge = photoW / 2 + GAP_PX;
+      var ledeRightEdge = -(photoW / 2 + GAP_PX);
+      var ledeItems, detail1Items, detail2Items;
       if (isNarrow) {
         var y0 = bioWorldY + bioRowH / 2;
-        lede.position.set(0, y0 - lede.userData.h / 2, TEXT_Z);
-        y0 -= lede.userData.h + 24;
-        detail1.position.set(0, y0 - detail1.userData.h / 2, TEXT_Z);
-        y0 -= detail1.userData.h + detailGap;
-        detail2.position.set(0, y0 - detail2.userData.h / 2, TEXT_Z);
+        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, y0, "center", 0);
+        y0 -= ledeH + 24;
+        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, y0, "center", 0);
+        y0 -= detail1LineMeshes.length * detailLineH + detailGap;
+        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, y0, "center", 0);
       } else {
-        lede.position.set(0, bioWorldY, TEXT_Z);
-        detail1.position.set(0, bioWorldY + detailColH / 2 - detail1.userData.h / 2, TEXT_Z);
-        detail2.position.set(0, bioWorldY - detailColH / 2 + detail2.userData.h / 2, TEXT_Z);
+        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, bioWorldY + ledeH / 2, "right", ledeRightEdge);
+        var detailTop = bioWorldY + detailColH / 2;
+        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTop, "left", detailLeftEdge);
+        var detail2Top = detailTop - (detail1LineMeshes.length * detailLineH + detailGap);
+        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, detail2Top, "left", detailLeftEdge);
       }
 
       // Photo travels straight down from overlapping the heading to a
       // rest spot beside the bio row, its own TOP edge landing level
       // with the bio row's top edge — "stops so the text and the
       // photo are both aligned at the top", per the brief.
-      var photoStartY = headingWorldY;
-      var photoTargetY = bioTopWorldY - photoH / 2;
-      var ledeRestX = isNarrow ? 0 : -(photoW / 2 + GAP_PX) - lede.userData.w / 2;
-      // Same LEFT edge for both right-column paragraphs (their own
-      // widths differ, so their centres — what position.x actually
-      // sets — don't, but the column still reads as flush-left).
-      var detailLeftEdge = photoW / 2 + GAP_PX;
-      var detail1RestX = isNarrow ? 0 : detailLeftEdge + detail1.userData.w / 2;
-      var detail2RestX = isNarrow ? 0 : detailLeftEdge + detail2.userData.w / 2;
+      meshes._photoStartY = headingWorldY;
+      meshes._photoTargetY = bioTopWorldY - photoH / 2;
+
+      // One combined, ordered sequence for staggering: lede's lines,
+      // then detail paragraph 1's, then detail paragraph 2's — plain
+      // reading order, each line its own animated step.
+      meshes._lineItems = ledeItems.concat(detail1Items, detail2Items);
+      meshes._lineWindows = distributeWindows(meshes._lineItems.length, 0.25, 1);
 
       // Fixed scroll room for the descent + push to read as a real
       // scrub, not an instant snap — not derived from content height
-      // anymore, since nothing else here actually scrolls.
+      // anymore, since nothing here actually scrolls.
       maxScrollPx = Math.max(1, vh * 0.9);
       wrap.style.height = (maxScrollPx + vh) + "px";
-
-      meshes._photoStartY = photoStartY;
-      meshes._photoTargetY = photoTargetY;
-      meshes._ledeRestX = ledeRestX;
-      meshes._detail1RestX = detail1RestX;
-      meshes._detail2RestX = detail2RestX;
 
       update();
     }
@@ -305,11 +341,30 @@
       return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
 
+    // Splits [rangeStart, rangeEnd] into `count` overlapping windows,
+    // evenly spaced by their END points (so the very last one ends
+    // exactly at rangeEnd — otherwise the last few lines would still
+    // be mid-push when the scroll room runs out, instead of having
+    // settled like everything else). Overlap between consecutive
+    // windows is what makes the cascade read as smooth/continuous
+    // rather than a rigid one-then-the-next-then-the-next step.
+    function distributeWindows(count, rangeStart, rangeEnd) {
+      if (count <= 0) return [];
+      var step = (rangeEnd - rangeStart) / count;
+      var windowW = Math.min(step * 2.2, rangeEnd - rangeStart);
+      var windows = [];
+      for (var i = 0; i < count; i++) {
+        var e = rangeStart + (i + 1) * step;
+        windows.push([Math.max(rangeStart, e - windowW), e]);
+      }
+      return windows;
+    }
+
     // Starts from PUSH_FROM (already mostly separated, still legible),
-    // not from 0/overlapping — two paragraphs stacked dead-centre on
-    // top of each other just reads as illegible noise; the "push"
-    // only needs to read as the photo nudging each one the rest of
-    // the way into place, not a full entrance.
+    // not from 0/overlapping — every line stacked dead-centre on top
+    // of every other just reads as illegible noise; the "push" only
+    // needs to read as the photo nudging each one the rest of the way
+    // into place, not a full entrance.
     var PUSH_FROM = 0.7;
     function pushAmount(t, tStart, tEnd) {
       var p = Math.min(Math.max((t - tStart) / (tEnd - tStart), 0), 1);
@@ -325,13 +380,22 @@
       var photoT = easeInOutCubic(t);
       meshes.photo.position.y = meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT;
 
-      // Three separate, staggered windows across the SAME descent —
-      // lede reacts first (photo still well above), then the first
-      // detail paragraph, then the second, finishing right as the
-      // photo itself arrives. One paragraph at a time, not a block.
-      meshes.lede.position.x = meshes._ledeRestX * pushAmount(t, 0.25, 0.5);
-      meshes.detail1.position.x = meshes._detail1RestX * pushAmount(t, 0.5, 0.75);
-      meshes.detail2.position.x = meshes._detail2RestX * pushAmount(t, 0.75, 1);
+      var items = meshes._lineItems;
+      var windows = meshes._lineWindows;
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        if (item.align === "center") {
+          item.mesh.position.x = 0;
+          continue;
+        }
+        // Scale the shared EDGE, not this line's own centre — every
+        // line derives its x fresh from that one edge value each
+        // frame, which is what keeps the column's edge straight at
+        // every point in the animation (see the comment on
+        // layoutColumn above).
+        var edgeNow = item.edge * pushAmount(t, windows[i][0], windows[i][1]);
+        item.mesh.position.x = item.align === "right" ? edgeNow - item.width / 2 : edgeNow + item.width / 2;
+      }
 
       renderer.render(scene, camera);
     }
