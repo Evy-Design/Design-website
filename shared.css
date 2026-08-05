@@ -229,12 +229,12 @@ body.eod-is-scrolling .eod-btn {
    min-height does when the list itself is short. */
 .eod-awards {
   background: var(--eod-white);
-  min-height: 70svh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: 8em;
-  padding-bottom: 8em;
+  padding-top: 10em;
+  padding-bottom: 10em;
 }
 @media (max-width: 767px) {
   .eod-awards {
