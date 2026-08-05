@@ -94,6 +94,22 @@ body.eod-is-scrolling .eod-btn {
   pointer-events: none;
 }
 
+/* Standard sr-only utility — visually hidden but still in normal
+   layout flow (so screen readers, search engines, and "find on page"
+   all still see it), for content whose VISUAL rendering happens some
+   other way (e.g. the About hero's canvas-rendered text, about.js). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* Three parts, two of them fixed in place: an accent-blue circle at
    the very left and a white-outlined circle at the very right never
    move — only the black label between them slides. At rest, the

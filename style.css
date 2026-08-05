@@ -39,7 +39,7 @@
   height: 220svh;
   background: var(--eod-black);
   perspective: 75em;
-  font-family: "PP Mori", "Helvetica Neue", Arial, sans-serif;
+  /* font-family not redeclared here: inherited from .eod-page (shared.css) — .eod-hero is a descendant of it. */
 }
 /* script.js measures the landed intro text and resizes .eod-hero
    (via .style.height) to hug it — once scrolling has gone idle after

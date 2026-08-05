@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — About</title>
-  <link rel="stylesheet" href="shared.css?v=1" />
+  <link rel="stylesheet" href="shared.css?v=2" />
   <link rel="stylesheet" href="test-navigation.css?v=5" />
-  <link rel="stylesheet" href="about.css?v=11" />
+  <link rel="stylesheet" href="about.css?v=12" />
   <style>body { margin: 0; }</style>
 </head>
 <body>
@@ -77,46 +77,37 @@
   </div>
 
   <main class="eod-page">
-    <!-- Hero — matches gionatannese.com/about's own hero mechanic
-         (confirmed by actually scrubbing through it): the photo card
-         stays put while the TEXT scrolls up past it — that's the
-         "text gets pushed/scrolled" effect, not the photo moving.
-         Native position: sticky, not a GSAP pin: .eod-about-hero__photo
-         and .eod-about-hero__text share the same grid cell (stacked),
-         so the text column's own height (heading + bio) is what gives
-         the sticky photo room to travel — the photo stays fixed in
-         the viewport (top: 50vh) for that entire scroll range, with
-         the text (both the heading AND the bio paragraphs, per the
-         brief) scrolling normally behind/through it the whole way,
-         same z-index layering as the reference's own model-over-text.
-         It only releases once the text column runs out, which is the
-         "stop" — nothing further to pin against. -->
+    <!-- Hero — matches gionatannese.com/about's own hero mechanic. This
+         one turned out to be a genuine WebGL scene on their end (found
+         by pulling their actual JS bundle: it uses THREE.WebGLRenderer,
+         with every piece of text rasterised onto a canvas texture and
+         mapped onto a 3D plane in the SAME scene as their pinned 3D
+         object) — that's how their text can pass behind/through the
+         object with real depth, not a CSS trick. Reproduced the same
+         way here (about.js, initHeroScene()): the photo and every text
+         block (heading, lede, the two detail paragraphs) are all
+         textured planes in one Three.js scene, photo rendered on top.
+         The photo's own screen position never changes; every text
+         plane's Y position is offset by how far you've scrolled, same
+         as normal page content — so text genuinely scrolls up and
+         passes behind the fixed photo, instead of the photo moving.
+         Real semantic markup below (sr-only) carries the actual content
+         for accessibility/SEO — the reference site does exactly this
+         too (their own about page has a matching sr-only section in
+         its source). The canvas is position: sticky inside a tall
+         wrapper (about.css) for the pin/release, same proven pattern
+         used elsewhere on this site — release is automatic once the
+         wrapper's own height runs out. -->
     <section class="eod-about-hero" data-eod-about-hero>
-      <div class="eod-about-hero__stack">
-        <div class="eod-about-hero__photo-wrap">
-          <div class="eod-about-hero__photo">
-            <img class="cover-image" src="assets/tornado Images/back-card-image/evy-portrait.jpg" alt="Evy Olivia Diepenbroek" />
-          </div>
-        </div>
-        <div class="eod-about-hero__text">
-          <h1 class="eod-about-hero__heading">Hi, I&rsquo;m Evy Olivia<br />Diepenbroek. Nice<br />to meet you!</h1>
-          <div class="eod-about-hero__bio">
-            <!-- No data-eod-reveal here: that system's own CSS-transition
-                 transform would fight about.js's GSAP-driven x push over
-                 the same `transform` property — the push itself is the
-                 reveal moment for these paragraphs. The detail column is
-                 offset lower than the lede (about.css) so the two don't
-                 arrive at the sticky photo at the same time — each of the
-                 3 paragraphs gets its own scroll trigger and pushes in
-                 turn, one at a time, not together. -->
-            <p class="eod-about-hero__bio-lede" data-eod-bio-para data-eod-bio-push="left">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next. I&rsquo;m driven by new challenges and staying ahead of trends, and I&rsquo;m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.</p>
-            <div class="eod-about-hero__bio-detail">
-              <p data-eod-bio-para data-eod-bio-push="right">I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor&rsquo;s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.</p>
-              <p data-eod-bio-para data-eod-bio-push="right">I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I&rsquo;ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.</p>
-            </div>
-          </div>
-        </div>
+      <h1 class="sr-only">Hi, I&rsquo;m Evy Olivia Diepenbroek. Nice to meet you!</h1>
+      <p class="sr-only">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next. I&rsquo;m driven by new challenges and staying ahead of trends, and I&rsquo;m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.</p>
+      <p class="sr-only">I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor&rsquo;s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.</p>
+      <p class="sr-only">I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I&rsquo;ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.</p>
+
+      <div class="eod-about-hero__canvas-wrap" data-eod-hero-canvas-wrap>
+        <canvas class="eod-about-hero__canvas" data-eod-hero-canvas aria-hidden="true"></canvas>
       </div>
+
       <div class="eod-about-hero__cta" data-eod-reveal>
         <a href="/projects" class="eod-btn eod-btn--dark">
           <span class="eod-btn__label">Go to my work</span>
@@ -218,7 +209,7 @@
     </section>
 
     <!-- Awards list is rendered by content.js from window.EOD_CONTENT.awards
-         (see content.js?v=1 below) — identical to the Home page section,
+         (see content.js below) — identical to the Home page section,
          edit the text there and it updates on both pages at once. -->
     <section class="eod-awards" id="awards">
       <div class="eod-awards__row">
@@ -299,9 +290,14 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <!-- Three.js — only used by the hero scene (about.js's initHeroScene),
+       matching the actual technique the reference site uses there (see
+       the comment on .eod-about-hero above). Not used anywhere else on
+       the site — every other page/section is plain DOM + CSS + GSAP. -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="test-navigation.js?v=4"></script>
-  <script src="content.js?v=1"></script>
+  <script src="content.js?v=2"></script>
   <script src="script.js?v=26"></script>
-  <script src="about.js?v=12"></script>
+  <script src="about.js?v=15"></script>
 </body>
 </html>
