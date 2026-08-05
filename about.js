@@ -23,19 +23,22 @@
    block at screen position X" arithmetic direct instead of needing a
    separate DOM-coordinate conversion step every time.
 
-   Scroll linking is the same trick as normal page content, just done
-   by hand: every text mesh has a fixed "document" Y position (as if
-   this were an ordinary tall page — computed once in layout()), and
-   each frame its actual on-screen Y is that document position minus
-   however far the wrapper has scrolled — exactly what native scroll
-   does to real DOM text. The photo's mesh position is simply never
-   touched by that offset, so it stays put on screen the whole time,
-   full stop — nothing extra needed to make it "sticky" inside the
-   scene itself (position: sticky on the <canvas> element, about.css,
-   handles pinning/releasing the whole scene at the right moments).
-   Real semantic markup (the sr-only block right before the canvas in
-   about.html) carries the actual content for accessibility/SEO —
-   the reference's own about page does exactly the same thing. */
+   The mechanic (per the brief, drawn out frame by frame): the HEADING
+   and the BIO ROW (lede + detail) each sit at their own fixed screen
+   position and never move — what moves is the PHOTO, travelling
+   straight down from overlapping the heading to a resting spot beside
+   the bio, its own TOP edge landing level with the bio row's top edge.
+   As it arrives, it's what pushes lede further left and detail
+   further right, clearing itself a gap to settle into — not the text
+   scrolling past a fixed photo, the photo's own downward travel is
+   what displaces the text. Everything is driven by a single 0→1
+   scroll progress (t) across the pin range, so the photo's descent
+   and the text's push both finish exactly as the wrapper's own scroll
+   room runs out — that's the "stop", automatic, nothing left to
+   drive past that point. Real semantic markup (the sr-only block
+   right before the canvas in about.html) carries the actual content
+   for accessibility/SEO — the reference's own about page does exactly
+   the same thing. */
 (function () {
   function initHeroScene() {
     var section = document.querySelector("[data-eod-about-hero]");
@@ -236,59 +239,74 @@
       group.add(photo);
       meshes.photo = photo;
 
-      // ---- layout: a fixed "document" Y per block, top-down, exactly
-      // like normal page content — see the file header comment. ----
-      var docY = {};
-      docY.heading = vh / 2; // centred in the first screen, unscrolled
-      var afterHeading = docY.heading + heading.userData.h / 2;
-      var gapBig = clampPx(8 * 16, 0.22, 20 * 16);
+      // ---- layout: heading and the bio row each sit at a fixed
+      // screen position, computed once here and never touched by
+      // scroll again — only the photo actually moves (see the file
+      // header comment). ----
+      var headingWorldY = 0; // dead centre of the viewport, unscrolled
+      var gapBig = clampPx(3 * 16, 0.08, 7 * 16);
       var bioRowH = isNarrow
         ? lede.userData.h + 24 + detail.userData.h
         : Math.max(lede.userData.h, detail.userData.h);
-      docY.bio = afterHeading + gapBig + bioRowH / 2;
+      // Directly below the heading in screen space — heading's own
+      // bottom edge, plus a gap, plus half the row's own height lands
+      // on the row's centre.
+      var bioWorldY = headingWorldY - heading.userData.h / 2 - gapBig - bioRowH / 2;
+      var bioTopWorldY = bioWorldY + bioRowH / 2;
 
-      var afterBio = docY.bio + bioRowH / 2;
-      var bottomBuffer = clampPx(8 * 16, 0.1, 14 * 16);
-      maxScrollPx = Math.max(0, afterBio + bottomBuffer - vh / 2);
-
-      wrap.style.height = (maxScrollPx + vh) + "px";
-
-      // Static X positions (only Y moves with scroll).
-      heading.position.set(0, 0, TEXT_Z);
-      photo.position.set(0, 0, PHOTO_Z);
+      heading.position.set(0, headingWorldY, TEXT_Z);
       if (isNarrow) {
-        lede.position.set(0, 0, TEXT_Z);
-        detail.position.set(0, 0, TEXT_Z);
+        var half = bioRowH / 2;
+        lede.position.set(0, bioWorldY + half - lede.userData.h / 2, TEXT_Z);
+        detail.position.set(0, bioWorldY - half + detail.userData.h / 2, TEXT_Z);
       } else {
-        lede.position.set(-(photoW / 2 + GAP_PX) - lede.userData.w / 2, 0, TEXT_Z);
-        detail.position.set((photoW / 2 + GAP_PX) + detail.userData.w / 2, 0, TEXT_Z);
+        lede.position.set(0, bioWorldY, TEXT_Z);
+        detail.position.set(0, bioWorldY, TEXT_Z);
       }
 
-      meshes._docY = docY;
-      meshes._bioRowH = bioRowH;
-      meshes._isNarrow = isNarrow;
+      // Photo travels straight down from overlapping the heading to a
+      // rest spot beside the bio row, its own TOP edge landing level
+      // with the bio row's top edge — "stops so the text and the
+      // photo are both aligned at the top", per the brief.
+      var photoStartY = headingWorldY;
+      var photoTargetY = bioTopWorldY - photoH / 2;
+      var ledeRestX = isNarrow ? 0 : -(photoW / 2 + GAP_PX) - lede.userData.w / 2;
+      var detailRestX = isNarrow ? 0 : (photoW / 2 + GAP_PX) + detail.userData.w / 2;
+
+      // Fixed scroll room for the descent + push to read as a real
+      // scrub, not an instant snap — not derived from content height
+      // anymore, since nothing else here actually scrolls.
+      maxScrollPx = Math.max(1, vh * 0.9);
+      wrap.style.height = (maxScrollPx + vh) + "px";
+
+      meshes._photoStartY = photoStartY;
+      meshes._photoTargetY = photoTargetY;
+      meshes._ledeRestX = ledeRestX;
+      meshes._detailRestX = detailRestX;
 
       update();
+    }
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
 
     function update() {
       if (!meshes.heading) return;
       var rect = wrap.getBoundingClientRect();
       var scrollPx = Math.min(Math.max(-rect.top, 0), maxScrollPx);
+      var t = maxScrollPx > 0 ? scrollPx / maxScrollPx : 1;
 
-      var toWorldY = function (docYVal) { return (vh / 2 - docYVal) + scrollPx; };
+      var photoT = easeInOutCubic(t);
+      meshes.photo.position.y = meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT;
 
-      meshes.heading.position.y = toWorldY(meshes._docY.heading);
-      if (meshes._isNarrow) {
-        var half = meshes._bioRowH / 2;
-        meshes.lede.position.y = toWorldY(meshes._docY.bio) + half - meshes.lede.userData.h / 2;
-        meshes.detail.position.y = toWorldY(meshes._docY.bio) - half + meshes.detail.userData.h / 2;
-      } else {
-        meshes.lede.position.y = toWorldY(meshes._docY.bio);
-        meshes.detail.position.y = toWorldY(meshes._docY.bio);
-      }
-      // photo.position.y intentionally left untouched — it's what
-      // makes the photo read as "staying put" while the text scrolls.
+      // The push only kicks in once the photo's descent is mostly
+      // done — it's the photo ARRIVING that displaces the text, not
+      // something that starts the instant you begin scrolling.
+      var pushT = Math.min(Math.max((t - 0.45) / 0.55, 0), 1);
+      pushT = easeInOutCubic(pushT);
+      meshes.lede.position.x = meshes._ledeRestX * pushT;
+      meshes.detail.position.x = meshes._detailRestX * pushT;
 
       renderer.render(scene, camera);
     }
