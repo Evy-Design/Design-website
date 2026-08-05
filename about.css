@@ -24,7 +24,7 @@
    same as normal page content scrolling. Release is automatic once
    the wrapper's own height runs out — nothing further to pin against. */
 .eod-about-hero {
-  position: relative;
+  position: static;
   height: 220svh;
   background: var(--eod-white);
   padding-bottom: 6em;
@@ -48,6 +48,7 @@
   width: 100%;
   max-width: 62em;
   margin: 0 auto;
+  gap: 300px;
 }
 @media (max-width: 767px) {
   .eod-about-hero {
