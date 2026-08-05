@@ -24,18 +24,19 @@
    same as normal page content scrolling. Release is automatic once
    the wrapper's own height runs out — nothing further to pin against. */
 .eod-about-hero {
-  position: static;
+  position: relative;
   height: 220svh;
   background: var(--eod-white);
   padding-bottom: 6em;
   gap: auto;
 }
 .eod-about-hero__canvas-wrap {
-  position: relative;
+  position: absolute;
   /* Overridden inline by about.js once it's measured how much scroll
      distance the actual text content needs — this is just a sane
      fallback before that JS runs. */
   height: 260svh;
+  z-index: 1;
 }
 .eod-about-hero__canvas {
   position: sticky;
