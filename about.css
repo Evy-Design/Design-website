@@ -25,6 +25,7 @@
    the wrapper's own height runs out — nothing further to pin against. */
 .eod-about-hero {
   position: relative;
+  height: 220svh;
   background: var(--eod-white);
   padding-bottom: 6em;
 }
