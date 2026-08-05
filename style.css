@@ -62,7 +62,7 @@
      sections themselves, since those backgrounds are meant to run
      edge to edge (the footer's own rounded top corners only make
      sense against a full-bleed background). */
-  --eod-content-max: 1900px;
+  --eod-content-max: 2100px;
 }
 
 /* ---- Page-wide type + layout ---- */

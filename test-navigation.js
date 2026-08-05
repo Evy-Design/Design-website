@@ -123,6 +123,7 @@
     CustomEase.create("energy", "M0,0 C0.32,0.72 0,1 1,1");
 
     var toggleBtn = document.querySelector("[data-underlay-nav-toggle]");
+    var logoLink = document.querySelector(".underlay-nav__logo");
     var toggleLabels = document.querySelectorAll(".underlay-nav__toggle-label");
     var toggleBars = document.querySelectorAll(".underlay-nav__toggle-bar");
     var menuEl = document.querySelector("[data-underlay-nav-menu]");
@@ -195,7 +196,7 @@
           duration: 0.4,
         }, 0)
 
-        .to(toggleBtn, {
+        .to(logoLink ? [toggleBtn, logoLink] : toggleBtn, {
           color: openColor,
           duration: 0.4,
         }, 0)
@@ -277,7 +278,7 @@
           duration: 0.5,
         }, "<")
 
-        .to(toggleBtn, {
+        .to(logoLink ? [toggleBtn, logoLink] : toggleBtn, {
           color: getClosedColor,
           duration: 0.25,
         }, "<+=0.1")
@@ -300,7 +301,7 @@
           pointerEvents: "none"
         })
 
-        .set(toggleBtn, { clearProps: "color" });
+        .set(logoLink ? [toggleBtn, logoLink] : toggleBtn, { clearProps: "color" });
     }
 
     function toggle() {
