@@ -54,6 +54,15 @@
   --eod-cta-bg: #f2f2f2;
   --eod-border: rgba(0, 0, 0, 0.1);
   --eod-icon-border: #414651; /* matches the reference site's own button icon border */
+  /* Caps how wide any section's actual CONTENT (text, cards, the
+     footer logo) gets on an ultra-wide monitor — the sections'
+     own full-bleed backgrounds (hero black, CTA grey, footer's
+     accent blue) are untouched, only what sits inside them is
+     capped+centered. Applied per-element below rather than to the
+     sections themselves, since those backgrounds are meant to run
+     edge to edge (the footer's own rounded top corners only make
+     sense against a full-bleed background). */
+  --eod-content-max: 1900px;
 }
 
 /* ---- Page-wide type + layout ---- */
@@ -245,6 +254,19 @@ body.eod-is-scrolling .eod-btn {
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1;
+  /* Flex item of a column-direction parent (.eod-hero__overlay) —
+     width: 100% (not the implicit stretch a bare max-width/margin
+     would rely on: auto cross-axis margins on a flex item actually
+     OPT OUT of stretch per spec, collapsing this to its own content
+     width and killing the space-between spread at every size, not
+     just ultra-wide ones) fills the overlay exactly like the old
+     unstretched default did; max-width only kicks in once that 100%
+     would exceed the cap, and margin: auto centers the difference
+     — "Have a look" / "at all my work" just don't end up absurdly far
+     apart on an ultra-wide monitor. No-op below the cap. */
+  width: 100%;
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
 }
 
 /* ---- Hero intro (title + bio) — flanks the landed card ----
@@ -263,10 +285,18 @@ body.eod-is-scrolling .eod-btn {
    card itself on mobile (see the media query below). */
 .eod-hero__intro {
   position: absolute;
-  left: 2.5em;
-  right: 2.5em;
+  /* left:50% + translateX(-50%) (folded into the existing
+     translateY(-50%) below) instead of left/right:2.5em — width is
+     the viewport minus that same 2.5em gutter on each side UNTIL
+     max-width caps it on an ultra-wide monitor, at which point this
+     centers itself instead of the flanking title/body just ending up
+     very far apart. Behaves identically to the old left/right:2.5em
+     on any screen narrower than the cap. */
+  left: 50%;
+  width: calc(100% - 5em);
+  max-width: var(--eod-content-max);
   top: 50vh;
-  transform: translateY(-50%);
+  transform: translate(-50%, -50%);
   z-index: 5; /* above the stage, below the landed card (9999) */
   display: flex;
   justify-content: space-between;
@@ -349,15 +379,30 @@ body.eod-is-scrolling .eod-btn {
   .eod-hero__intro {
     display: block;
     height: 0;
-    /* Base rule (unscoped) carries left/right: 2.5em, matching the
-       desktop gutter — every OTHER section uses 1.25em on mobile
-       (.eod-page section's own mobile padding), so the bio text sat
-       noticeably narrower/more inset than the rest of the page.
-       Matched here for consistency; title/body's own left:0; right:0
-       (below) is relative to THIS box, so this is the one place that
-       actually needs to change. */
+    /* Base rule (unscoped) is left: 50%; width: calc(100% - 5em);
+       transform: translate(-50%, -50%) — the desktop gutter, with an
+       ultra-wide max-width cap folded in (see --eod-content-max).
+       Every OTHER section uses 1.25em on mobile (.eod-page section's
+       own mobile padding), so the bio text sat noticeably narrower/
+       more inset than the rest of the page. Overridden here to match
+       that — explicit left + width (not right) since the base rule's
+       left:50% + width still cascade otherwise, and combining
+       left/right/width on an absolutely-positioned box just gets one
+       of them silently ignored rather than erroring. max-width: none
+       since the cap is meaningless at any width this media query
+       covers. title/body's own left:0; right:0 (below) are relative
+       to THIS box, so this is the one place that actually needs to
+       change. */
     left: 1.25em;
-    right: 1.25em;
+    width: calc(100% - 2.5em);
+    max-width: none;
+    /* Base rule's transform is translate(-50%, -50%) — the X half is
+       specifically what makes left: 50% + width center the box on
+       wide screens; with an explicit left + width here instead, that
+       X shift would incorrectly nudge the whole box further left by
+       half its own width. Only the Y half (vertical centering on the
+       landed card, unrelated to any of this) is still needed. */
+    transform: translateY(-50%);
   }
   .eod-hero__intro-title,
   .eod-hero__intro-body {
@@ -532,6 +577,17 @@ body.eod-is-scrolling .eod-btn {
   display: flex;
   align-items: flex-start;
   gap: 3em;
+  /* width: 100% (not bare max-width/margin): auto cross-axis margins
+     on a flex item actually opt OUT of stretch per spec, which would
+     collapse this to its own content width at every size, not just
+     ultra-wide ones — see .eod-hero__heading's own version of this
+     same fix for the full explanation. max-width only kicks in once
+     that 100% would exceed the cap; margin: auto centers the
+     difference so the title/list gap doesn't stretch out absurdly on
+     an ultra-wide monitor. No-op below the cap. */
+  width: 100%;
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
 }
 .eod-awards__title {
   flex: 0 0 auto;
@@ -709,7 +765,11 @@ body.eod-is-scrolling .eod-btn {
    the fallback before that JS runs. */
 .eod-cta__group {
   width: var(--eod-cta-group-width, fit-content);
-  max-width: 100%;
+  /* Already self-limiting in practice (fit-content, or the widest-
+     word-pinned var above) — min(...) adds the same ultra-wide cap as
+     every other section purely as a defensive floor, in case future
+     copy ever makes this genuinely wider than --eod-content-max. */
+  max-width: min(100%, var(--eod-content-max));
 }
 /* font-size is derived, not a flat vw guess: the old clamp(2.8em,
    9vw, 8em) let the cycling word + "Design" genuinely run past the
@@ -981,6 +1041,12 @@ body.eod-is-scrolling .eod-btn {
   flex-wrap: wrap;
   gap: 2em;
   padding-bottom: 6em;
+  /* Capped on an ultra-wide monitor so the contact/social columns
+     don't end up spread absurdly far apart; margin: 0 auto is a
+     no-op below the cap. */
+  max-width: var(--eod-content-max);
+  margin-left: auto;
+  margin-right: auto;
 }
 .eod-footer__col {
   display: flex;
@@ -1006,11 +1072,16 @@ body.eod-is-scrolling .eod-btn {
 }
 /* Full-width version of the same logo mark used top-left in the nav
    (see Navigation embad.html) — fill: currentColor, so it picks up
-   .eod-footer's white. */
+   .eod-footer's white. Capped on an ultra-wide monitor — "full width"
+   of a 3000px+ viewport reads as an absurdly huge wordmark; margin:
+   0 auto is a no-op below the cap. */
 .eod-footer__logo {
   display: block;
   width: 100%;
   height: auto;
+  max-width: var(--eod-content-max);
+  margin-left: auto;
+  margin-right: auto;
 }
 @media (max-width: 767px) {
   .eod-footer__top {
