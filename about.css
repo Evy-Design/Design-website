@@ -28,6 +28,7 @@
   height: 220svh;
   background: var(--eod-white);
   padding-bottom: 6em;
+  gap: auto;
 }
 .eod-about-hero__canvas-wrap {
   position: relative;
