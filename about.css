@@ -7,91 +7,163 @@
    hero, the design-journey timeline, and the logo tile grid.
    =========================================================== */
 
-/* ---- Hero: title/photo/body start stacked on top of one another
-   (the photo overlapping the title, per the reference screenshot),
-   then — pinned in place while you scroll — the title slides up and
-   the body (bio + button) slides down/in, the photo settling
-   between them. .eod-about-hero provides the scroll DISTANCE (tall,
-   normal flow); .eod-about-hero__pin is what actually gets pinned
-   (about.js), sized to exactly one viewport so nothing scrolls
-   away half-transitioned. Release is automatic and immediate: the
-   pin (and the scrub tied to it) simply ends when scroll reaches
-   the bottom of this section — no separate "stop" step needed. */
+/* ---- Hero ----
+   Matches gionatannese.com/about's own hero mechanic — confirmed by
+   actually scrubbing through it frame by frame: the 3D model there
+   barely moves (stays roughly centred, effectively pinned) while the
+   TEXT is what scrolls, passing behind/through it. Reproduced here
+   with native position: sticky, not a GSAP pin — no JS needed at all
+   for this part. .eod-about-hero__photo-wrap and .eod-about-hero__text
+   are given the SAME grid-area (they stack on top of each other,
+   .eod-about-hero__stack below), so the text column's own height
+   (heading + bio, both real, normal-flow content) is what the sticky
+   photo gets to travel across: pinned at top: 50vh for as long as
+   that shared area still has text left to scroll past, releasing
+   itself the instant it runs out — which is the "stop", automatically,
+   nothing further to stick against. The photo (z-index: 2) sits above
+   the text (z-index: 1), so it visibly covers whatever text is
+   passing underneath it at any given scroll position — same as the
+   reference's own model-over-text layering — covering the MIDDLE of
+   the (centred) heading first, per the brief, then scrolling on to
+   cover/reveal the bio paragraphs below it exactly the same way. The
+   "Go to my work" button sits outside this stack, in plain flow,
+   revealed with the site's regular [data-eod-reveal] fade+rise once
+   the text has scrolled clear. */
 .eod-about-hero {
   position: relative;
-  height: 240svh;
   background: var(--eod-white);
+  padding-bottom: 6em;
 }
-.eod-about-hero__pin {
-  position: relative;
-  height: 100svh;
-  overflow: hidden;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.eod-about-hero__stack {
+  display: grid;
+  grid-template-columns: 1fr;
 }
-.eod-about-hero__title,
-.eod-about-hero__body {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: min(90%, 34em);
-  text-align: center;
+.eod-about-hero__photo-wrap,
+.eod-about-hero__text {
+  grid-area: 1 / 1;
 }
-.eod-about-hero__title {
-  z-index: 1;
-  margin: 0;
-  font-size: clamp(2em, 6vw, 4.25em);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--eod-ink);
-}
-.eod-about-hero__body {
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.3em;
-  /* Starting state (about.js sets the scrubbed values; this is just
-     the pre-JS/no-JS fallback so it isn't wrongly visible at rest). */
-  opacity: 0;
-}
-.eod-about-hero__body-title {
-  margin: 0;
-  font-size: clamp(1.6em, 3.2vw, 2.25em);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  color: var(--eod-ink);
-}
-.eod-about-hero__body-text {
-  margin: 0;
-  max-width: 28em;
-  font-size: 1em;
-  font-weight: 300;
-  line-height: 1.55;
-  color: var(--eod-muted);
+.eod-about-hero__photo-wrap {
+  pointer-events: none;
 }
 .eod-about-hero__photo {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  position: sticky;
+  top: 50vh;
   z-index: 2;
-  width: min(62vw, 20em);
+  transform: translateY(-50%);
+  margin: 0 auto;
+  width: clamp(8em, 20vw, 15em);
   aspect-ratio: 4 / 5;
   border-radius: var(--eod-radius);
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
 }
+.eod-about-hero__text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Generous — the heading needs to fully clear the sticky photo and
+     the page needs real scroll room before the bio starts arriving,
+     otherwise the two read as cramped together. */
+  gap: clamp(8em, 22vh, 20em);
+  /* 50vh top: lands the heading's own centre (via its -1.95em margin
+     below) on the same 50vh point the photo sticks at, so they start
+     overlapping exactly like the earlier version did. Bottom is
+     deliberately modest, NOT a big buffer: the photo should release
+     right at the bottom of the last paragraph, not linger stuck for
+     an empty stretch afterward — this just gives it enough room to
+     clear its own height before unsticking. */
+  padding-top: 50vh;
+  padding-bottom: 20em;
+}
+.eod-about-hero__heading {
+  /* Pulls the heading up by exactly half of its own 3-line height
+     (3 lines × 1.3 line-height ÷ 2 = 1.95em) — in EM, so it tracks
+     the heading's own responsive font-size automatically. Combined
+     with .eod-about-hero__text's 50vh padding-top above, this is what
+     lands the heading's centre (not its top) on the sticky photo's
+     own 50vh point. */
+  margin: -1.95em 0 0;
+  text-align: center;
+  max-width: min(90%, 24em);
+  font-size: clamp(2em, 5.2vw, 3.75em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--eod-ink);
+}
+.eod-about-hero__bio {
+  /* Two columns, like the layout that read best — but the RIGHT
+     column (.eod-about-hero__bio-detail, below) is offset lower via
+     its own margin-top, so it doesn't arrive at the sticky photo at
+     the same moment as the lede. Each of the 3 paragraphs still gets
+     its own independent scroll trigger (about.js) — the offset is
+     what actually staggers WHEN each one fires, so they push one at a
+     time instead of together, while still reading as a normal
+     two-column bio rather than a single stacked column. */
+  width: 100%;
+  max-width: 62em;
+  display: flex;
+  align-items: flex-start;
+  gap: 3em;
+}
+.eod-about-hero__bio-lede {
+  flex: 1 1 0;
+  margin: 0;
+  text-align: right;
+  font-size: 1.05em;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--eod-ink);
+}
+.eod-about-hero__bio-detail {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  /* The stagger: pushes this column's own arrival at the sticky photo
+     well after the lede's has already finished and settled. */
+  margin-top: 10em;
+}
+.eod-about-hero__bio-detail p {
+  margin: 0;
+  font-size: 0.9em;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--eod-muted);
+}
+.eod-about-hero__cta {
+  width: 100%;
+  max-width: 62em;
+  margin: 0 auto;
+}
+@media (max-width: 1024px) {
+  .eod-about-hero__bio {
+    max-width: 34em;
+    flex-direction: column;
+    gap: 1.5em;
+  }
+  .eod-about-hero__bio-lede {
+    text-align: center;
+  }
+  .eod-about-hero__bio-detail {
+    margin-top: 0;
+  }
+  .eod-about-hero__cta {
+    max-width: 34em;
+    text-align: center;
+  }
+}
 @media (max-width: 767px) {
   .eod-about-hero {
-    height: 220svh;
+    padding-bottom: 4em;
   }
-  .eod-about-hero__photo {
-    width: min(58vw, 16em);
+  .eod-about-hero__text {
+    gap: 4em;
+  }
+  .eod-about-hero__bio-detail p {
+    font-size: 0.95em;
   }
 }
 

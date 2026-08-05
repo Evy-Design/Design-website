@@ -18,14 +18,14 @@
 window.EOD_CONTENT = {
   awards: [
     {
-      year: "2024",
-      title: "Motion Graphic Honorable Mention Prize – Your Craft DOOH‑design challenge",
-      body: "Recognised for a motion graphic entry in the Your Craft DOOH‑design challenge."
+      year: "2022",
+      title: "The Penguin Cover Design Award",
+      body: "My book design cover was shortlisted for the 2022 Fiction category, Girl, Woman, Other by Bernardine Evaristo with Penguin Random House UK. Everything was incredible. I've learned alot and met some amazing and inspirational people. I'm grateful and honoured to have been selected for this."
     },
     {
       year: "2024",
       title: "Motion Graphic Honorable Mention Prize – Your Craft DOOH‑design challenge",
-      body: "Recognised for a motion graphic entry in the Your Craft DOOH‑design challenge."
+      body: "In this challenge, I won the Motion Design Honorable Mention Prize. The goal was to celebrate authenticity and unique craftsmanship, using the Netherlands as a canvas. Global and RA*W launched the 2024 Digital Out-of-Home challenge, showcasing work on over 2650 digital screens nationwide. The focus was on evoking emotions and inspiring passersby with creativity. I'm honored to be recognized for my contribution."
     }
   ],
   cta: {

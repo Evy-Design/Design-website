@@ -6,7 +6,7 @@
   <title>Evy Diepenbroek — About</title>
   <link rel="stylesheet" href="shared.css?v=1" />
   <link rel="stylesheet" href="test-navigation.css?v=5" />
-  <link rel="stylesheet" href="about.css?v=1" />
+  <link rel="stylesheet" href="about.css?v=11" />
   <style>body { margin: 0; }</style>
 </head>
 <body>
@@ -77,24 +77,52 @@
   </div>
 
   <main class="eod-page">
-    <!-- Hero: photo starts overlapping the title; about.js pins this
-         section and, as you scroll, slides the title up and reveals
-         the body (bio + button) below, settling once separated. -->
+    <!-- Hero — matches gionatannese.com/about's own hero mechanic
+         (confirmed by actually scrubbing through it): the photo card
+         stays put while the TEXT scrolls up past it — that's the
+         "text gets pushed/scrolled" effect, not the photo moving.
+         Native position: sticky, not a GSAP pin: .eod-about-hero__photo
+         and .eod-about-hero__text share the same grid cell (stacked),
+         so the text column's own height (heading + bio) is what gives
+         the sticky photo room to travel — the photo stays fixed in
+         the viewport (top: 50vh) for that entire scroll range, with
+         the text (both the heading AND the bio paragraphs, per the
+         brief) scrolling normally behind/through it the whole way,
+         same z-index layering as the reference's own model-over-text.
+         It only releases once the text column runs out, which is the
+         "stop" — nothing further to pin against. -->
     <section class="eod-about-hero" data-eod-about-hero>
-      <div class="eod-about-hero__pin" data-eod-about-hero-pin>
-        <h1 class="eod-about-hero__title" data-eod-about-hero-title>Hi, I&rsquo;m<br />Evy Olivia<br />Diepenbroek.</h1>
-        <div class="eod-about-hero__photo" data-eod-about-hero-photo>
-          <img class="cover-image" src="assets/tornado Images/back-card-image/evy-portrait.jpg" alt="Evy Olivia Diepenbroek" />
+      <div class="eod-about-hero__stack">
+        <div class="eod-about-hero__photo-wrap">
+          <div class="eod-about-hero__photo">
+            <img class="cover-image" src="assets/tornado Images/back-card-image/evy-portrait.jpg" alt="Evy Olivia Diepenbroek" />
+          </div>
         </div>
-        <div class="eod-about-hero__body" data-eod-about-hero-body>
-          <h2 class="eod-about-hero__body-title">Nice to meet you!</h2>
-          <p class="eod-about-hero__body-text">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next &mdash; currently a nominated designer with two degrees in the field and over 4 years of agency experience across motion, brand and UI/UX work.</p>
-          <a href="/projects" class="eod-btn eod-btn--dark">
-            <span class="eod-btn__label">Go to my work</span>
-            <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-            <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-          </a>
+        <div class="eod-about-hero__text">
+          <h1 class="eod-about-hero__heading">Hi, I&rsquo;m Evy Olivia<br />Diepenbroek. Nice<br />to meet you!</h1>
+          <div class="eod-about-hero__bio">
+            <!-- No data-eod-reveal here: that system's own CSS-transition
+                 transform would fight about.js's GSAP-driven x push over
+                 the same `transform` property — the push itself is the
+                 reveal moment for these paragraphs. The detail column is
+                 offset lower than the lede (about.css) so the two don't
+                 arrive at the sticky photo at the same time — each of the
+                 3 paragraphs gets its own scroll trigger and pushes in
+                 turn, one at a time, not together. -->
+            <p class="eod-about-hero__bio-lede" data-eod-bio-para data-eod-bio-push="left">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next. I&rsquo;m driven by new challenges and staying ahead of trends, and I&rsquo;m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.</p>
+            <div class="eod-about-hero__bio-detail">
+              <p data-eod-bio-para data-eod-bio-push="right">I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor&rsquo;s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.</p>
+              <p data-eod-bio-para data-eod-bio-push="right">I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I&rsquo;ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.</p>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="eod-about-hero__cta" data-eod-reveal>
+        <a href="/projects" class="eod-btn eod-btn--dark">
+          <span class="eod-btn__label">Go to my work</span>
+          <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+          <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+        </a>
       </div>
     </section>
 
@@ -274,6 +302,6 @@
   <script src="test-navigation.js?v=4"></script>
   <script src="content.js?v=1"></script>
   <script src="script.js?v=26"></script>
-  <script src="about.js?v=2"></script>
+  <script src="about.js?v=12"></script>
 </body>
 </html>
