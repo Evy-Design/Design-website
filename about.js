@@ -201,22 +201,48 @@
       meshes = {};
       if (!portraitImg) return;
 
-      var headingFont = Math.round(clampPx(32, 0.052, 60));
+      var isNarrow = vw <= 1024;
+      // Narrow's heading shares a row with the photo instead of having
+      // the full width to itself, so it needs a lower floor than the
+      // wide layout's — otherwise a long word (e.g. "Diepenbroek.")
+      // can end up wider than the column it's wrapped against.
+      var headingFont = Math.round(isNarrow ? clampPx(24, 0.052, 60) : clampPx(32, 0.052, 60));
       var ledeFont = Math.round(clampPx(15, 0.0075, 19));
       var detailFont = Math.round(clampPx(13, 0.006, 16));
-      var isNarrow = vw <= 1024;
-
-      var photoW = clampPx(8 * 16, 0.2, 15 * 16);
+      var photoW = isNarrow ? clampPx(9 * 16, 0.24, 13 * 16) : clampPx(8 * 16, 0.2, 15 * 16);
       var photoH = photoW * 5 / 4;
       var radius = 16;
 
       var measureCtx = document.createElement("canvas").getContext("2d");
 
-      // Heading — same 3-line break used throughout this build.
-      var headingLines = ["Hi, I’m Evy Olivia", "Diepenbroek. Nice", "to meet you!"];
       var headingLineH = headingFont * 1.3;
       var headingFontStr = "400 " + headingFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
-      var heading = makeTextMesh(headingLines, headingFontStr, headingLineH, "#1a1a1a", "center");
+
+      // ---- narrow (mobile/tablet) geometry ----
+      // Photo + heading share a fixed top row (photo left, heading
+      // right) that never moves — the mobile/tablet composition per
+      // the brief. headingLeftEdge (just right of the photo) doubles
+      // as the edge the bio text pushes out to later, which is what
+      // makes the settled text land "aligned with the title".
+      var sidePad = clampPx(1.25 * 16, 0.05, 1.75 * 16);
+      var rowGap = clampPx(1.25 * 16, 0.045, 2 * 16);
+      var photoLeftX = -vw / 2 + sidePad + photoW / 2;
+      var headingLeftEdge = photoLeftX + photoW / 2 + rowGap;
+      var narrowColW = Math.max(80, vw / 2 - sidePad - headingLeftEdge);
+
+      var heading;
+      if (isNarrow) {
+        // Wrapped dynamically (not the hand-picked 3-line break below)
+        // since it now shares a row with the photo instead of having
+        // the full viewport width to itself — has to reflow with
+        // whatever room narrowColW comes out to at a given width.
+        var headingLinesN = wrapWords(measureCtx, "Hi, I’m Evy Olivia Diepenbroek. Nice to meet you!", headingFontStr, narrowColW);
+        heading = makeTextMesh(headingLinesN, headingFontStr, headingLineH, "#1a1a1a", "left");
+      } else {
+        // Same 3-line break used throughout this build.
+        var headingLines = ["Hi, I’m Evy Olivia", "Diepenbroek. Nice", "to meet you!"];
+        heading = makeTextMesh(headingLines, headingFontStr, headingLineH, "#1a1a1a", "center");
+      }
       group.add(heading);
       meshes.heading = heading;
 
@@ -233,7 +259,7 @@
       // line-to-animation mapping entirely — this is why it has to
       // be "wrap first, then animate whatever that produced," not
       // the other way round.
-      var colMaxW = isNarrow ? Math.min(vw * 0.86, 30 * 16) : Math.min(vw * 0.34, 26 * 16);
+      var colMaxW = isNarrow ? narrowColW : Math.min(vw * 0.34, 26 * 16);
       var ledeFontStr = "400 " + ledeFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
       var detailFontStr = "300 " + detailFont + "px \"PP Mori\", \"Helvetica Neue\", Arial, sans-serif";
       var ledeLineH = ledeFont * 1.5;
@@ -264,91 +290,115 @@
       group.add(photo);
       meshes.photo = photo;
 
-      // ---- layout: heading and the bio row each sit at a fixed
-      // screen position, computed once here and never touched by
-      // scroll again — only the photo actually moves (see the file
-      // header comment). ----
-      // Heading anchored near the TOP of the viewport; the bio row +
-      // photo group anchored near the BOTTOM — the gap between them is
-      // whatever's automatically left over in between (like flexbox's
-      // `justify-content: space-between`), not a hand-picked magic
-      // number that only happens to look right at one viewport height.
-      // This is also what keeps the photo from ever running past the
-      // canvas's own bottom edge (the earlier "photo gets cut off"
-      // bug): the bottom of the bio/photo group is pinned a fixed
-      // padding above -vh/2, it can never land past it.
-      // Trimmed to near-minimal — every px shaved off top/bottom padding
-      // is a px handed straight to the auto gap between the heading and
-      // the bio row, which is the whole point of anchoring from the
-      // extremes instead of hand-picking a fixed gap.
-      var topPad = clampPx(1.5 * 16, 0.02, 3 * 16);
-      var headingTopY = vh / 2 - topPad;
-      var headingWorldY = headingTopY - heading.userData.h / 2;
-      var headingBottomY = headingWorldY - heading.userData.h / 2;
-
+      // ---- layout ----
+      // Two different compositions, per the brief: wide keeps the
+      // heading dead-fixed up top and the photo travelling down to
+      // settle beside a flanking two-column bio row; narrow keeps the
+      // photo+heading ROW fixed up top instead and has the photo
+      // travel down to settle beside the (single-column) detail
+      // paragraph. Either way, only the photo's Y ever moves — the
+      // text's job is just to push out to its resting edge as the
+      // photo arrives (see update()).
       var detailGap = Math.max(2, detailFont * 0.1);
+      var ledeDetailGap = Math.max(4, ledeFont * 0.3); // narrow-mode only: lede → detail1
       var ledeH = ledeLineMeshes.length * ledeLineH;
       var detailColH = detail1LineMeshes.length * detailLineH + detailGap + detail2LineMeshes.length * detailLineH;
-      var bioRowH = isNarrow ? (ledeH + 24 + detailColH) : Math.max(ledeH, detailColH);
-
-      var bottomPad = clampPx(1.5 * 16, 0.02, 3 * 16);
-      var groupH = Math.max(bioRowH, photoH); // photo top-aligns with the bio row's top, so the taller of the two sets the group's bottom
-      var bioTopWorldY = -vh / 2 + bottomPad + groupH;
       var minGap = clampPx(2 * 16, 0.03, 4 * 16);
-      bioTopWorldY = Math.min(bioTopWorldY, headingBottomY - minGap); // never overlap the heading on a very short viewport
-      var bioWorldY = bioTopWorldY - bioRowH / 2;
-
-      heading.position.set(0, snapPx(headingWorldY), TEXT_Z);
+      var bottomPad = clampPx(1.5 * 16, 0.02, 3 * 16);
 
       // Stacks one column's line meshes top-to-bottom starting at
       // `topY`. Returns per-line {mesh, width, align, edge} — NOT a
-      // precomputed rest position: each line's own alignment (right
-      // for lede, left for detail) is anchored to the column's shared
-      // edge, and that edge is what actually animates (see update()).
-      // Scaling each line's already-offset CENTRE by the push amount
-      // instead (an earlier version of this did exactly that) breaks
-      // alignment mid-transition — different-width lines land at
-      // different fractional offsets from their own edge, so the
-      // column reads as a ragged mess instead of a straight edge that
-      // just grows/shrinks its margin. Deriving x fresh from a single
-      // shared edge value every frame is what keeps it a straight
-      // edge at every point along the animation, not just at the
-      // very start and very end.
+      // precomputed rest position: each line's own alignment is
+      // anchored to the column's shared edge, and that edge is what
+      // actually animates (see update()). Scaling each line's already-
+      // offset CENTRE by the push amount instead (an earlier version
+      // of this did exactly that) breaks alignment mid-transition —
+      // different-width lines land at different fractional offsets
+      // from their own edge, so the column reads as a ragged mess
+      // instead of a straight edge that just grows/shrinks its margin.
+      // Deriving x fresh from a single shared edge value every frame
+      // is what keeps it a straight edge at every point along the
+      // animation, not just at the very start and very end.
       function layoutColumn(lineMeshes, lineH, topY, align, sharedEdgeX) {
         var y = topY - lineH / 2;
         var items = [];
         lineMeshes.forEach(function (m) {
           m.position.set(0, snapPx(y), TEXT_Z);
-          items.push({ mesh: m, width: m.userData.w, align: align, edge: isNarrow ? 0 : sharedEdgeX });
+          items.push({ mesh: m, width: m.userData.w, align: align, edge: sharedEdgeX });
           y -= lineH;
         });
         return items;
       }
 
-      var detailLeftEdge = photoW / 2 + GAP_PX;
-      var ledeRightEdge = -(photoW / 2 + GAP_PX);
       var ledeItems, detail1Items, detail2Items;
+
       if (isNarrow) {
-        var y0 = bioWorldY + bioRowH / 2;
-        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, y0, "center", 0);
-        y0 -= ledeH + 24;
-        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, y0, "center", 0);
-        y0 -= detail1LineMeshes.length * detailLineH + detailGap;
-        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, y0, "center", 0);
+        var rowTopPad = vh * 0.2;
+        var rowTopY = vh / 2 - rowTopPad;
+        var rowH = Math.max(photoH, heading.userData.h);
+        var rowBottomY = rowTopY - rowH;
+
+        heading.position.set(snapPx(headingLeftEdge + heading.userData.w / 2), snapPx(rowTopY - heading.userData.h / 2), TEXT_Z);
+
+        // Detail (+ the photo settling beside it) anchored near the
+        // BOTTOM, same "auto gap" idea as the wide layout — whatever's
+        // left between the row and this group is the gap, not a
+        // hand-picked number. Lede sits directly above the group.
+        var detailGroupH = Math.max(detailColH, photoH);
+        var detailTopWorldY = -vh / 2 + bottomPad + detailGroupH;
+        detailTopWorldY = Math.min(detailTopWorldY, rowBottomY - minGap - ledeH - ledeDetailGap);
+        var ledeTopWorldY = detailTopWorldY + ledeDetailGap + ledeH;
+
+        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, ledeTopWorldY, "left", headingLeftEdge);
+        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTopWorldY, "left", headingLeftEdge);
+        var narrowDetail2Top = detailTopWorldY - (detail1LineMeshes.length * detailLineH + detailGap);
+        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, narrowDetail2Top, "left", headingLeftEdge);
+
+        // Photo travels straight down, same X throughout (never past
+        // the photo/heading row's own left edge) — from the top row to
+        // top-aligned beside the detail paragraph.
+        photo.position.x = snapPx(photoLeftX);
+        meshes._photoStartY = rowTopY - photoH / 2;
+        meshes._photoTargetY = detailTopWorldY - photoH / 2;
       } else {
+        // Heading anchored near the TOP of the viewport; the bio row +
+        // photo group anchored near the BOTTOM — the gap between them
+        // is whatever's automatically left over in between (like
+        // flexbox's `justify-content: space-between`), not a hand-
+        // picked magic number that only happens to look right at one
+        // viewport height. This is also what keeps the photo from ever
+        // running past the canvas's own bottom edge: the bottom of the
+        // bio/photo group is pinned a fixed padding above -vh/2, it
+        // can never land past it.
+        var topPad = vh * 0.2;
+        var headingTopY = vh / 2 - topPad;
+        var headingWorldY = headingTopY - heading.userData.h / 2;
+        var headingBottomY = headingWorldY - heading.userData.h / 2;
+
+        var bioRowH = Math.max(ledeH, detailColH);
+        var groupH = Math.max(bioRowH, photoH); // photo top-aligns with the bio row's top, so the taller of the two sets the group's bottom
+        var bioTopWorldY = -vh / 2 + bottomPad + groupH;
+        bioTopWorldY = Math.min(bioTopWorldY, headingBottomY - minGap); // never overlap the heading on a very short viewport
+        var bioWorldY = bioTopWorldY - bioRowH / 2;
+
+        heading.position.set(0, snapPx(headingWorldY), TEXT_Z);
+
+        var detailLeftEdge = photoW / 2 + GAP_PX;
+        var ledeRightEdge = -(photoW / 2 + GAP_PX);
         ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, bioWorldY + ledeH / 2, "right", ledeRightEdge);
         var detailTop = bioWorldY + detailColH / 2;
         detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTop, "left", detailLeftEdge);
         var detail2Top = detailTop - (detail1LineMeshes.length * detailLineH + detailGap);
         detail2Items = layoutColumn(detail2LineMeshes, detailLineH, detail2Top, "left", detailLeftEdge);
-      }
 
-      // Photo travels straight down from overlapping the heading to a
-      // rest spot beside the bio row, its own TOP edge landing level
-      // with the bio row's top edge — "stops so the text and the
-      // photo are both aligned at the top", per the brief.
-      meshes._photoStartY = headingWorldY;
-      meshes._photoTargetY = bioTopWorldY - photoH / 2;
+        // Photo travels straight down from overlapping the heading to
+        // a rest spot beside the bio row, its own TOP edge landing
+        // level with the bio row's top edge — "stops so the text and
+        // the photo are both aligned at the top", per the brief.
+        photo.position.x = 0;
+        meshes._photoStartY = headingWorldY;
+        meshes._photoTargetY = bioTopWorldY - photoH / 2;
+      }
 
       // One combined, ordered sequence for staggering: lede's lines,
       // then detail paragraph 1's, then detail paragraph 2's — plain
@@ -358,10 +408,14 @@
 
       // Fixed scroll room for the descent + push to read as a real
       // scrub, not an instant snap — not derived from content height
-      // anymore, since nothing here actually scrolls. 1.2vh of scroll
-      // room + the 1vh the canvas itself occupies while pinned = 220svh
-      // total for the section, per the brief.
-      maxScrollPx = Math.max(1, vh * 1.2);
+      // anymore, since nothing here actually scrolls. 1vh of scroll
+      // room + the 1vh the canvas itself occupies while pinned = 200svh
+      // total — "two 100svh sections in one", per the brief: the card
+      // is sticky the whole time, but the scroll REST_START/REST_END
+      // window in update() below is what makes the first and last
+      // stretches of that scroll room read as their own still scene
+      // instead of one continuous 200svh-long motion.
+      maxScrollPx = Math.max(1, vh * 1.0);
       wrap.style.height = (maxScrollPx + vh) + "px";
 
       update();
@@ -401,29 +455,36 @@
       return PUSH_FROM + (1 - PUSH_FROM) * easeInOutCubic(p);
     }
 
+    // The card is sticky/pinned for the ENTIRE scroll range, but the
+    // motion itself is only allowed to happen in the middle of it —
+    // outside [REST_START, REST_END] nothing moves at all. That's what
+    // turns one continuous scrub into two readable, still scenes (the
+    // opening "title" beat and the settled "body" beat) with a single
+    // pinned card carrying you between them, instead of everything
+    // drifting for the whole scroll with no place to actually stop.
+    var REST_START = 0.2;
+    var REST_END = 0.8;
+
     function update() {
       if (!meshes.heading) return;
       var rect = wrap.getBoundingClientRect();
       var scrollPx = Math.min(Math.max(-rect.top, 0), maxScrollPx);
       var t = maxScrollPx > 0 ? scrollPx / maxScrollPx : 1;
+      var transitionT = Math.min(Math.max((t - REST_START) / (REST_END - REST_START), 0), 1);
 
-      var photoT = easeInOutCubic(t);
+      var photoT = easeInOutCubic(transitionT);
       meshes.photo.position.y = snapPx(meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT);
 
       var items = meshes._lineItems;
       var windows = meshes._lineWindows;
       for (var i = 0; i < items.length; i++) {
         var item = items[i];
-        if (item.align === "center") {
-          item.mesh.position.x = 0;
-          continue;
-        }
         // Scale the shared EDGE, not this line's own centre — every
         // line derives its x fresh from that one edge value each
         // frame, which is what keeps the column's edge straight at
         // every point in the animation (see the comment on
         // layoutColumn above).
-        var edgeNow = item.edge * pushAmount(t, windows[i][0], windows[i][1]);
+        var edgeNow = item.edge * pushAmount(transitionT, windows[i][0], windows[i][1]);
         item.mesh.position.x = snapPx(item.align === "right" ? edgeNow - item.width / 2 : edgeNow + item.width / 2);
       }
 

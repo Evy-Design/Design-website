@@ -26,7 +26,7 @@
 .eod-about-hero {
   position: relative;
   background: var(--eod-white);
-  padding-bottom: 6em;
+  padding-bottom: 20svh;
 }
 .eod-about-hero__canvas-wrap {
   position: relative;
@@ -48,11 +48,6 @@
   margin: 0 auto;
   display: flex;
   justify-content: flex-end;
-}
-@media (max-width: 767px) {
-  .eod-about-hero {
-    padding-bottom: 4em;
-  }
 }
 
 /* ---- "My Design Journey" timeline ----
