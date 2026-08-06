@@ -259,8 +259,8 @@
       // scroll again — only the photo actually moves (see the file
       // header comment). ----
       var headingWorldY = 0; // dead centre of the viewport, unscrolled
-      var gapBig = clampPx(3 * 16, 0.08, 7 * 16);
-      var detailGap = detailFont * 1.2;
+      var gapBig = clampPx(4.5 * 16, 0.12, 9 * 16);
+      var detailGap = detailFont * 0.5;
       var ledeH = ledeLineMeshes.length * ledeLineH;
       var detailColH = detail1LineMeshes.length * detailLineH + detailGap + detail2LineMeshes.length * detailLineH;
       var bioRowH = isNarrow ? (ledeH + 24 + detailColH) : Math.max(ledeH, detailColH);
