@@ -28,6 +28,19 @@ window.EOD_CONTENT = {
       body: "In this challenge, I won the Motion Design Honorable Mention Prize. The goal was to celebrate authenticity and unique craftsmanship, using the Netherlands as a canvas. Global and RA*W launched the 2024 Digital Out-of-Home challenge, showcasing work on over 2650 digital screens nationwide. The focus was on evoking emotions and inspiring passersby with creativity. I'm honored to be recognized for my contribution."
     }
   ],
+  // The About page's "My Design Journey" horizontal timeline — add a
+  // new milestone by adding a new object here, nowhere else. Order
+  // here is DOM order (left-to-right in the scroll-scrubbed track /
+  // top-to-bottom in the stacked mobile layout), so put new entries
+  // wherever they belong chronologically rather than always at an end.
+  timeline: [
+    { year: "2024", title: "Nominated Graphic Designer", image: "assets/tornado Images/5.jpg", alt: "A magazine spread from a print typography project" },
+    { year: "2023 – Relaunch", title: "Portfolio Website Redesign", image: "assets/tornado Images/8-Cense.jpg", alt: "UI screens from the Cense web project" },
+    { year: "2022 – Award", title: "The Penguin Cover Design Award", image: "assets/tornado Images/2.jpg", alt: "The Girl, Woman, Other Penguin book cover design" },
+    { year: "2020", title: "Second Design Degree", image: "assets/tornado Images/4.jpg", alt: "Spreads from a design-research graduation publication" },
+    { year: "2021", title: "Typography Experiments", image: "assets/tornado Images/3.jpg", alt: "An experimental bold typography poster" },
+    { year: "2018", title: "First Illustration Series", image: "assets/tornado Images/6.jpg", alt: "A hand-drawn illustration sheet" }
+  ],
   cta: {
     // Each role's word and badge image cycle together in lockstep
     // (script.js's initCyclers steps every data-eod-cycle="cta-role"
@@ -84,6 +97,29 @@ window.EOD_CONTENT = {
     if (bodyEl) bodyEl.textContent = cta.body;
   }
 
+  function renderTimeline() {
+    const list = document.querySelector(".eod-timeline__list");
+    if (!list) return;
+    list.innerHTML = window.EOD_CONTENT.timeline.map(function (item, i) {
+      return (
+        '<li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="' + Math.min(i, 5) + '">' +
+          '<div class="eod-timeline__marker">' +
+            '<span class="eod-timeline__dot" aria-hidden="true"></span>' +
+            '<span class="eod-timeline__year">' + item.year + "</span>" +
+          "</div>" +
+          '<div class="eod-timeline__item-text">' +
+            '<span class="eod-timeline__year">' + item.year + "</span>" +
+            '<figure class="eod-timeline__card">' +
+              '<img class="eod-timeline__image" src="' + item.image + '" alt="' + item.alt + '" />' +
+              '<figcaption class="eod-timeline__caption">' + item.title + "</figcaption>" +
+            "</figure>" +
+          "</div>" +
+        "</li>"
+      );
+    }).join("");
+  }
+
   renderAwards();
   renderCta();
+  renderTimeline();
 })();
