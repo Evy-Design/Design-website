@@ -46,6 +46,8 @@
   width: 100%;
   max-width: 62em;
   margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
 }
 @media (max-width: 767px) {
   .eod-about-hero {

@@ -258,9 +258,18 @@
       // screen position, computed once here and never touched by
       // scroll again — only the photo actually moves (see the file
       // header comment). ----
-      var headingWorldY = 0; // dead centre of the viewport, unscrolled
-      var gapBig = clampPx(4.5 * 16, 0.12, 9 * 16);
-      var detailGap = detailFont * 0.5;
+      // Anchored near the TOP of the viewport (not vertically centred)
+      // — leaves enough room below for the gap + bio row + photo to
+      // all land inside the same screen without the photo's bottom
+      // edge running past the canvas's own bottom edge (that was the
+      // "photo gets cut off" bug: with the heading dead-centred, the
+      // photo's resting Y could end up below -vh/2, i.e. genuinely
+      // outside the visible framebuffer).
+      var topPad = clampPx(3 * 16, 0.05, 6 * 16);
+      var headingTopY = vh / 2 - topPad;
+      var headingWorldY = headingTopY - heading.userData.h / 2;
+      var gapBig = clampPx(6 * 16, 0.16, 11 * 16);
+      var detailGap = detailFont * 0.25;
       var ledeH = ledeLineMeshes.length * ledeLineH;
       var detailColH = detail1LineMeshes.length * detailLineH + detailGap + detail2LineMeshes.length * detailLineH;
       var bioRowH = isNarrow ? (ledeH + 24 + detailColH) : Math.max(ledeH, detailColH);
