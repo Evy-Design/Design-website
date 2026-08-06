@@ -186,6 +186,16 @@
       return Math.min(Math.max(min, vw * vwFactor), max);
     }
 
+    // Canvas textures are drawn at `dpr` texel density and sampled with
+    // LinearFilter, so a text plane sitting on a fractional CSS pixel
+    // blurs at its edges — the GPU has to blend between texels instead
+    // of landing exactly on one. Snapping every position to the nearest
+    // 1/dpr keeps text pixel-aligned (this is the fix for text reading
+    // "soft" at rest).
+    function snapPx(v) {
+      return Math.round(v * dpr) / dpr;
+    }
+
     function build() {
       group.clear();
       meshes = {};
@@ -258,28 +268,37 @@
       // screen position, computed once here and never touched by
       // scroll again — only the photo actually moves (see the file
       // header comment). ----
-      // Anchored near the TOP of the viewport (not vertically centred)
-      // — leaves enough room below for the gap + bio row + photo to
-      // all land inside the same screen without the photo's bottom
-      // edge running past the canvas's own bottom edge (that was the
-      // "photo gets cut off" bug: with the heading dead-centred, the
-      // photo's resting Y could end up below -vh/2, i.e. genuinely
-      // outside the visible framebuffer).
-      var topPad = clampPx(3 * 16, 0.05, 6 * 16);
+      // Heading anchored near the TOP of the viewport; the bio row +
+      // photo group anchored near the BOTTOM — the gap between them is
+      // whatever's automatically left over in between (like flexbox's
+      // `justify-content: space-between`), not a hand-picked magic
+      // number that only happens to look right at one viewport height.
+      // This is also what keeps the photo from ever running past the
+      // canvas's own bottom edge (the earlier "photo gets cut off"
+      // bug): the bottom of the bio/photo group is pinned a fixed
+      // padding above -vh/2, it can never land past it.
+      // Trimmed to near-minimal — every px shaved off top/bottom padding
+      // is a px handed straight to the auto gap between the heading and
+      // the bio row, which is the whole point of anchoring from the
+      // extremes instead of hand-picking a fixed gap.
+      var topPad = clampPx(1.5 * 16, 0.02, 3 * 16);
       var headingTopY = vh / 2 - topPad;
       var headingWorldY = headingTopY - heading.userData.h / 2;
-      var gapBig = clampPx(6 * 16, 0.16, 11 * 16);
-      var detailGap = detailFont * 0.25;
+      var headingBottomY = headingWorldY - heading.userData.h / 2;
+
+      var detailGap = Math.max(2, detailFont * 0.1);
       var ledeH = ledeLineMeshes.length * ledeLineH;
       var detailColH = detail1LineMeshes.length * detailLineH + detailGap + detail2LineMeshes.length * detailLineH;
       var bioRowH = isNarrow ? (ledeH + 24 + detailColH) : Math.max(ledeH, detailColH);
-      // Directly below the heading in screen space — heading's own
-      // bottom edge, plus a gap, plus half the row's own height lands
-      // on the row's centre.
-      var bioWorldY = headingWorldY - heading.userData.h / 2 - gapBig - bioRowH / 2;
-      var bioTopWorldY = bioWorldY + bioRowH / 2;
 
-      heading.position.set(0, headingWorldY, TEXT_Z);
+      var bottomPad = clampPx(1.5 * 16, 0.02, 3 * 16);
+      var groupH = Math.max(bioRowH, photoH); // photo top-aligns with the bio row's top, so the taller of the two sets the group's bottom
+      var bioTopWorldY = -vh / 2 + bottomPad + groupH;
+      var minGap = clampPx(2 * 16, 0.03, 4 * 16);
+      bioTopWorldY = Math.min(bioTopWorldY, headingBottomY - minGap); // never overlap the heading on a very short viewport
+      var bioWorldY = bioTopWorldY - bioRowH / 2;
+
+      heading.position.set(0, snapPx(headingWorldY), TEXT_Z);
 
       // Stacks one column's line meshes top-to-bottom starting at
       // `topY`. Returns per-line {mesh, width, align, edge} — NOT a
@@ -299,7 +318,7 @@
         var y = topY - lineH / 2;
         var items = [];
         lineMeshes.forEach(function (m) {
-          m.position.set(0, y, TEXT_Z);
+          m.position.set(0, snapPx(y), TEXT_Z);
           items.push({ mesh: m, width: m.userData.w, align: align, edge: isNarrow ? 0 : sharedEdgeX });
           y -= lineH;
         });
@@ -339,8 +358,10 @@
 
       // Fixed scroll room for the descent + push to read as a real
       // scrub, not an instant snap — not derived from content height
-      // anymore, since nothing here actually scrolls.
-      maxScrollPx = Math.max(1, vh * 0.9);
+      // anymore, since nothing here actually scrolls. 1.2vh of scroll
+      // room + the 1vh the canvas itself occupies while pinned = 220svh
+      // total for the section, per the brief.
+      maxScrollPx = Math.max(1, vh * 1.2);
       wrap.style.height = (maxScrollPx + vh) + "px";
 
       update();
@@ -387,7 +408,7 @@
       var t = maxScrollPx > 0 ? scrollPx / maxScrollPx : 1;
 
       var photoT = easeInOutCubic(t);
-      meshes.photo.position.y = meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT;
+      meshes.photo.position.y = snapPx(meshes._photoStartY + (meshes._photoTargetY - meshes._photoStartY) * photoT);
 
       var items = meshes._lineItems;
       var windows = meshes._lineWindows;
@@ -403,7 +424,7 @@
         // every point in the animation (see the comment on
         // layoutColumn above).
         var edgeNow = item.edge * pushAmount(t, windows[i][0], windows[i][1]);
-        item.mesh.position.x = item.align === "right" ? edgeNow - item.width / 2 : edgeNow + item.width / 2;
+        item.mesh.position.x = snapPx(item.align === "right" ? edgeNow - item.width / 2 : edgeNow + item.width / 2);
       }
 
       renderer.render(scene, camera);
