@@ -300,12 +300,12 @@
       // shrinks its margin. Deriving x fresh from a single shared edge
       // value every frame is what keeps it a straight edge at every
       // point along the animation, not just at the very start/end.
-      function layoutColumn(lineMeshes, lineH, topY, align, sharedEdgeX) {
+      function layoutColumn(lineMeshes, lineH, topY, align, sharedEdgeX, pushFrom) {
         var y = topY - lineH / 2;
         var items = [];
         lineMeshes.forEach(function (m) {
           m.position.set(0, snapPx(y), TEXT_Z);
-          items.push({ mesh: m, width: m.userData.w, align: align, edge: sharedEdgeX });
+          items.push({ mesh: m, width: m.userData.w, align: align, edge: sharedEdgeX, pushFrom: pushFrom });
           y -= lineH;
         });
         return items;
@@ -330,10 +330,15 @@
         detailTopWorldY = Math.min(detailTopWorldY, rowBottomY - minGap - ledeH - ledeDetailGap);
         var ledeTopWorldY = detailTopWorldY + ledeDetailGap + ledeH;
 
-        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, ledeTopWorldY, "left", headingLeftEdge);
-        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTopWorldY, "left", headingLeftEdge);
+        // pushFrom 0 (not the wide layout's PUSH_FROM below) — on
+        // mobile the text has the whole frame to itself before the
+        // card arrives, so it starts genuinely centred (not already
+        // 70% of the way to its final edge) and only pushes out to
+        // align with the heading as the card actually gets there.
+        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, ledeTopWorldY, "left", headingLeftEdge, 0);
+        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTopWorldY, "left", headingLeftEdge, 0);
         var narrowDetail2Top = detailTopWorldY - (detail1LineMeshes.length * detailLineH + detailGap);
-        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, narrowDetail2Top, "left", headingLeftEdge);
+        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, narrowDetail2Top, "left", headingLeftEdge, 0);
 
         // Photo travels straight down, same X throughout — from the
         // top row to top-aligned beside the detail paragraph.
@@ -364,11 +369,11 @@
 
         var detailLeftEdge = photoW / 2 + GAP_PX;
         var ledeRightEdge = -(photoW / 2 + GAP_PX);
-        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, bioWorldY + ledeH / 2, "right", ledeRightEdge);
+        ledeItems = layoutColumn(ledeLineMeshes, ledeLineH, bioWorldY + ledeH / 2, "right", ledeRightEdge, PUSH_FROM);
         var detailTop = bioWorldY + detailColH / 2;
-        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTop, "left", detailLeftEdge);
+        detail1Items = layoutColumn(detail1LineMeshes, detailLineH, detailTop, "left", detailLeftEdge, PUSH_FROM);
         var detail2Top = detailTop - (detail1LineMeshes.length * detailLineH + detailGap);
-        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, detail2Top, "left", detailLeftEdge);
+        detail2Items = layoutColumn(detail2LineMeshes, detailLineH, detail2Top, "left", detailLeftEdge, PUSH_FROM);
 
         // Photo travels straight down from overlapping the heading to
         // a rest spot beside the bio row, its own TOP edge landing
@@ -421,15 +426,16 @@
       return windows;
     }
 
-    // Starts from PUSH_FROM (already mostly separated, still legible),
-    // not from 0/overlapping — every line stacked dead-centre on top
-    // of every other just reads as illegible noise; the "push" only
-    // needs to read as the photo nudging each one the rest of the way
-    // into place, not a full entrance.
+    // Starts from pushFrom (0.7 for the wide layout: already mostly
+    // separated, still legible — every line stacked dead-centre on top
+    // of every other just reads as illegible noise when there's other
+    // text sharing the row with it). Narrow's lines pass pushFrom 0
+    // instead, since they have the whole frame to themselves before
+    // the card arrives and can afford to start genuinely centred.
     var PUSH_FROM = 0.7;
-    function pushAmount(t, tStart, tEnd) {
+    function pushAmount(t, tStart, tEnd, pushFrom) {
       var p = Math.min(Math.max((t - tStart) / (tEnd - tStart), 0), 1);
-      return PUSH_FROM + (1 - PUSH_FROM) * easeInOutCubic(p);
+      return pushFrom + (1 - pushFrom) * easeInOutCubic(p);
     }
 
     function update() {
@@ -450,7 +456,7 @@
         // frame, which is what keeps the column's edge straight at
         // every point in the animation (see the comment on
         // layoutColumn above).
-        var edgeNow = item.edge * pushAmount(t, windows[i][0], windows[i][1]);
+        var edgeNow = item.edge * pushAmount(t, windows[i][0], windows[i][1], item.pushFrom);
         item.mesh.position.x = snapPx(item.align === "right" ? edgeNow - item.width / 2 : edgeNow + item.width / 2);
       }
 
