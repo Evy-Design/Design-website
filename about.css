@@ -8,50 +8,161 @@
    =========================================================== */
 
 /* ---- Hero ----
-   Matches gionatannese.com/about's own hero mechanic — confirmed by
-   pulling their actual JS bundle: it's a genuine Three.js/WebGL scene,
-   every piece of text rasterised onto a canvas texture and mapped onto
-   a 3D plane alongside their pinned object, which is how the text can
-   pass behind/through it with real depth. Reproduced the same way here
-   (about.js, initHeroScene()) — the canvas below is the whole visual
-   layer; the sr-only heading/paragraphs right before it (about.html)
-   carry the real content for accessibility/SEO, same pattern the
-   reference's own about page uses. The canvas is position: sticky
-   inside a tall wrapper, same proven pin/release pattern used
-   elsewhere on this site (e.g. the timeline pin) — about.js positions
-   everything INSIDE the canvas each frame based on scroll, mapping
-   scroll progress straight to animation progress across the WHOLE
-   220svh range (no dead zone anywhere in it — see the REST_START/
-   REST_END comment previously here, since removed: it made the scroll
-   read as "stand still, then catch up" instead of one continuous
-   scrub, which is exactly what the card being sticky the whole time
-   is supposed to avoid). Release is automatic once the wrapper's own
-   height runs out — nothing further to pin against. */
+   A normal 220svh section, no pin/canvas — .eod-about-hero__grid puts
+   .eod-about-hero__stack (the text — title block, then body block,
+   each 100svh and flex-centred within itself) and
+   .eod-about-hero__photo-sticky in the SAME grid cell, so they overlap
+   rather than sitting in separate columns: the sticky, viewport-
+   centred photo visually sits on top of/beside the text underneath it,
+   same composition the old build had. Desktop: photo centred, heading
+   centred under it, body text in two columns (lede/detail) flanking
+   it with a small rest gap. Mobile/tablet (see the media query):
+   photo pinned to the left the whole time, heading and body text both
+   right-aligned in the remaining width. Either way the photo itself
+   never moves horizontally or vertically beyond simple sticky-centring
+   — the "push apart as the card arrives" motion is the TEXT's own doing
+   (about.js, initHeroPush(), a plain GSAP scrub with no pin — nothing
+   here ever freezes, matching the "just a normal section" brief). */
 .eod-about-hero {
   position: relative;
   background: var(--eod-white);
   padding-bottom: 20svh;
 }
-.eod-about-hero__canvas-wrap {
-  position: relative;
-  /* Overridden inline by about.js once it's measured how much scroll
-     distance the actual text content needs — this is just a sane
-     fallback before that JS runs. */
-  height: 260svh;
-}
-.eod-about-hero__canvas {
-  position: sticky;
-  top: 0;
-  display: block;
+.eod-about-hero__grid {
+  display: grid;
   width: 100%;
-  height: 100svh;
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+}
+.eod-about-hero__stack,
+.eod-about-hero__photo-sticky {
+  grid-column: 1;
+  grid-row: 1;
+}
+.eod-about-hero__stack {
+  position: relative;
+  z-index: 1;
+}
+.eod-about-hero__title-block {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 2.5em;
+}
+.eod-about-hero__heading {
+  margin: 0;
+  max-width: 18em;
+  font-size: clamp(2.25em, 4.4vw, 4.25em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.eod-about-hero__body-block {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 0 2.5em;
+}
+.eod-about-hero__body-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3em;
+  width: 100%;
+}
+.eod-about-hero__body-col {
+  flex: 1 1 24em;
+  max-width: 24em;
+  min-width: 0;
+}
+.eod-about-hero__body-col--lede {
+  text-align: right;
+}
+.eod-about-hero__lede {
+  margin: 0;
+  font-size: 1.05em;
+  line-height: 1.65;
+  color: var(--eod-ink);
+}
+.eod-about-hero__detail {
+  margin: 0 0 1.5em;
+  font-size: 0.9em;
+  line-height: 1.65;
+  color: #6b6b6b;
+}
+.eod-about-hero__detail:last-of-type {
+  margin-bottom: 0;
 }
 .eod-about-hero__cta {
-  width: 100%;
-  max-width: 62em;
-  margin: 0 auto;
+  margin-top: 1.5em;
   display: flex;
-  justify-content: flex-end;
+}
+.eod-about-hero__photo-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.eod-about-hero__photo {
+  margin: 0;
+  width: clamp(14em, 20vw, 20em);
+  aspect-ratio: 4 / 5;
+  border-radius: var(--eod-radius);
+  overflow: hidden;
+  box-shadow: 0 1.5em 3em rgba(0, 0, 0, 0.16);
+  pointer-events: auto;
+}
+.eod-about-hero__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 1024px) {
+  .eod-about-hero {
+    /* Kept in sync between the photo itself and the text's reserved
+       left padding via this one variable, so they can never end up
+       overlapping regardless of where the clamp() lands. */
+    --eod-hero-photo-w: clamp(9em, 30vw, 13em);
+  }
+  .eod-about-hero__title-block,
+  .eod-about-hero__body-block {
+    justify-content: flex-end;
+    padding-left: calc(var(--eod-hero-photo-w) + 2em);
+    padding-right: 1.25em;
+  }
+  .eod-about-hero__title-block {
+    text-align: right;
+  }
+  .eod-about-hero__heading {
+    max-width: none;
+  }
+  .eod-about-hero__body-row {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5em;
+  }
+  .eod-about-hero__body-col {
+    max-width: none;
+    width: 100%;
+  }
+  .eod-about-hero__body-col--lede,
+  .eod-about-hero__body-col--detail {
+    text-align: right;
+  }
+  .eod-about-hero__photo-sticky {
+    justify-content: flex-start;
+    padding-left: 1.25em;
+  }
+  .eod-about-hero__photo {
+    width: var(--eod-hero-photo-w);
+  }
 }
 
 /* ---- "My Design Journey" timeline ----
