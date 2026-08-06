@@ -8,99 +8,50 @@
    =========================================================== */
 
 /* ---- Hero ----
-   A normal 220svh section — no pin, no scrub, no canvas. .eod-about-hero__grid
-   is exactly that tall, split into a text column and a photo column:
-   - .eod-about-hero__heading is flexed to fill the first 100svh of the
-     text column, centred — so the instant you scroll the section into
-     view, the heading is sitting dead-centre on screen, same as the
-     brief asks for. Everything below it (the bio paragraphs, the CTA)
-     just follows in normal flow — you scroll down to reach it, nothing
-     is fixed in place while you do.
-   - .eod-about-hero__photo-col is position: sticky, so once its own
-     top edge would scroll past `top` below, it locks there instead and
-     rides along with the rest of the (much taller) grid, releasing on
-     its own once the grid runs out — the exact same "sticky release
-     when the taller sibling ends" mechanic used for the timeline pin,
-     just via plain CSS instead of GSAP since there's no scrub math
-     needed here. */
+   Matches gionatannese.com/about's own hero mechanic — confirmed by
+   pulling their actual JS bundle: it's a genuine Three.js/WebGL scene,
+   every piece of text rasterised onto a canvas texture and mapped onto
+   a 3D plane alongside their pinned object, which is how the text can
+   pass behind/through it with real depth. Reproduced the same way here
+   (about.js, initHeroScene()) — the canvas below is the whole visual
+   layer; the sr-only heading/paragraphs right before it (about.html)
+   carry the real content for accessibility/SEO, same pattern the
+   reference's own about page uses. The canvas is position: sticky
+   inside a tall wrapper, same proven pin/release pattern used
+   elsewhere on this site (e.g. the timeline pin) — about.js positions
+   everything INSIDE the canvas each frame based on scroll, mapping
+   scroll progress straight to animation progress across the WHOLE
+   220svh range (no dead zone anywhere in it — see the REST_START/
+   REST_END comment previously here, since removed: it made the scroll
+   read as "stand still, then catch up" instead of one continuous
+   scrub, which is exactly what the card being sticky the whole time
+   is supposed to avoid). Release is automatic once the wrapper's own
+   height runs out — nothing further to pin against. */
 .eod-about-hero {
   position: relative;
   background: var(--eod-white);
-  padding-top: 6em;
-  padding-bottom: 10em;
+  padding-bottom: 20svh;
 }
-.eod-about-hero__grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  align-items: start;
-  gap: clamp(2em, 5vw, 5em);
-  width: 100%;
-  max-width: var(--eod-content-max);
-  margin: 0 auto;
-  min-height: 220svh;
+.eod-about-hero__canvas-wrap {
+  position: relative;
+  /* Overridden inline by about.js once it's measured how much scroll
+     distance the actual text content needs — this is just a sane
+     fallback before that JS runs. */
+  height: 260svh;
 }
-.eod-about-hero__text {
-  display: flex;
-  flex-direction: column;
-  min-height: 220svh;
-}
-.eod-about-hero__heading {
-  flex: 0 0 auto;
-  min-height: 100svh;
-  display: flex;
-  align-items: center;
-  margin: 0;
-  font-size: clamp(2.25em, 4.4vw, 4.25em);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-.eod-about-hero__body {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5em;
-  max-width: 34em;
-  font-size: 1.05em;
-  line-height: 1.65;
-}
-.eod-about-hero__lede {
-  margin: 0;
-  color: var(--eod-ink);
-}
-.eod-about-hero__detail {
-  margin: 0;
-  color: #6b6b6b;
-  font-size: 0.9em;
-}
-.eod-about-hero__cta {
-  margin-top: 3em;
-  display: flex;
-  justify-content: flex-end;
-  max-width: 34em;
-}
-.eod-about-hero__photo-col {
+.eod-about-hero__canvas {
   position: sticky;
-  top: 10svh;
-  align-self: start;
-}
-.eod-about-hero__photo {
-  margin: 0;
-  aspect-ratio: 4 / 5;
-  border-radius: var(--eod-radius);
-  overflow: hidden;
-  box-shadow: 0 1.5em 3em rgba(0, 0, 0, 0.16);
-}
-.eod-about-hero__photo img {
+  top: 0;
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 100svh;
 }
-@media (max-width: 767px) {
-  .eod-about-hero {
-    padding-top: 4em;
-    padding-bottom: 6em;
-  }
+.eod-about-hero__cta {
+  width: 100%;
+  max-width: 62em;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
 }
 
 /* ---- "My Design Journey" timeline ----
@@ -120,6 +71,7 @@
   padding-bottom: 6em;
   overflow: hidden;
   height: 100svh;
+  align-items: center;
 }
 .eod-timeline__row {
   display: flex;

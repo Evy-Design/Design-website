@@ -6,7 +6,7 @@
   <title>Evy Diepenbroek — About</title>
   <link rel="stylesheet" href="shared.css?v=2" />
   <link rel="stylesheet" href="test-navigation.css?v=5" />
-  <link rel="stylesheet" href="about.css?v=20" />
+  <link rel="stylesheet" href="about.css?v=21" />
   <style>body { margin: 0; }</style>
 </head>
 <body>
@@ -77,35 +77,30 @@
   </div>
 
   <main class="eod-page">
-    <!-- Hero — a normal 220svh section, not a pinned canvas: the
-         heading sits centred in the first 100svh (so it's dead-centre
-         on screen the moment you scroll in), the bio text flows
-         normally below it, and the photo is a plain position: sticky
-         column that stays in view while you scroll past both — see
-         .eod-about-hero in about.css. Real semantic markup throughout,
-         no JS needed to drive any of it. -->
-    <section class="eod-about-hero">
-      <div class="eod-about-hero__grid">
-        <div class="eod-about-hero__text">
-          <h1 class="eod-about-hero__heading" data-eod-reveal>Hi, I&rsquo;m Evy Olivia Diepenbroek. Nice to meet you!</h1>
-          <div class="eod-about-hero__body">
-            <p class="eod-about-hero__lede" data-eod-reveal>I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next. I&rsquo;m driven by new challenges and staying ahead of trends, and I&rsquo;m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.</p>
-            <p class="eod-about-hero__detail" data-eod-reveal data-eod-reveal-delay="1">I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor&rsquo;s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.</p>
-            <p class="eod-about-hero__detail" data-eod-reveal data-eod-reveal-delay="2">I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I&rsquo;ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.</p>
-          </div>
-          <div class="eod-about-hero__cta" data-eod-reveal>
-            <a href="/projects" class="eod-btn eod-btn--dark">
-              <span class="eod-btn__label">Go to my work</span>
-              <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-              <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
-            </a>
-          </div>
-        </div>
-        <div class="eod-about-hero__photo-col">
-          <figure class="eod-about-hero__photo">
-            <img src="assets/tornado Images/back-card-image/evy-portrait.jpg" alt="Portrait of Evy Diepenbroek" />
-          </figure>
-        </div>
+    <!-- Hero — a genuine Three.js/WebGL scene (about.js, initHeroScene())
+         so the photo can render in front of the text with real depth,
+         same technique gionatannese.com/about's own hero uses (confirmed
+         by pulling their actual JS bundle). The canvas is position: sticky
+         inside a tall wrapper for the pin/release — the card stays pinned
+         for the WHOLE 220svh scroll range, nothing pauses partway through.
+         Real semantic markup below (sr-only) carries the actual content
+         for accessibility/SEO. -->
+    <section class="eod-about-hero" data-eod-about-hero>
+      <h1 class="sr-only">Hi, I&rsquo;m Evy Olivia Diepenbroek. Nice to meet you!</h1>
+      <p class="sr-only">I&rsquo;m a Graphic Designer, always chasing what&rsquo;s next. I&rsquo;m driven by new challenges and staying ahead of trends, and I&rsquo;m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.</p>
+      <p class="sr-only">I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor&rsquo;s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.</p>
+      <p class="sr-only">I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I&rsquo;ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.</p>
+
+      <div class="eod-about-hero__canvas-wrap" data-eod-hero-canvas-wrap>
+        <canvas class="eod-about-hero__canvas" data-eod-hero-canvas aria-hidden="true"></canvas>
+      </div>
+
+      <div class="eod-about-hero__cta" data-eod-reveal>
+        <a href="/projects" class="eod-btn eod-btn--dark">
+          <span class="eod-btn__label">Go to my work</span>
+          <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+          <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+        </a>
       </div>
     </section>
 
@@ -209,9 +204,14 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <!-- Three.js — only used by the hero scene (about.js's initHeroScene),
+       matching the actual technique the reference site uses there (see
+       the comment on .eod-about-hero above). Not used anywhere else on
+       the site — every other page/section is plain DOM + CSS + GSAP. -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="test-navigation.js?v=4"></script>
   <script src="content.js?v=3"></script>
   <script src="script.js?v=26"></script>
-  <script src="about.js?v=31"></script>
+  <script src="about.js?v=32"></script>
 </body>
 </html>
