@@ -69,23 +69,66 @@
       var mm = gsap.matchMedia();
 
       // Desktop/tablet: lede's lines push LEFT, detail's lines push
-      // RIGHT — two columns spreading apart from their small rest gap,
-      // photo sits centred in the gap between them.
+      // RIGHT — two columns spreading apart from their small (3em) rest
+      // gap, photo sits centred in the gap between them. The push
+      // amount is derived from the PHOTO's own rendered width (not a
+      // flat "5em" guess): the rest gap is 3em, so each column's inner
+      // edge starts 1.5em out from centre already — pushing it out by
+      // exactly half the photo's width lands that edge at
+      // photoWidth/2 + 1.5em from centre, i.e. exactly 1.5em clear of
+      // the photo's own edge, whatever width it resolves to.
+      //
+      // Each LINE gets its own ScrollTrigger, tied to that specific
+      // line's own position crossing the viewport's centre — not one
+      // shared trigger on bodyBlock with an artificial stagger. The
+      // card is sticky and centred in the viewport the whole time, so
+      // a shared, bodyBlock-sized range only ever approximates "when
+      // is this line near the card" — a stagger value has no idea
+      // where any given line actually is on screen, it's just a fixed
+      // time offset, which is exactly why it kept reading as reacting
+      // to an arbitrary scroll amount instead of to the card itself
+      // ("too late"/disconnected). Per-line triggers fix that at the
+      // source: each line starts pushing once ITS OWN bottom edge
+      // nears the centre (where the card sits) and finishes once its
+      // top edge has cleared it — genuinely reacting to that one
+      // line's real passage past the fixed card, nothing else.
       mm.add("(min-width: 1025px)", function () {
         var split = splitAll();
-        var tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: bodyBlock,
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-          },
-        });
-        tl.fromTo(split.ledeLines, { x: 0 }, { x: "-5em", ease: "none", stagger: 0.08 })
-          .fromTo(split.detailLines, { x: 0 }, { x: "5em", ease: "none", stagger: 0.05 });
+        var photoEl = document.querySelector(".eod-about-hero__photo");
+        var push = (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
+        var photoHalfH = (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
+        var triggers = [];
+
+        // A wide, symmetric window (card's full height, eased linearly
+        // the whole way through) made the push read as a slow drift
+        // tied to proximity, not a reaction to actual contact — by the
+        // time you could see why it was happening, it was already half
+        // done. Real contact is a much SHORTER, more sudden event: the
+        // line snaps out of the way right as the card's leading (top)
+        // edge reaches it, over just a small scroll distance, then
+        // holds — it doesn't keep gradually easing for the entire time
+        // the card is anywhere near it.
+        var snapDistance = 60;
+
+        function animateLine(line, dir) {
+          var tw = gsap.fromTo(line, { x: 0 }, {
+            x: dir * push,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: line,
+              start: "bottom center+=" + photoHalfH,
+              end: "bottom center+=" + (photoHalfH - snapDistance),
+              scrub: true,
+            },
+          });
+          triggers.push(tw.scrollTrigger);
+        }
+
+        split.ledeLines.forEach(function (line) { animateLine(line, -1); });
+        split.detailLines.forEach(function (line) { animateLine(line, 1); });
+
         return function () {
-          tl.scrollTrigger.kill();
-          tl.kill();
+          triggers.forEach(function (t) { t.kill(); });
           split.revert();
         };
       });
@@ -93,19 +136,36 @@
       // Mobile/tablet: it's really one reading column (lede above
       // detail, see about.css) — every line pushes the SAME direction,
       // starting shifted left toward centre and easing right into its
-      // resting, right-aligned position next to the photo on the left.
+      // resting, left-aligned-text position next to the photo on the
+      // left. Same "one combined array, one shared stagger" fix as
+      // desktop. The range spans nearly the WHOLE body-block rather
+      // than just one viewport's worth — mobile stacks lede + both
+      // detail paragraphs into a single, often multi-screen-tall
+      // column, so a range sized for a one-viewport-tall block finished
+      // the push almost as soon as it started (the "paragraphs move a
+      // bit too early" report). It stops exactly at the sticky photo's
+      // OWN release point (bodyBlock's height, minus how tall the now-
+      // content-sized sticky wrapper is, plus one viewport for the
+      // lead-in) rather than at the block's true bottom — going any
+      // further would mean the text is still easing into place after
+      // the card has already scrolled away and released, which looks
+      // broken (text animating with nothing to "arrive" for).
       mm.add("(max-width: 1024px)", function () {
         var split = splitAll();
+        var allLines = split.ledeLines.concat(split.detailLines);
+        var photoStickyEl = document.querySelector(".eod-about-hero__photo-sticky");
+        var stickyH = photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 0;
+        var bodyH = bodyBlock.getBoundingClientRect().height;
+        var pushRange = bodyH - stickyH + window.innerHeight;
         var tl = gsap.timeline({
           scrollTrigger: {
             trigger: bodyBlock,
             start: "top bottom",
-            end: "top top",
+            end: "+=" + pushRange,
             scrub: true,
           },
         });
-        tl.fromTo(split.ledeLines, { x: "-6em" }, { x: 0, ease: "none", stagger: 0.08 })
-          .fromTo(split.detailLines, { x: "-6em" }, { x: 0, ease: "none", stagger: 0.05 });
+        tl.fromTo(allLines, { x: "-6em" }, { x: 0, ease: "none", stagger: 0.05 });
         return function () {
           tl.scrollTrigger.kill();
           tl.kill();

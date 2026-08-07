@@ -53,7 +53,7 @@
 }
 .eod-about-hero__heading {
   margin: 0;
-  max-width: 18em;
+  max-width: 10em;
   font-size: clamp(2.25em, 4.4vw, 4.25em);
   font-weight: 400;
   letter-spacing: -0.02em;
@@ -83,6 +83,7 @@
 .eod-about-hero__lede {
   margin: 0;
   font-size: 1.05em;
+  font-weight: 400;
   line-height: 1.65;
   color: var(--eod-ink);
 }
@@ -98,6 +99,7 @@
 .eod-about-hero__cta {
   margin-top: 1.5em;
   display: flex;
+  justify-content: flex-end;
 }
 .eod-about-hero__photo-sticky {
   position: sticky;
@@ -137,8 +139,11 @@
     padding-left: calc(var(--eod-hero-photo-w) + 2em);
     padding-right: 1.25em;
   }
+  /* The title block still sits pushed to the right (beside the card),
+     but reads the same ragged-right way the body copy does now — see
+     the comment on .eod-about-hero__body-col--lede below. */
   .eod-about-hero__title-block {
-    text-align: right;
+    text-align: left;
   }
   .eod-about-hero__heading {
     max-width: none;
@@ -152,11 +157,41 @@
     max-width: none;
     width: 100%;
   }
+  /* The BLOCK still sits pushed over to the right (aligned under the
+     heading) — but multi-line body copy set ragged-LEFT reads far
+     easier than ragged-right, so the text within each line stays
+     left-aligned regardless of which side of the screen the column
+     itself lives on. */
   .eod-about-hero__body-col--lede,
   .eod-about-hero__body-col--detail {
-    text-align: right;
+    text-align: left;
   }
+  /* Desktop's photo-sticky is a full 100svh box specifically so
+     flex-centring lands the photo at true viewport-centre (see the
+     comment on that rule) — but that same full-viewport box is also
+     what forces an EARLY sticky release: a sticky element can only
+     stay stuck while at least its own height of container remains
+     below it, and mobile's body text (stacked into one long column,
+     often several screens tall) makes that release point land well
+     before the actual bottom. So here the sticky box shrinks to just
+     the photo's own size instead — that minimises the "own height"
+     cost and lets it stay stuck almost the entire way, releasing only
+     once its bottom is genuinely about to run past the last line.
+     Card should still sit centred in the viewport the whole time
+     though (same "always in the middle of the frame" brief as
+     desktop) — with a real height now instead of 100svh, `top: 50%`
+     would centre it BUT percentages for a sticky element's `top`
+     resolve against its own containing block (here, the grid item's
+     full generated row — thousands of px tall, not the viewport), so
+     plain 50%+translateY(-50%) lands nowhere near centre (confirmed by
+     measuring it earlier: badly asymmetric space above/below). Doing
+     the centring arithmetic ourselves — half the viewport, minus half
+     the photo's own (aspect-ratio-derived) rendered height — sidesteps
+     that percentage-resolution question entirely and needs no JS. */
   .eod-about-hero__photo-sticky {
+    height: auto;
+    top: calc(50vh - (var(--eod-hero-photo-w) * 1.25 / 2));
+    align-self: start;
     justify-content: flex-start;
     padding-left: 1.25em;
   }

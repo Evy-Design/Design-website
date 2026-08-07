@@ -110,6 +110,14 @@ body.eod-is-scrolling .eod-btn {
   border: 0;
 }
 
+/* Temporary content hide — fully removed from view and layout (unlike
+   .sr-only above, which stays readable to screen readers/search). Used
+   to pull the email address off the site for now without deleting it
+   from the markup. */
+.eod-hidden {
+  display: none;
+}
+
 /* Three parts, two of them fixed in place: an accent-blue circle at
    the very left and a white-outlined circle at the very right never
    move — only the black label between them slides. At rest, the
