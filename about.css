@@ -7,41 +7,121 @@
    hero, the design-journey timeline, and the logo tile grid.
    =========================================================== */
 
-/* ---- Hero ----
-   A normal 220svh section, no pin/canvas — .eod-about-hero__grid puts
-   .eod-about-hero__stack (the text — title block, then body block,
-   each 100svh and flex-centred within itself) and
-   .eod-about-hero__photo-sticky in the SAME grid cell, so they overlap
-   rather than sitting in separate columns: the sticky, viewport-
-   centred photo visually sits on top of/beside the text underneath it,
-   same composition the old build had. Desktop: photo centred, heading
-   centred under it, body text in two columns (lede/detail) flanking
-   it with a small rest gap. Mobile/tablet (see the media query):
-   photo pinned to the left the whole time, heading and body text both
-   right-aligned in the remaining width. Either way the photo itself
-   never moves horizontally or vertically beyond simple sticky-centring
-   — the "push apart as the card arrives" motion is the TEXT's own doing
-   (about.js, initHeroPush(), a plain GSAP scrub with no pin — nothing
-   here ever freezes, matching the "just a normal section" brief). */
-.eod-about-hero {
-  position: relative;
-  background: var(--eod-white);
-  padding-bottom: 20svh;
-}
-.eod-about-hero__grid {
+/* ---- Journey (hero + timeline, ONE shared sticky card) ----
+   The hero and the timeline each used to have their own sticky photo;
+   now they share a single one. .eod-journey__stack (the hero section
+   followed by the timeline section, stacked in normal flow) and
+   .eod-journey__photo-sticky occupy the SAME grid cell (the same
+   grid-overlay trick as before, just spanning both sections' combined
+   height now), so one sticky, centred photo card genuinely scrolls
+   through the entire thing without ever releasing and re-appearing at
+   the hero/timeline seam. It starts as Evy's portrait, flips over
+   into the first milestone's own photo right as that milestone
+   arrives (a literal 3D flip, not a fade — see initJourneyPush() in
+   about.js), then simply cross-fades between the remaining milestones
+   after that, same as before. */
+.eod-journey__grid {
   display: grid;
   width: 100%;
   max-width: var(--eod-content-max);
   margin: 0 auto;
 }
-.eod-about-hero__stack,
-.eod-about-hero__photo-sticky {
+.eod-journey__stack,
+.eod-journey__photo-sticky {
   grid-column: 1;
   grid-row: 1;
 }
-.eod-about-hero__stack {
+.eod-journey__stack {
   position: relative;
   z-index: 1;
+}
+.eod-journey__photo-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.eod-journey__photo {
+  position: relative;
+  margin: 0;
+  width: clamp(14em, 20vw, 20em);
+  aspect-ratio: 4 / 5;
+  border-radius: var(--eod-radius);
+  overflow: hidden;
+  box-shadow: 0 1.5em 3em rgba(0, 0, 0, 0.3);
+  /* Needed for the hero→first-milestone flip's rotateY to read as a
+     3D turn rather than a flat horizontal squash. */
+  perspective: 1400px;
+}
+.eod-journey__photo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  /* Hides whichever image is edge-on/reversed mid-flip (about.js
+     rotates the outgoing image to its own data-rotate-hidden angle and
+     the incoming one in from its own) — for every OTHER (non-flip)
+     transition rotateY simply stays 0, so this has no effect and the
+     plain opacity crossfade is all that's visible. No CSS transition
+     here — about.js animates both opacity and rotateY together via
+     GSAP so they stay in lockstep; a parallel CSS transition on the
+     same property would just fight it frame to frame. */
+  backface-visibility: hidden;
+}
+.eod-journey__photo-img.is-active {
+  /* Non-JS fallback only — once about.js runs it drives opacity
+     itself via inline styles, which win over this class regardless. */
+  opacity: 1;
+}
+@media (max-width: 1024px) {
+  .eod-journey {
+    /* Single source of truth for the mobile photo's width, shared by
+       the photo itself AND both the hero's and the timeline's text
+       columns (their left padding reserves exactly this much room) —
+       kept on the outer wrapper so it cascades to both sections. */
+    --eod-journey-photo-w: clamp(9em, 30vw, 13em);
+  }
+  /* See the desktop rule's own comment above for why 100svh flex-
+     centring can't just carry over here (mobile's stacked body text
+     runs many screens tall and would force an early sticky release),
+     and why 50% isn't the fix either (percentage `top` on a sticky
+     element resolves against its own containing block, not the
+     viewport) — this is the same measured, JS-free centring fix used
+     before, now shared by both sections. */
+  .eod-journey__photo-sticky {
+    height: auto;
+    top: calc(50vh - (var(--eod-journey-photo-w) * 1.25 / 2));
+    align-self: start;
+    justify-content: flex-start;
+    padding-left: 1.25em;
+  }
+  .eod-journey__photo {
+    width: var(--eod-journey-photo-w);
+  }
+}
+
+/* ---- Hero ----
+   Just the text now — title block, then body block, each 100svh and
+   flex-centred within itself; the sticky photo that visually overlays
+   them lives one level up (see .eod-journey above). Desktop: heading
+   centred, body text in two columns (lede/detail) flanking the photo
+   with a small rest gap. Mobile/tablet (see the media query): heading
+   and body text both right-aligned in the width remaining beside the
+   photo, which stays pinned to the left the whole time. Either way
+   the photo itself never moves horizontally or vertically beyond
+   simple sticky-centring — the "push apart as the card arrives"
+   motion is the TEXT's own doing (about.js, initHeroPush(), a plain
+   GSAP scrub with no pin — nothing here ever freezes). */
+.eod-about-hero {
+  position: relative;
+  background: var(--eod-white);
+  padding-bottom: 20svh;
 }
 .eod-about-hero__title-block {
   min-height: 100svh;
@@ -101,42 +181,11 @@
   display: flex;
   justify-content: flex-end;
 }
-.eod-about-hero__photo-sticky {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 2;
-}
-.eod-about-hero__photo {
-  margin: 0;
-  width: clamp(14em, 20vw, 20em);
-  aspect-ratio: 4 / 5;
-  border-radius: var(--eod-radius);
-  overflow: hidden;
-  box-shadow: 0 1.5em 3em rgba(0, 0, 0, 0.16);
-  pointer-events: auto;
-}
-.eod-about-hero__photo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 @media (max-width: 1024px) {
-  .eod-about-hero {
-    /* Kept in sync between the photo itself and the text's reserved
-       left padding via this one variable, so they can never end up
-       overlapping regardless of where the clamp() lands. */
-    --eod-hero-photo-w: clamp(9em, 30vw, 13em);
-  }
   .eod-about-hero__title-block,
   .eod-about-hero__body-block {
     justify-content: flex-end;
-    padding-left: calc(var(--eod-hero-photo-w) + 2em);
+    padding-left: calc(var(--eod-journey-photo-w) + 2em);
     padding-right: 1.25em;
   }
   /* The title block still sits pushed to the right (beside the card),
@@ -154,6 +203,14 @@
     gap: 1.5em;
   }
   .eod-about-hero__body-col {
+    /* The desktop rule's flex-basis (24em) sizes WIDTH there, since
+       the row is flex-direction:row — but body-row switches to
+       flex-direction:column here, where that same 24em would instead
+       size HEIGHT, forcing each column to a 24em-tall box regardless
+       of its actual text length (a big dead gap under short content
+       like the lede). Resetting the basis to auto makes each column
+       just as tall as what's actually in it. */
+    flex-basis: auto;
     max-width: none;
     width: 100%;
   }
@@ -166,207 +223,125 @@
   .eod-about-hero__body-col--detail {
     text-align: left;
   }
-  /* Desktop's photo-sticky is a full 100svh box specifically so
-     flex-centring lands the photo at true viewport-centre (see the
-     comment on that rule) — but that same full-viewport box is also
-     what forces an EARLY sticky release: a sticky element can only
-     stay stuck while at least its own height of container remains
-     below it, and mobile's body text (stacked into one long column,
-     often several screens tall) makes that release point land well
-     before the actual bottom. So here the sticky box shrinks to just
-     the photo's own size instead — that minimises the "own height"
-     cost and lets it stay stuck almost the entire way, releasing only
-     once its bottom is genuinely about to run past the last line.
-     Card should still sit centred in the viewport the whole time
-     though (same "always in the middle of the frame" brief as
-     desktop) — with a real height now instead of 100svh, `top: 50%`
-     would centre it BUT percentages for a sticky element's `top`
-     resolve against its own containing block (here, the grid item's
-     full generated row — thousands of px tall, not the viewport), so
-     plain 50%+translateY(-50%) lands nowhere near centre (confirmed by
-     measuring it earlier: badly asymmetric space above/below). Doing
-     the centring arithmetic ourselves — half the viewport, minus half
-     the photo's own (aspect-ratio-derived) rendered height — sidesteps
-     that percentage-resolution question entirely and needs no JS. */
-  .eod-about-hero__photo-sticky {
-    height: auto;
-    top: calc(50vh - (var(--eod-hero-photo-w) * 1.25 / 2));
-    align-self: start;
-    justify-content: flex-start;
-    padding-left: 1.25em;
-  }
-  .eod-about-hero__photo {
-    width: var(--eod-hero-photo-w);
-  }
 }
 
-/* ---- "My Design Journey" timeline ----
-   Desktop/tablet (min-width: 1025px): a horizontal, scroll-scrubbed
-   filmstrip — about.js pins the section and translates .eod-timeline__list
-   sideways as you scroll vertically, while .eod-timeline__line-progress
-   fills in lockstep (both driven by the same scrub, so they can't
-   drift apart). Below that width, this same DOM instead lays out as
-   a plain vertical stack (see the media query at the bottom) — no JS
-   pin/scrub there, since a horizontal drag-scrub reads poorly on a
-   touch device and the reference site itself switches to a vertical
-   list at this width too. */
+/* ---- "Time line" section ----
+   Just the text now — the sticky photo that visually overlays it
+   lives one level up (see .eod-journey above, and initJourneyPush()
+   in about.js for the flip/crossfade). Each milestone is its own
+   100svh-tall row, its year/title pushed left and its description
+   pushed right of centre once the sticky photo reaches it — the same
+   per-line push mechanic as the hero's lede/detail columns. */
 .eod-timeline {
+  position: relative;
   background: var(--eod-black);
   color: var(--eod-white);
-  padding-top: 6em;
-  padding-bottom: 6em;
-  overflow: hidden;
-  height: 100svh;
-  align-items: center;
+  /* Deliberately small — this is the LAST section in .eod-journey__stack,
+     so its own trailing space is what decides where the shared sticky
+     card finally releases (see .eod-journey__stack in the comment
+     above). A big buffer here would leave the card lingering, pinned,
+     well past the last line of the last milestone; Awards right after
+     already has its own generous padding-top, so this just needs to
+     clear the last line, not add a second gap on top of that. */
+  padding-bottom: 4em;
 }
-.eod-timeline__row {
-  display: flex;
-  align-items: center;
-  gap: clamp(2em, 5vw, 4em);
+.eod-timeline__intro {
+  padding: 6em 2.5em 2em;
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
 }
 .eod-timeline__heading {
-  flex: 0 0 auto;
-  width: clamp(13em, 22vw, 19em);
   margin: 0;
-  font-size: clamp(2em, 3.2vw, 3.25em);
+  font-size: clamp(2.5em, 4vw, 4em);
   font-weight: 400;
   letter-spacing: -0.02em;
 }
-.eod-timeline__track {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-}
-.eod-timeline__line {
-  position: relative;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.2);
-  margin-bottom: 3.5em;
-}
-.eod-timeline__line-progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0%;
-  background: var(--eod-accent);
-}
 .eod-timeline__list {
-  display: flex;
-  gap: 4em;
+  position: relative;
+  z-index: 1;
   list-style: none;
   margin: 0;
   padding: 0;
-  width: max-content;
 }
 .eod-timeline__item {
-  flex: 0 0 auto;
-  width: 18em;
-}
-.eod-timeline__marker {
-  position: relative;
-  top: -3.7em;
+  min-height: 100svh;
   display: flex;
   align-items: center;
-  gap: 0.75em;
-  margin-bottom: -1.2em;
-  white-space: nowrap;
+  padding: 0 2.5em;
 }
-.eod-timeline__dot {
-  width: 0.7em;
-  height: 0.7em;
-  border-radius: 50%;
-  background: var(--eod-white);
-  flex: none;
+.eod-timeline__row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3em;
+  width: 100%;
+}
+.eod-timeline__col {
+  flex: 1 1 22em;
+  max-width: 22em;
+  min-width: 0;
+}
+.eod-timeline__col--meta {
+  text-align: right;
+}
+.eod-timeline__col--desc {
+  text-align: left;
 }
 .eod-timeline__year {
-  font-size: 0.9em;
-  color: rgba(255, 255, 255, 0.7);
-}
-.eod-timeline__card {
-  margin: 0;
-}
-.eod-timeline__image {
   display: block;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--eod-radius);
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
+  opacity: 0.6;
 }
-.eod-timeline__caption {
-  margin: 0.9em 0 0;
-  font-size: 1.05em;
+.eod-timeline__title {
+  margin: 0;
+  font-size: clamp(1.4em, 2.1vw, 1.9em);
   font-weight: 400;
+  line-height: 1.25;
 }
-
+.eod-timeline__desc {
+  margin: 0 0 1.5em;
+  font-size: 0.9em;
+  line-height: 1.65;
+  color: rgba(250, 250, 250, 0.7);
+}
+.eod-timeline__desc:last-of-type {
+  margin-bottom: 0;
+}
+.eod-timeline__cta {
+  margin-top: 1.5em;
+  display: flex;
+  justify-content: flex-start;
+}
 @media (max-width: 1024px) {
+  .eod-timeline__intro {
+    padding: 4em 1.25em 2em calc(var(--eod-journey-photo-w) + 2em);
+  }
+  .eod-timeline__item {
+    justify-content: flex-start;
+    padding-left: calc(var(--eod-journey-photo-w) + 2em);
+    padding-right: 1.25em;
+  }
   .eod-timeline__row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 2.5em;
+    gap: 1.25em;
   }
-  .eod-timeline__heading {
-    width: auto;
-  }
-  .eod-timeline__track {
+  .eod-timeline__col {
+    /* Same fix as .eod-about-hero__body-col above — the desktop
+       flex-basis (22em) sizes width there, but .eod-timeline__row is
+       flex-direction:column here, where it would otherwise force each
+       column to a 22em-tall box regardless of actual content. */
+    flex-basis: auto;
+    max-width: none;
     width: 100%;
   }
-  .eod-timeline__line,
-  .eod-timeline__marker {
-    display: none;
+  .eod-timeline__col--meta,
+  .eod-timeline__col--desc {
+    text-align: left;
   }
-  .eod-timeline__list {
-    display: flex;
-    flex-direction: column;
-    gap: 2.75em;
-    width: auto;
-  }
-  .eod-timeline__item {
-    position: relative;
-    width: auto;
-    display: flex;
-    align-items: center;
-    gap: 1.5em;
-    padding-left: 1.75em;
-    border-left: 2px solid rgba(255, 255, 255, 0.2);
-  }
-  .eod-timeline__item::before {
-    content: "";
-    position: absolute;
-    left: -0.45em;
-    top: 0.3em;
-    width: 0.85em;
-    height: 0.85em;
-    border-radius: 50%;
-    background: var(--eod-accent);
-  }
-  .eod-timeline__item-text {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .eod-timeline__year {
-    display: block;
-    margin-bottom: 0.3em;
-  }
-  .eod-timeline__caption {
-    margin: 0;
-    font-size: 1.15em;
-  }
-  .eod-timeline__card {
-    flex: none;
-    width: 7em;
-  }
-  .eod-timeline__image {
-    aspect-ratio: 1 / 1;
-  }
-}
-@media (max-width: 767px) {
-  .eod-timeline {
-    padding-top: 4em;
-    padding-bottom: 4em;
-  }
-  .eod-timeline__card {
-    width: 5.5em;
+  .eod-timeline__cta {
+    justify-content: flex-start;
   }
 }
 

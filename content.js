@@ -28,18 +28,19 @@ window.EOD_CONTENT = {
       body: "In this challenge, I won the Motion Design Honorable Mention Prize. The goal was to celebrate authenticity and unique craftsmanship, using the Netherlands as a canvas. Global and RA*W launched the 2024 Digital Out-of-Home challenge, showcasing work on over 2650 digital screens nationwide. The focus was on evoking emotions and inspiring passersby with creativity. I'm honored to be recognized for my contribution."
     }
   ],
-  // The About page's "My Design Journey" horizontal timeline — add a
-  // new milestone by adding a new object here, nowhere else. Order
-  // here is DOM order (left-to-right in the scroll-scrubbed track /
-  // top-to-bottom in the stacked mobile layout), so put new entries
-  // wherever they belong chronologically rather than always at an end.
+  // The About page's "Time line" section — add a new milestone by
+  // adding a new object here, nowhere else. Order here is DOM order
+  // (top-to-bottom as you scroll), so put new entries wherever they
+  // belong chronologically rather than always at an end. `body` is the
+  // description shown next to the sticky photo once that milestone is
+  // in view.
   timeline: [
-    { year: "2024", title: "Nominated Graphic Designer", image: "assets/tornado Images/5.jpg", alt: "A magazine spread from a print typography project" },
-    { year: "2023 – Relaunch", title: "Portfolio Website Redesign", image: "assets/tornado Images/8-Cense.jpg", alt: "UI screens from the Cense web project" },
-    { year: "2022 – Award", title: "The Penguin Cover Design Award", image: "assets/tornado Images/2.jpg", alt: "The Girl, Woman, Other Penguin book cover design" },
-    { year: "2020", title: "Second Design Degree", image: "assets/tornado Images/4.jpg", alt: "Spreads from a design-research graduation publication" },
-    { year: "2021", title: "Typography Experiments", image: "assets/tornado Images/3.jpg", alt: "An experimental bold typography poster" },
-    { year: "2018", title: "First Illustration Series", image: "assets/tornado Images/6.jpg", alt: "A hand-drawn illustration sheet" }
+    { year: "2024", title: "Nominated Graphic Designer", image: "assets/tornado Images/5.jpg", alt: "A magazine spread from a print typography project", body: "Recognised as a nominated graphic designer for my ongoing print and typography work — a milestone that keeps pushing me to refine my craft on every project I take on." },
+    { year: "2023 – Relaunch", title: "Portfolio Website Redesign", image: "assets/tornado Images/8-Cense.jpg", alt: "UI screens from the Cense web project", body: "Rebuilt my portfolio from the ground up, from the Cense web project's UI through to a whole new design system, sharpening how I present my own work online." },
+    { year: "2022 – Award", title: "The Penguin Cover Design Award", image: "assets/tornado Images/2.jpg", alt: "The Girl, Woman, Other Penguin book cover design", body: "Shortlisted for the 2022 Fiction category with a cover design for Girl, Woman, Other by Bernardine Evaristo — a career highlight I'm still incredibly grateful for." },
+    { year: "2020", title: "Second Design Degree", image: "assets/tornado Images/4.jpg", alt: "Spreads from a design-research graduation publication", body: "Completed my second design degree with a research-driven graduation publication, deepening how I think about design as more than just the visual layer." },
+    { year: "2021", title: "Typography Experiments", image: "assets/tornado Images/3.jpg", alt: "An experimental bold typography poster", body: "A personal deep-dive into bold, experimental typography — pushing scale, rhythm and contrast far past what a typical client brief would ever allow." },
+    { year: "2018", title: "First Illustration Series", image: "assets/tornado Images/6.jpg", alt: "A hand-drawn illustration sheet", body: "My first hand-drawn illustration series, and the project that first got me hooked on visual storytelling as a career rather than just a hobby." }
   ],
   cta: {
     // Each role's word and badge image cycle together in lockstep
@@ -99,24 +100,46 @@ window.EOD_CONTENT = {
 
   function renderTimeline() {
     const list = document.querySelector(".eod-timeline__list");
+    const photo = document.querySelector("[data-eod-journey-photo]");
     if (!list) return;
-    list.innerHTML = window.EOD_CONTENT.timeline.map(function (item, i) {
+    const items = window.EOD_CONTENT.timeline;
+
+    list.innerHTML = items.map(function (item, i) {
       return (
-        '<li class="eod-timeline__item" data-eod-reveal data-eod-reveal-delay="' + Math.min(i, 5) + '">' +
-          '<div class="eod-timeline__marker">' +
-            '<span class="eod-timeline__dot" aria-hidden="true"></span>' +
-            '<span class="eod-timeline__year">' + item.year + "</span>" +
-          "</div>" +
-          '<div class="eod-timeline__item-text">' +
-            '<span class="eod-timeline__year">' + item.year + "</span>" +
-            '<figure class="eod-timeline__card">' +
-              '<img class="eod-timeline__image" src="' + item.image + '" alt="' + item.alt + '" />' +
-              '<figcaption class="eod-timeline__caption">' + item.title + "</figcaption>" +
-            "</figure>" +
+        '<li class="eod-timeline__item" data-eod-timeline-item data-index="' + i + '">' +
+          '<div class="eod-timeline__row">' +
+            '<div class="eod-timeline__col eod-timeline__col--meta" data-eod-timeline-col="meta">' +
+              '<span class="eod-timeline__year">' + item.year + "</span>" +
+              '<h3 class="eod-timeline__title">' + item.title + "</h3>" +
+            "</div>" +
+            '<div class="eod-timeline__col eod-timeline__col--desc" data-eod-timeline-col="desc">' +
+              '<p class="eod-timeline__desc">' + item.body + "</p>" +
+              '<div class="eod-timeline__cta">' +
+                '<a href="/projects" class="eod-btn eod-btn--light">' +
+                  '<span class="eod-btn__label">Go to my work</span>' +
+                  '<span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                  '<span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                "</a>" +
+              "</div>" +
+            "</div>" +
           "</div>" +
         "</li>"
       );
     }).join("");
+
+    // Appended AFTER the hero portrait already sitting in the figure
+    // (see about.html) — not a replace — since that portrait is the
+    // shared card's starting image; about.js flips into image[0] and
+    // cross-fades through the rest from there. Only image[0] carries
+    // data-rotate-hidden (the hero portrait's own counterpart angle,
+    // see about.html) — it's the one half of the flip pair, the rest
+    // are plain crossfades with no rotation.
+    if (photo) {
+      photo.insertAdjacentHTML("beforeend", items.map(function (item, i) {
+        var rotateAttr = i === 0 ? ' data-rotate-hidden="-90"' : "";
+        return '<img class="eod-journey__photo-img" data-index="' + i + '"' + rotateAttr + ' src="' + item.image + '" alt="' + item.alt + '" />';
+      }).join(""));
+    }
   }
 
   renderAwards();

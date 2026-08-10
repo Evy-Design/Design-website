@@ -196,7 +196,15 @@ body.eod-is-scrolling .eod-btn {
   background: var(--eod-ink);
   color: var(--eod-white);
 }
-.eod-btn--dark:hover .eod-btn__label {
+/* For use on dark/black backgrounds (e.g. the About page timeline) —
+   same slide behaviour as --dark, just inverted so the label doesn't
+   disappear against the section's own background. */
+.eod-btn--light .eod-btn__label {
+  background: var(--eod-white);
+  color: var(--eod-ink);
+}
+.eod-btn--dark:hover .eod-btn__label,
+.eod-btn--light:hover .eod-btn__label {
   transform: translateX(var(--eod-btn-circle));
 }
 
