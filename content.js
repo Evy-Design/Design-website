@@ -130,14 +130,10 @@ window.EOD_CONTENT = {
     // Appended AFTER the hero portrait already sitting in the figure
     // (see about.html) — not a replace — since that portrait is the
     // shared card's starting image; about.js flips into image[0] and
-    // cross-fades through the rest from there. Only image[0] carries
-    // data-rotate-hidden (the hero portrait's own counterpart angle,
-    // see about.html) — it's the one half of the flip pair, the rest
-    // are plain crossfades with no rotation.
+    // cross-fades through the rest from there.
     if (photo) {
       photo.insertAdjacentHTML("beforeend", items.map(function (item, i) {
-        var rotateAttr = i === 0 ? ' data-rotate-hidden="-90"' : "";
-        return '<img class="eod-journey__photo-img" data-index="' + i + '"' + rotateAttr + ' src="' + item.image + '" alt="' + item.alt + '" />';
+        return '<img class="eod-journey__photo-img" data-index="' + i + '" src="' + item.image + '" alt="' + item.alt + '" />';
       }).join(""));
     }
   }

@@ -64,14 +64,13 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  /* Hides whichever image is edge-on/reversed mid-flip (about.js
-     rotates the outgoing image to its own data-rotate-hidden angle and
-     the incoming one in from its own) — for every OTHER (non-flip)
-     transition rotateY simply stays 0, so this has no effect and the
-     plain opacity crossfade is all that's visible. No CSS transition
-     here — about.js animates both opacity and rotateY together via
-     GSAP so they stay in lockstep; a parallel CSS transition on the
-     same property would just fight it frame to frame. */
+  /* Hides whichever of the hero portrait / first-milestone photo is
+     edge-on mid-flip (about.js's addHeroFlip() rotates them, coupled
+     180° out of phase, via rotateY) — every OTHER image's rotateY
+     simply stays 0, so this has no effect there and the plain opacity
+     crossfade is all that's visible. No CSS transition on opacity
+     here — about.js animates it via GSAP so a parallel CSS transition
+     can't fight it frame to frame. */
   backface-visibility: hidden;
 }
 .eod-journey__photo-img.is-active {
@@ -264,7 +263,14 @@
   padding: 0;
 }
 .eod-timeline__item {
-  min-height: 100svh;
+  /* Shorter than a full viewport on purpose — 100svh per milestone
+     (matching the photo-sticky's own height) left a lot of dead space
+     between one milestone's centred content and the next's, reading
+     as too spread out. The per-line contact triggers don't care about
+     this height directly (they're anchored to each LINE's own
+     position, not the item's box), so shortening it just tightens the
+     rhythm between milestones without touching the push timing. */
+  min-height: 75svh;
   display: flex;
   align-items: center;
   padding: 0 2.5em;

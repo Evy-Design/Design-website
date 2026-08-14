@@ -113,21 +113,22 @@
         var snapDistance = 60;
 
         function animateLine(line, dir) {
-          var tw = gsap.fromTo(line, { x: 0 }, {
+          var tw = gsap.fromTo(line, { x: 0, y: 0 }, {
             x: dir * push,
+            // The CTA button carries its OWN entrance animation
+            // elsewhere (data-eod-reveal's fade+rise, a translateY)
+            // that also touches transform. Explicitly owning y here
+            // (even though every OTHER line never had a y offset to
+            // begin with, so this is a no-op for them) means GSAP
+            // renders its OWN y:0 immediately instead of leaving the
+            // reveal's pre-animation offset in place — the button
+            // loses its "rise" on entrance, but never gets stuck
+            // straddling both animations at once (which is what
+            // happened before: the push simply not rendering ANYTHING
+            // until scroll reached it, which broke every line's
+            // visible starting-offset, not just the button's).
+            y: 0,
             ease: "power2.out",
-            // The CTA button (and, in the timeline, the year label)
-            // both carry their OWN entrance animation elsewhere
-            // (data-eod-reveal's fade+rise) that also touches
-            // transform — without this, fromTo's default immediate
-            // render would capture that animation's PRE-reveal
-            // transform (still mid fade-in) as its baseline the
-            // moment the page loads, permanently baking in a stale
-            // offset and blocking the reveal's own CSS transition
-            // (inline styles always win). Deferring the render until
-            // the tween actually starts means it reads the transform
-            // once the reveal has long since finished instead.
-            immediateRender: false,
             scrollTrigger: {
               trigger: line,
               start: "bottom center+=" + photoHalfH,
@@ -182,10 +183,10 @@
             scrub: true,
           },
         });
-        // immediateRender:false — see the desktop animateLine() comment
-        // above; the CTA button here carries its own data-eod-reveal
-        // entrance transform that this would otherwise stomp on.
-        tl.fromTo(allLines, { x: "-6em" }, { x: 0, ease: "none", stagger: 0.05, immediateRender: false });
+        // Explicit y:0 — see the desktop animateLine() comment above;
+        // the CTA button here carries its own data-eod-reveal entrance
+        // transform this would otherwise collide with.
+        tl.fromTo(allLines, { x: "-6em", y: 0 }, { x: 0, y: 0, ease: "none", stagger: 0.05 });
         return function () {
           tl.scrollTrigger.kill();
           tl.kill();
@@ -225,19 +226,22 @@
 
    The card itself is owned entirely here (not split off into its own
    function) since it's ONE shared element spanning both sections'
-   worth of triggers. Every image (the hero portrait plus one per
-   milestone, all stacked in .eod-journey__photo, see about.html/
-   content.js) is swapped via activatePhoto(): GSAP tweens its opacity
-   in and every other image's opacity out, so — unlike a CSS
-   transition — it can't fight a scroll-scrubbed tween touching the
-   same property. For the ONE special pair (the hero portrait and the
-   first milestone's photo, each carrying its own data-rotate-hidden
-   angle) that same tween ALSO carries rotateY, turning a plain
-   crossfade into a literal 3D flip; every other image has no such
-   attribute so its rotateY term is just a no-op 0. Scrolling back up
-   past the first milestone needs its own explicit handling (onLeaveBack
-   re-activating the hero portrait) since, unlike every other boundary
-   here, there's no "previous item" already registered to cover it. */
+   worth of triggers. Milestones 0–5 (all plain crossfades between
+   each other) are handled by activatePhoto()/addPhotoSwap() — GSAP
+   tweens the target's opacity in and every other milestone's opacity
+   out, so — unlike a CSS transition — it can't fight a scroll-scrubbed
+   tween touching the same property. The hero portrait is a special
+   case, kept OUT of that crossfade pool entirely (see addHeroFlip()):
+   it's a genuine 3D flip, not a fade, and a fade+rotate pair (two
+   INDEPENDENT elements rotating over mismatched ranges, which is what
+   this used to do) doesn't actually read as one rigid object turning
+   over — each face needs to sweep the SAME 180° range, exactly 180°
+   out of phase with the other, so they're edge-on (invisible) at
+   precisely the same instant and hand off cleanly, the way a single
+   rotating card's front/back faces would. Tying that directly to
+   scroll position (scrub, not a one-shot eased tween) is also what
+   makes it correctly reversible at any scroll speed — a duration-based
+   tween can get cut short or race ahead of fast scrolling. */
 (function () {
   function initJourneyPush() {
     var section = document.querySelector("[data-eod-timeline]");
@@ -248,64 +252,64 @@
     section.dataset.eodJourneyPushInit = "true";
     gsap.registerPlugin(ScrollTrigger, SplitText);
 
-    // Plain crossfade — every boundary EXCEPT hero↔milestone-0 uses
-    // only this, so nothing but opacity ever moves for them.
+    // Plain crossfade between milestones 0–5 — the hero portrait is
+    // deliberately excluded (see addHeroFlip()), so nothing here ever
+    // touches its opacity or rotation.
     function activatePhoto(img) {
-      document.querySelectorAll(".eod-journey__photo-img").forEach(function (el) {
+      document.querySelectorAll('.eod-journey__photo-img:not([data-slot="hero"])').forEach(function (el) {
         gsap.to(el, { opacity: el === img ? 1 : 0, duration: 0.5, ease: "power1.out", overwrite: "auto" });
       });
-    }
-
-    // The one flip: rotates ONLY the two images actually involved
-    // (their own data-rotate-hidden angle), on top of the same
-    // crossfade — never touches any other image's rotation, so it
-    // can't leak into the plain item-to-item crossfades below.
-    function flipPhoto(fromImg, toImg) {
-      activatePhoto(toImg);
-      gsap.to(fromImg, { rotateY: Number(fromImg.dataset.rotateHidden) || 0, duration: 0.5, ease: "power1.out", overwrite: "auto" });
-      gsap.to(toImg, { rotateY: 0, duration: 0.5, ease: "power1.out", overwrite: "auto" });
     }
 
     function addPhotoSwap(item, i, triggers) {
       var img = document.querySelector('.eod-journey__photo-img[data-index="' + i + '"]');
       if (!img) return;
-      var config = {
+      triggers.push(ScrollTrigger.create({
         trigger: item,
         start: "top center",
         end: "bottom center",
+        onEnter: function () { activatePhoto(img); },
         onEnterBack: function () { activatePhoto(img); },
-      };
-      // Milestone 0 is the only boundary with no "previous item" of
-      // its own already covering the upward direction — every other
-      // boundary is handled by the NEXT item's onEnter (down) plus
-      // THIS item's onEnterBack (up) alone, see the file comment. Its
-      // onEnter (arriving from the hero above) and onLeaveBack
-      // (leaving back toward the hero) are the ONLY two moments that
-      // should ever rotate anything — every other item's onEnter is
-      // registered by ITS OWN addPhotoSwap call as a plain crossfade.
-      if (i === 0) {
-        var heroImg = document.querySelector('.eod-journey__photo-img[data-slot="hero"]');
-        config.onEnter = function () { flipPhoto(heroImg, img); };
-        if (heroImg) {
-          config.onLeaveBack = function () { flipPhoto(img, heroImg); };
-        }
-      } else {
-        config.onEnter = function () { activatePhoto(img); };
-      }
-      triggers.push(ScrollTrigger.create(config));
+      }));
+    }
+
+    // The one flip — milestone 0's photo is the "back face" to the
+    // hero portrait's "front face", both fixed exactly 180° apart and
+    // swept together (see the file comment). Scrubbed directly to
+    // scroll position over a short window centred on milestone 0's
+    // own "top center" point — the same point addPhotoSwap uses for
+    // every OTHER milestone's crossfade, so the two systems can never
+    // visibly disagree about when milestone 0 has "arrived". opacity
+    // is set once, up front, and never touched again here — visibility
+    // is entirely down to rotateY + backface-visibility (see
+    // .eod-journey__photo-img in about.css), which is exactly what
+    // lets this coexist with activatePhoto() later fading milestone
+    // 0's photo toward milestone 1 without the two fighting over the
+    // same property.
+    function addHeroFlip(triggers) {
+      var heroImg = document.querySelector('.eod-journey__photo-img[data-slot="hero"]');
+      var item0Img = document.querySelector('.eod-journey__photo-img[data-index="0"]');
+      var item0 = items[0];
+      if (!heroImg || !item0Img || !item0) return;
+      gsap.set(heroImg, { opacity: 1, rotateY: 0 });
+      gsap.set(item0Img, { opacity: 1, rotateY: -180 });
+      var flipWindow = 120;
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: item0,
+          start: "top center+=" + flipWindow,
+          end: "top center-=" + flipWindow,
+          scrub: true,
+        },
+      });
+      tl.fromTo(heroImg, { rotateY: 0 }, { rotateY: 180, ease: "none" }, 0)
+        .fromTo(item0Img, { rotateY: -180 }, { rotateY: 0, ease: "none" }, 0);
+      triggers.push(tl.scrollTrigger);
     }
 
     function build() {
-      // Any image whose data-rotate-hidden marks it as the flip pair
-      // needs to actually START at that angle — otherwise its very
-      // first activation has nothing to rotate FROM and just pops in
-      // flat instead of turning.
-      document.querySelectorAll(".eod-journey__photo-img").forEach(function (el) {
-        var hidden = Number(el.dataset.rotateHidden) || 0;
-        if (hidden && !el.classList.contains("is-active")) {
-          gsap.set(el, { rotateY: hidden });
-        }
-      });
+      var journeyTriggers = [];
+      addHeroFlip(journeyTriggers);
 
       var mm = gsap.matchMedia();
 
@@ -321,21 +325,10 @@
         var snapDistance = 60;
 
         function animateLine(line, dir) {
-          var tw = gsap.fromTo(line, { x: 0 }, {
+          var tw = gsap.fromTo(line, { x: 0, y: 0 }, {
             x: dir * push,
+            y: 0,
             ease: "power2.out",
-            // The CTA button (and, in the timeline, the year label)
-            // both carry their OWN entrance animation elsewhere
-            // (data-eod-reveal's fade+rise) that also touches
-            // transform — without this, fromTo's default immediate
-            // render would capture that animation's PRE-reveal
-            // transform (still mid fade-in) as its baseline the
-            // moment the page loads, permanently baking in a stale
-            // offset and blocking the reveal's own CSS transition
-            // (inline styles always win). Deferring the render until
-            // the tween actually starts means it reads the transform
-            // once the reveal has long since finished instead.
-            immediateRender: false,
             scrollTrigger: {
               trigger: line,
               start: "bottom center+=" + photoHalfH,
@@ -390,10 +383,10 @@
             .concat(titleSplit.lines, descSplit.lines, [item.querySelector(".eod-timeline__cta")]);
 
           allLines.forEach(function (line) {
-            var tw = gsap.fromTo(line, { x: "-4em" }, {
+            var tw = gsap.fromTo(line, { x: "-4em", y: 0 }, {
               x: 0,
+              y: 0,
               ease: "power2.out",
-              immediateRender: false,
               scrollTrigger: {
                 trigger: line,
                 start: "bottom center+=" + photoHalfH,
