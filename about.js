@@ -335,6 +335,11 @@
         var snapDistance = 60;
 
         function animateLine(line, dir) {
+          // Not every milestone has a description or a CTA button
+          // (see content.js) — querySelector returns null for those,
+          // so this just quietly skips rather than handing GSAP/
+          // ScrollTrigger a null trigger target.
+          if (!line) return;
           var tw = gsap.fromTo(line, { x: 0, y: 0 }, {
             x: dir * push,
             y: 0,
@@ -351,8 +356,10 @@
 
         items.forEach(function (item, i) {
           var titleSplit = new SplitText(item.querySelector(".eod-timeline__title"), { type: "lines" });
-          var descSplit = new SplitText(item.querySelector(".eod-timeline__desc"), { type: "lines" });
-          splits.push(titleSplit, descSplit);
+          splits.push(titleSplit);
+          var descEl = item.querySelector(".eod-timeline__desc");
+          var descSplit = descEl ? new SplitText(descEl, { type: "lines" }) : null;
+          if (descSplit) splits.push(descSplit);
           // The year label and the CTA button aren't split text (a
           // year and a button aren't "lines"), but they still sit in
           // the meta/desc columns and should push with the rest of
@@ -360,7 +367,7 @@
           // around them moves.
           animateLine(item.querySelector(".eod-timeline__year"), -1);
           titleSplit.lines.forEach(function (line) { animateLine(line, -1); });
-          descSplit.lines.forEach(function (line) { animateLine(line, 1); });
+          if (descSplit) descSplit.lines.forEach(function (line) { animateLine(line, 1); });
           animateLine(item.querySelector(".eod-timeline__cta"), 1);
           addPhotoSwap(item, i, triggers);
         });
@@ -392,13 +399,18 @@
 
         items.forEach(function (item, i) {
           var titleSplit = new SplitText(item.querySelector(".eod-timeline__title"), { type: "lines" });
-          var descSplit = new SplitText(item.querySelector(".eod-timeline__desc"), { type: "lines" });
-          splits.push(titleSplit, descSplit);
+          splits.push(titleSplit);
+          var descEl = item.querySelector(".eod-timeline__desc");
+          var descSplit = descEl ? new SplitText(descEl, { type: "lines" }) : null;
+          if (descSplit) splits.push(descSplit);
           // Same reasoning as desktop — the year label and CTA button
           // aren't split lines but should still push with everything
-          // else in this one reading column.
+          // else in this one reading column. Not every milestone has a
+          // description or a CTA (see content.js) — filter out the
+          // nulls rather than handing GSAP an empty trigger target.
           var allLines = [item.querySelector(".eod-timeline__year")]
-            .concat(titleSplit.lines, descSplit.lines, [item.querySelector(".eod-timeline__cta")]);
+            .concat(titleSplit.lines, descSplit ? descSplit.lines : [], [item.querySelector(".eod-timeline__cta")])
+            .filter(Boolean);
 
           allLines.forEach(function (line) {
             var tw = gsap.fromTo(line, { x: startX, y: 0 }, {

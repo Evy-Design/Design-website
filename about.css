@@ -257,14 +257,21 @@
   position: relative;
   background: var(--eod-black);
   color: var(--eod-white);
-  /* Deliberately small — this is the LAST section in .eod-journey__stack,
-     so its own trailing space is what decides where the shared sticky
-     card finally releases (see .eod-journey__stack in the comment
-     above). A big buffer here would leave the card lingering, pinned,
-     well past the last line of the last milestone; Awards right after
-     already has its own generous padding-top, so this just needs to
-     clear the last line, not add a second gap on top of that. */
-  padding-bottom: 4em;
+  /* This is the LAST section in .eod-journey__stack, so its own
+     trailing space is what decides where the shared sticky card
+     finally releases (see .eod-journey__stack in the comment above) —
+     a sticky element can only stay stuck while at least its own
+     height's worth of the stack remains below the current scroll
+     position. Desktop's photo-sticky is a full 100svh box, so this
+     needs to clear a full viewport's worth on its own; too little
+     here (as a smaller value here previously did) makes the card let
+     go and scroll away WHILE the last milestone's own button is still
+     mid-push, before you've actually seen it arrive. Comfortably more
+     than that shortfall, but still well short of the old 20svh this
+     used to be — Awards right after already has its own generous
+     padding-top, so this just needs to carry the card through the
+     last button, not add a second gap on top of that too. */
+  padding-bottom: 10em;
 }
 .eod-timeline__intro {
   padding: 6em 2.5em 2em;
