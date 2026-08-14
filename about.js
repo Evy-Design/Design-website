@@ -175,6 +175,16 @@
         var stickyH = photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 0;
         var bodyH = bodyBlock.getBoundingClientRect().height;
         var pushRange = bodyH - stickyH + window.innerHeight;
+        // A plain "-6em" starting offset resolves against each
+        // element's OWN font-size — the lede, the detail paragraphs
+        // and the CTA button all sit at different sizes, so "-6em"
+        // meant a different number of actual pixels for each one,
+        // leaving their left edges out of step with each other for
+        // as long as any of them hadn't finished pushing in yet.
+        // Computing the offset once, off the ROOT font-size, gives
+        // every one of them the exact same absolute distance instead.
+        var rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        var startX = -6 * rootPx;
         var tl = gsap.timeline({
           scrollTrigger: {
             trigger: bodyBlock,
@@ -186,7 +196,7 @@
         // Explicit y:0 — see the desktop animateLine() comment above;
         // the CTA button here carries its own data-eod-reveal entrance
         // transform this would otherwise collide with.
-        tl.fromTo(allLines, { x: "-6em", y: 0 }, { x: 0, y: 0, ease: "none", stagger: 0.05 });
+        tl.fromTo(allLines, { x: startX, y: 0 }, { x: 0, y: 0, ease: "none", stagger: 0.05 });
         return function () {
           tl.scrollTrigger.kill();
           tl.kill();
@@ -371,6 +381,14 @@
         var photoStickyEl = document.querySelector(".eod-journey__photo-sticky");
         var photoHalfH = (photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 300) / 2;
         var snapDistance = 60;
+        // Same reasoning as the hero's mobile branch above — "-4em"
+        // resolves against each LINE's own font-size, and the title
+        // is much bigger than the year/desc/button, so it was starting
+        // noticeably further left than everything else even though
+        // they're all meant to share one left edge. One root-relative
+        // pixel value keeps every line's starting offset identical.
+        var rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        var startX = -4 * rootPx;
 
         items.forEach(function (item, i) {
           var titleSplit = new SplitText(item.querySelector(".eod-timeline__title"), { type: "lines" });
@@ -383,7 +401,7 @@
             .concat(titleSplit.lines, descSplit.lines, [item.querySelector(".eod-timeline__cta")]);
 
           allLines.forEach(function (line) {
-            var tw = gsap.fromTo(line, { x: "-4em", y: 0 }, {
+            var tw = gsap.fromTo(line, { x: startX, y: 0 }, {
               x: 0,
               y: 0,
               ease: "power2.out",

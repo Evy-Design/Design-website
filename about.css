@@ -92,10 +92,16 @@
      and why 50% isn't the fix either (percentage `top` on a sticky
      element resolves against its own containing block, not the
      viewport) — this is the same measured, JS-free centring fix used
-     before, now shared by both sections. */
+     before, now shared by both sections. Deliberately `50svh`, not
+     `50vh` — everything else on this page (.eod-about-hero__title-block,
+     .eod-timeline__item, …) sizes itself off the SMALL viewport height
+     too, so this has to match it exactly: on a real phone, `vh` and
+     `svh` diverge the moment Safari's address bar shows/hides, and
+     mixing the two here was exactly what put the card visibly out of
+     alignment with the heading it's meant to sit beside. */
   .eod-journey__photo-sticky {
     height: auto;
-    top: calc(50vh - (var(--eod-journey-photo-w) * 1.25 / 2));
+    top: calc(50svh - (var(--eod-journey-photo-w) * 1.25 / 2));
     align-self: start;
     justify-content: flex-start;
     padding-left: 1.25em;
@@ -179,6 +185,22 @@
   margin-top: 1.5em;
   display: flex;
   justify-content: flex-end;
+}
+/* [data-eod-reveal]'s own CSS transition covers BOTH opacity and
+   transform — harmless for every other reveal target, but this one
+   element is ALSO driven by about.js's scroll-scrubbed push, which
+   writes a fresh `transform` every scroll frame. Since CSS transitions
+   fire on ANY change to a transitioning property regardless of source,
+   each of those frame-by-frame writes was kicking off a competing
+   0.9s transition of its own — the two fighting over the same
+   property instead of one simply owning it. Dropping transform from
+   the list here leaves opacity's fade-in untouched and gives GSAP
+   sole, uncontested control of transform (which — combined with the
+   explicit y:0 in about.js's tween — was already effectively
+   overriding the reveal's own "rise" motion anyway; this just stops
+   it from actively fighting to do so first). */
+.eod-about-hero__cta[data-eod-reveal] {
+  transition-property: opacity;
 }
 @media (max-width: 1024px) {
   .eod-about-hero__title-block,
