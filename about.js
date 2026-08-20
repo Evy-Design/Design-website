@@ -99,6 +99,27 @@
         var photoEl = document.querySelector(".eod-journey__photo");
         var triggers = [];
 
+        // Invisible twin of .eod-journey__photo — same class, so it
+        // tracks the exact same width clamp()/aspect-ratio formula on
+        // resize, but sits off-screen and is never touched by the
+        // shape-morph tween below. photoHalfH()/push() read THIS
+        // element's size, not the real photoEl's: the shape-morph
+        // tween animates photoEl's actual width/height/border-radius
+        // (a genuine shape change, not just a clip-path mask), and
+        // those two functions are only re-invoked on
+        // ScrollTrigger.refresh() (page load/resize), not per scroll
+        // frame — reading the real, animated photoEl would permanently
+        // bake in whatever tiny size the card happens to be at on the
+        // next refresh, under-pushing the lede/detail text once the
+        // real card visibly grows past that. This ref never changes
+        // size for any reason other than a genuine resize, so it's
+        // always safe to measure.
+        var photoSizeRef = document.createElement("div");
+        photoSizeRef.className = "eod-journey__photo";
+        photoSizeRef.setAttribute("aria-hidden", "true");
+        photoSizeRef.style.cssText = "position:absolute; top:0; left:-9999px; visibility:hidden; pointer-events:none;";
+        document.body.appendChild(photoSizeRef);
+
         // Measured live (a function, not a value captured once here)
         // — build() runs right after document.fonts.ready, which
         // resolves before the page's layout has necessarily fully
@@ -115,10 +136,10 @@
         // staying wrong for the page's whole lifetime — and stays
         // correct across a real window resize too, for free.
         function photoHalfH() {
-          return (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
+          return (photoSizeRef ? photoSizeRef.getBoundingClientRect().height : 300) / 2;
         }
         function push() {
-          return (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
+          return (photoSizeRef ? photoSizeRef.getBoundingClientRect().width : 300) / 2;
         }
 
         // A wide, symmetric window (card's full height, eased linearly
@@ -186,9 +207,70 @@
         // should push along with it rather than standing still.
         animateLine(document.querySelector(".eod-about-hero__cta"), 1);
 
+        // Sticky photo starts as a small circle centred over the
+        // heading — Evy felt the full card blocked the intro text, and
+        // wanted it small + round there instead, staying centred
+        // (deliberately still overlapping the heading, just much less
+        // of it) — then genuinely MORPHS into its normal rounded-
+        // rectangle card shape as the page scrolls from the title
+        // block into the body text, finishing well before the lede/
+        // detail text arrives. An earlier version used clip-path (a
+        // circle mask growing its own radius) — Evy flagged that as
+        // reading like "a window opening", not an actual shape
+        // changing, and asked for a real morph with her face staying
+        // visible in the small circle. This animates photoEl's actual
+        // width/height/border-radius directly instead — square (equal
+        // width/height, so border-radius: 50% is a true circle, not an
+        // ellipse) growing into the card's real aspect ratio, radius
+        // easing from fully round down to the card's own --eod-radius.
+        // object-position on .eod-journey__photo-img (about.css) is
+        // what keeps her face framed through that — object-fit: cover
+        // centres by default, which would crop toward her chest once
+        // the box is square instead of the taller 4:5 card.
+        //
+        // Widths/heights are FUNCTIONS reading photoSizeRef (see its
+        // own comment above), not photoEl itself, specifically because
+        // this tween now touches photoEl's real box size — reading the
+        // live, currently-animating element here would be circular.
+        // border-radius is captured ONCE, synchronously, before this
+        // tween's inline styles ever touch photoEl: unlike width/
+        // height, border-radius doesn't depend on layout settling
+        // (fonts/images loading) — it's a fixed design constant
+        // (--eod-radius) resolved straight from the CSS cascade, so a
+        // one-time read here carries none of the staleness risk that
+        // photoHalfH()/push() above specifically guard against.
+        var titleBlockEl = document.querySelector(".eod-about-hero__title-block");
+        if (titleBlockEl) {
+          var fullRadius = getComputedStyle(photoEl).borderRadius;
+          var shapeTw = gsap.fromTo(photoEl,
+            { width: 120, height: 120, borderRadius: 60 },
+            {
+              width: function () { return photoSizeRef.getBoundingClientRect().width; },
+              height: function () { return photoSizeRef.getBoundingClientRect().height; },
+              borderRadius: function () { return parseFloat(fullRadius) || 16; },
+              ease: "none",
+              scrollTrigger: {
+                trigger: titleBlockEl,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+              },
+            }
+          );
+          triggers.push(shapeTw.scrollTrigger);
+        }
+
         return function () {
           triggers.forEach(function (t) { t.kill(); });
           split.revert();
+          photoSizeRef.remove();
+          // Without this, switching to mobile mid-session (a resize
+          // crossing the 1025px breakpoint, not just a page load) left
+          // the last scrubbed width/height/border-radius stuck on
+          // photoEl as inline styles — the mobile layout sizes the
+          // photo via its own CSS rule (about.css), which inline
+          // styles would otherwise keep overriding.
+          gsap.set(photoEl, { clearProps: "width,height,borderRadius" });
         };
       });
 
