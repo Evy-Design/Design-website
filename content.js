@@ -174,10 +174,9 @@ window.EOD_CONTENT = {
               (item.body ? '<p class="eod-timeline__desc">' + item.body + "</p>" : "") +
               (hasCta ?
                 '<div class="eod-timeline__cta">' +
-                  '<a href="' + item.ctaHref + '" class="eod-btn eod-btn--light"' + (isExternal ? ' target="_blank" rel="noopener noreferrer"' : "") + '>' +
+                  '<a href="' + item.ctaHref + '" class="eod-btn eod-btn--secondary"' + (isExternal ? ' target="_blank" rel="noopener noreferrer"' : "") + '>' +
                     '<span class="eod-btn__label">' + item.ctaLabel + "</span>" +
-                    '<span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
-                    '<span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                    '<span class="eod-btn__arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
                   "</a>" +
                 "</div>"
               : "") +

@@ -208,6 +208,55 @@ body.eod-is-scrolling .eod-btn {
   transform: translateX(var(--eod-btn-circle));
 }
 
+/* ---- Secondary button (label + underline, no circles) ----
+   Same <a class="eod-btn ..."> shell, but a plain text-link treatment
+   instead of the pill+circle one above — for secondary actions (e.g.
+   each Timeline milestone's own link) where a full primary button
+   would visually compete with the surrounding text rather than sit
+   quietly alongside it. Markup: <span class="eod-btn__label"> as
+   before, plus a single <span class="eod-btn__arrow"> (not
+   .eod-btn__circle — there's no circle to wrap here) holding the same
+   arrow glyph used elsewhere on the site. color: inherit because,
+   unlike --dark/--light, this variant never sets its own background —
+   it's meant to sit in whatever text colour already surrounds it
+   (white on the Timeline's black, dark elsewhere), and without this
+   an <a> tag's own default blue would win instead. */
+.eod-btn--secondary {
+  padding-right: 0;
+  color: inherit;
+}
+.eod-btn--secondary .eod-btn__label {
+  height: auto;
+  padding: 0 0 0.2em;
+  border-radius: 0;
+  border-bottom: 1px solid currentColor;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+.eod-btn--secondary .eod-btn__arrow {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 0.6em;
+  vertical-align: middle;
+  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.eod-btn--secondary .eod-btn__arrow svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+}
+.eod-btn--secondary:hover .eod-btn__label {
+  opacity: 0.6;
+}
+.eod-btn--secondary:hover .eod-btn__arrow {
+  transform: translate(0.15em, -0.15em);
+}
+
 /* ---- Scroll-reveal-in: fade + rise (default), applied to any
    element carrying data-eod-reveal. script.js observes each one and
    adds .is-inview the first time it enters the viewport (load-time
@@ -501,7 +550,7 @@ body.eod-is-scrolling .eod-btn {
   position: relative;
   font-size: inherit;
   width: auto;
-  /* 0.65em, not a full 1em: an em box includes ascender/descender
+  /* 0.5em, not a full 1em: an em box includes ascender/descender
      space the letters themselves don't actually use (real cap-height
      is usually ~70-75% of font-size, and even that read as still a
      bit tall against the actual glyphs here) — sized to the full em,
@@ -509,8 +558,12 @@ body.eod-is-scrolling .eod-btn {
      enough to collide with .eod-cta__title's line right below it
      (that title's own -0.2em margin-top is a deliberate slight
      overlap with THIS line, see below — not with the badge
-     specifically). */
-  height: 0.65em;
+     specifically). Measured: 0.65em landed 3px into the title's own
+     box, 0.55em still ~1px — both at every width, since badge and
+     title share the same font-size formula (a proportional miss, not
+     a one-off). The text can slightly overlap its own descender
+     space, but the badge itself, a real visible shape, never should. */
+  height: 0.5em;
   aspect-ratio: 200 / 156;
   margin: 0 0.15em;
   border-radius: 0.3em;
@@ -655,9 +708,19 @@ body.eod-is-scrolling .eod-btn {
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (max-width: 767px) {
+  /* rem, not em — the desktop rule right above (margin-left:
+     var(--eod-cta-indent)) is deliberately rem/vw-based rather than
+     em specifically so .eod-cta__title and .eod-cta__row share the
+     exact same indent despite their very different font-sizes (see
+     --eod-cta-indent's own comment). A flat "1.25em" here undid that:
+     it resolves against each element's OWN font-size, so the huge
+     cycling-word title ended up indented ~51px while the much
+     smaller body/button row only got ~20px — two different left
+     edges where the desktop rule guarantees one. rem fixes it the
+     same way the desktop value already does.  */
   .eod-cta__title,
   .eod-cta__row {
-    margin-left: 1.25em;
+    margin-left: 1.25rem;
   }
   /* .eod-cta__lede's data-eod-reveal="left" (base rule, applies at
      every width) slides it in from the left on entry — on mobile
