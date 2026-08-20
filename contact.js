@@ -40,11 +40,26 @@
     // A .eod-contact__link's own text just got split into word-spans
     // too (the walker doesn't distinguish it from plain text) — undo
     // that specifically for links, so the whole link is one word.
+    // Wrapped in its OWN new <span class="eod-word"> rather than
+    // putting that class directly on the <a> (an earlier version did
+    // this): the reveal's opacity+transform were landing on the
+    // anchor itself, which also carries text-decoration: underline —
+    // that combination (an inline <a> forced to display:inline-block,
+    // transformed, AND underlined) is exactly the case where some
+    // browsers stop keeping the underline glued to the letters as
+    // they translate, so the link visibly read as "not fading in
+    // smoothly" like the plain words around it. Moving the transform
+    // to a plain wrapper span, with the untouched <a> just riding
+    // along inside it as ordinary content, sidesteps that combination
+    // entirely instead of fighting the browser's rendering of it.
     container.querySelectorAll(".eod-contact__link").forEach(function (link) {
-      link.classList.add("eod-word");
       link.querySelectorAll(".eod-word").forEach(function (inner) {
         inner.replaceWith(inner.textContent);
       });
+      var wrap = document.createElement("span");
+      wrap.className = "eod-word";
+      link.parentNode.insertBefore(wrap, link);
+      wrap.appendChild(link);
     });
   }
 
