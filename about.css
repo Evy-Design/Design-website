@@ -22,6 +22,16 @@
    after that, same as before. */
 .eod-journey__grid {
   display: grid;
+  /* minmax(0, 1fr), not a bare 1fr — a grid track's implicit minimum
+     width is its content's own min-content size, and something deep
+     in .eod-journey__stack (a long, nowrap timeline title/button
+     label) has a min-content wider than the viewport on mobile. A
+     bare 1fr still respects that floor, so the track (and everything
+     positioned against it) was quietly growing past the viewport's
+     own width — explicit 0 overrides that floor entirely, letting the
+     track — and the sticky photo sharing its cell — actually shrink
+     to fit. */
+  grid-template-columns: minmax(0, 1fr);
   width: 100%;
   max-width: var(--eod-content-max);
   margin: 0 auto;
@@ -134,7 +144,11 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 2.5em;
+  /* No side padding here — .eod-page section (shared.css) already
+     gives .eod-about-hero itself 2.5em, and this used to ALSO add its
+     own 2.5em on top of that, doubling the total inset from the
+     viewport edge to 5em instead of the 2.5em every other section
+     (Awards, CTA, …) uses. */
 }
 .eod-about-hero__heading {
   margin: 0;
@@ -148,7 +162,8 @@
   min-height: 100svh;
   display: flex;
   align-items: center;
-  padding: 0 2.5em;
+  /* No side padding here — see .eod-about-hero__title-block's own
+     comment above, same doubled-padding fix. */
 }
 .eod-about-hero__body-row {
   display: flex;
@@ -206,8 +221,13 @@
   .eod-about-hero__title-block,
   .eod-about-hero__body-block {
     justify-content: flex-end;
+    /* Left side genuinely needs this — it's clearance for the sticky
+       photo, not just inset-from-edge padding, so it stays. No
+       padding-right here anymore though: .eod-page section
+       (shared.css) already gives .eod-about-hero itself 1.25em on
+       mobile, and this used to ALSO add its own 1.25em on top of
+       that (same doubled-padding fix as the desktop rule above). */
     padding-left: calc(var(--eod-journey-photo-w) + 2em);
-    padding-right: 1.25em;
   }
   /* The title block still sits pushed to the right (beside the card),
      but reads the same ragged-right way the body copy does now — see
@@ -302,7 +322,10 @@
   min-height: 75svh;
   display: flex;
   align-items: center;
-  padding: 0 2.5em;
+  /* No side padding here — .eod-page section (shared.css) already
+     gives .eod-timeline itself 2.5em; this used to ALSO add its own
+     2.5em on top of that, doubling the total inset (see
+     .eod-about-hero__title-block's own comment for the same fix). */
 }
 .eod-timeline__row {
   display: flex;
@@ -349,13 +372,33 @@
   justify-content: flex-start;
 }
 @media (max-width: 1024px) {
+  /* Bigger than the shared (desktop-tuned) 10em above — about.js's
+     mobile-only "end" tracking (see initJourneyPush()) explicitly
+     takes over the card's position once the last milestone's text is
+     done, briefly holding it bottom-aligned with that text before
+     fading it out — but that only works cleanly if the card's own
+     native CSS sticky release doesn't ALSO fire partway through and
+     yank its positioning out from under the JS. That fade plays out
+     over a short (200px) window, not a full card-height's worth of
+     scroll distance (an earlier version slid the card off-screen
+     instead of fading it, which needed far more room here — read as
+     a big empty gap of black before Awards). 18em comfortably clears
+     that short window with margin to spare. */
+  .eod-timeline {
+    padding-bottom: 18em;
+  }
+  /* No right padding in either rule below — .eod-page section
+     (shared.css) already gives .eod-timeline itself 1.25em on
+     mobile, and these used to ALSO add their own 1.25em on top of
+     that (same doubled-padding fix as the hero's own mobile rule
+     above). Left side keeps its calc() — that's clearance for the
+     sticky photo, not just inset-from-edge padding. */
   .eod-timeline__intro {
-    padding: 4em 1.25em 2em calc(var(--eod-journey-photo-w) + 2em);
+    padding: 4em 0 2em calc(var(--eod-journey-photo-w) + 2em);
   }
   .eod-timeline__item {
     justify-content: flex-start;
     padding-left: calc(var(--eod-journey-photo-w) + 2em);
-    padding-right: 1.25em;
   }
   .eod-timeline__row {
     flex-direction: column;
@@ -400,23 +443,24 @@
   max-width: var(--eod-content-max);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--eod-border);
-  border: 1px solid var(--eod-border);
+  /* Used to be a 1px gap + border-coloured background showing through
+     it, drawing a thin dividing line around/between every tile — a
+     plain gap with no colour behind it removes that line entirely
+     while still keeping the tiles visually separated. */
+  gap: 1.5em;
 }
 .eod-logos__tile {
   aspect-ratio: 3 / 2;
-  background: var(--eod-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5em;
+  padding: 1em;
 }
 .eod-logos__tile img {
   width: 100%;
   height: 100%;
-  max-width: 3.5em;
-  max-height: 3.5em;
+  max-width: 6em;
+  max-height: 6em;
   object-fit: contain;
 }
 @media (max-width: 767px) {
@@ -431,7 +475,7 @@
     padding: 1.25em;
   }
   .eod-logos__tile img {
-    max-width: 2.75em;
-    max-height: 2.75em;
+    max-width: 4.5em;
+    max-height: 4.5em;
   }
 }

@@ -208,53 +208,92 @@ body.eod-is-scrolling .eod-btn {
   transform: translateX(var(--eod-btn-circle));
 }
 
-/* ---- Secondary button (label + underline, no circles) ----
+/* ---- Secondary button (plain label, no circles) ----
    Same <a class="eod-btn ..."> shell, but a plain text-link treatment
    instead of the pill+circle one above — for secondary actions (e.g.
    each Timeline milestone's own link) where a full primary button
    would visually compete with the surrounding text rather than sit
-   quietly alongside it. Markup: <span class="eod-btn__label"> as
-   before, plus a single <span class="eod-btn__arrow"> (not
-   .eod-btn__circle — there's no circle to wrap here) holding the same
-   arrow glyph used elsewhere on the site. color: inherit because,
-   unlike --dark/--light, this variant never sets its own background —
-   it's meant to sit in whatever text colour already surrounds it
-   (white on the Timeline's black, dark elsewhere), and without this
-   an <a> tag's own default blue would win instead. */
+   quietly alongside it. The MOTION is a direct port of --dark/--light
+   above, just with arrows standing in for circles: there, the two
+   circles stay fixed in place and the label (an opaque pill) slides
+   OVER them, so the same physical motion covers one and uncovers the
+   other. There's nothing opaque to slide here — the label is plain
+   text on the section's own background — so instead the arrows +
+   label all move together as ONE piece (.eod-btn__secondary-track)
+   inside a fixed-size clipping window (.eod-btn__secondary-viewport):
+   the leading arrow sits just outside that window at rest (clipped,
+   off to the left), the trailing arrow sits inside it — sliding the
+   whole track right by exactly the leading arrow's own width brings
+   the leading arrow into view AND carries the label along with it AT
+   THE SAME TIME, while pushing the trailing arrow out past the
+   window's right edge (now clipped in turn). One continuous sweep,
+   same as the primary's, just with the label riding along instead of
+   staying put.
+   The leading arrow is positioned ABSOLUTELY (not a normal flex
+   child) specifically so it does NOT count toward the track's own
+   width — that's what lets .eod-btn__secondary-viewport's fit-content
+   sizing land exactly on [label + trailing arrow] and clip the
+   leading one automatically, without needing to know the label's
+   text length up front.
+   color: inherit because, unlike --dark/--light, this variant never
+   sets its own background — it's meant to sit in whatever text colour
+   already surrounds it (white on the Timeline's black, dark
+   elsewhere), and without this an <a> tag's own default blue would
+   win instead. */
 .eod-btn--secondary {
   padding-right: 0;
   color: inherit;
 }
-.eod-btn--secondary .eod-btn__label {
-  height: auto;
-  padding: 0 0 0.2em;
-  border-radius: 0;
-  border-bottom: 1px solid currentColor;
-  font-weight: 500;
-  transition: opacity 0.3s ease;
+.eod-btn--secondary .eod-btn__secondary-viewport {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: middle;
 }
-.eod-btn--secondary .eod-btn__arrow {
+.eod-btn--secondary .eod-btn__secondary-track {
   position: relative;
-  z-index: 2;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  /* Exactly .eod-btn__label's own transition above (same duration,
+     same easing) — this is meant to read as the same motion as the
+     primary button's slide, just replayed with arrows instead of
+     circles. */
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.eod-btn--secondary .eod-btn__label {
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.eod-btn--secondary .eod-btn__arrow-slot {
+  flex: none;
   width: 0.9em;
   height: 0.9em;
-  margin-left: 0.6em;
-  vertical-align: middle;
-  transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
 }
-.eod-btn--secondary .eod-btn__arrow svg {
+.eod-btn--secondary .eod-btn__arrow-slot--lead {
+  position: absolute;
+  right: 100%;
+  margin-right: 0.6em;
+}
+.eod-btn--secondary .eod-btn__arrow-slot--trail {
+  margin-left: 0.6em;
+}
+.eod-btn--secondary .eod-btn__arrow-slot svg {
   width: 100%;
   height: 100%;
   stroke: currentColor;
 }
-.eod-btn--secondary:hover .eod-btn__label {
-  opacity: 0.6;
+/* Same fixed 45° rotation .eod-btn__circle--accent's own icon carries
+   (permanently — nothing animates the rotation itself, only the
+   track's position) so revealing this one on hover echoes the primary
+   button's accent/white icon pairing instead of just showing the same
+   glyph twice. */
+.eod-btn--secondary .eod-btn__arrow-slot--lead svg {
+  transform: rotate(45deg);
 }
-.eod-btn--secondary:hover .eod-btn__arrow {
-  transform: translate(0.15em, -0.15em);
+.eod-btn--secondary:hover .eod-btn__secondary-track {
+  transform: translateX(calc(0.9em + 0.6em));
 }
 
 /* ---- Scroll-reveal-in: fade + rise (default), applied to any
@@ -598,8 +637,32 @@ body.eod-is-scrolling .eod-btn {
   gap: 0.2em;
   /* Negative top margin: pulls it up into .eod-cta__lede just above,
      so the two lines slightly overlap instead of sitting with a
-     clean gap between them. */
-  margin: -0.2em 0 1em var(--eod-cta-indent);
+     clean gap between them.
+     Right-anchored (margin-right: 0, margin-left: auto), not left-
+     indented like .eod-cta__row below: Evy asked for "Design" (the
+     last flex child, so it always sits at this row's own right edge)
+     to stay visually still, with the cycling word growing/shrinking
+     to its LEFT instead — the opposite of the old left-anchored
+     layout, where the word held still and "Design" was what shifted.
+     Since .eod-cta__group is pinned to the widest word's own natural
+     width (see script.js's syncWordWidths), this row's right edge
+     lands flush with the group's right edge for the widest word,
+     same as the old left edge did for --eod-cta-indent — only
+     narrower words now leave a gap on the LEFT instead of the right,
+     which is why this no longer lines up with --eod-cta-indent (and
+     by extension .eod-cta__lede above) except at the widest word;
+     Evy explicitly signed off on that misalignment growing. Mobile
+     restores the old left-anchored behavior below — this reversal is
+     desktop-only.
+     width: max-content is required for margin-left: auto to actually
+     push the box flush right — as a plain block-level element (flex
+     only governs ITS OWN children, not how it sizes within its own
+     parent), 'width: auto' would otherwise stretch it to fill
+     .eod-cta__group's full width, collapsing margin-left: auto to 0
+     instead of hugging the right edge. Safe with flex-wrap: nowrap
+     above, since content never wraps anyway. */
+  width: max-content;
+  margin: -0.2em 0 0.4em auto;
   /* Same derived formula as .eod-cta__lede above (see its comment) —
      shared so the two lines stay the same size, per the earlier
      requirement, and because this is really the element the formula
@@ -677,32 +740,39 @@ body.eod-is-scrolling .eod-btn {
 .eod-cta__suffix {
   flex: none;
 }
-/* Same left indent as .eod-cta__title, and the same right-side
-   reveal direction (data-eod-reveal="right" in the HTML) — grouped
-   with the title rather than fading in on its own separate line.
+/* Right-anchored under .eod-cta__suffix ("Design"), same as
+   .eod-cta__title itself now is (see its own comment) — NOT the
+   left --eod-cta-indent used everywhere else on this page. Was
+   previously left-indented and width-synced to the TITLE's full
+   rendered width, which visibly dragged the body text/button
+   sideways on every word-cycler swap (title's width changes with
+   the cycling word) — Evy flagged that as unintended movement and
+   asked the row be pinned to "Design" itself, matching both its
+   position and width, so it stays completely still regardless of
+   which word is active. Desktop only — the mobile media query below
+   restores the old shared --eod-cta-indent left-anchor.
 
-   Width: script.js's syncCtaRowWidth() sets --eod-cta-row-width to
-   .eod-cta__title's own actual rendered width (re-measured whenever
-   the word cycler swaps, since "Motion" vs "Graphic" etc. aren't
-   the same width) — without it, this row would stretch to the
-   section's full remaining width via flex's default stretch, and
-   the button would end up far further right than where the title
-   above it actually ends. */
+   Width: script.js's initCtaRowWidthSync() sets --eod-cta-row-width
+   to .eod-cta__suffix's own actual rendered width (only re-measured
+   on resize/font-size changes, never on a cycler swap, since
+   "Design" itself never changes) — without it, this row would
+   stretch to the section's full remaining width via flex's default
+   stretch. */
 .eod-cta__row {
   display: flex;
   align-items: center;
   /* flex-start, not space-between: space-between pushed the button
-     all the way to this row's far edge — which, synced to match the
-     title's own (often much wider) rendered width above, could land
-     the button far past the body text with a lot of dead space
-     between them. flex-start keeps the button right next to the
-     text; the row still doesn't exceed the title's width above, that
-     extra width (if any) just goes unused past the button instead of
-     being spent pushing it away. */
+     all the way to this row's far edge — which, synced to match
+     "Design"'s own width above, could land the button far past the
+     body text with a lot of dead space between them. flex-start
+     keeps the button right next to the text; the row still doesn't
+     exceed that width, any extra just goes unused past the button
+     instead of being spent pushing it away. */
   justify-content: flex-start;
   flex-wrap: wrap;
   gap: 1.5em;
-  margin-left: var(--eod-cta-indent);
+  margin-left: auto;
+  margin-right: 0;
   width: var(--eod-cta-row-width, auto);
   max-width: 100%;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
@@ -721,6 +791,28 @@ body.eod-is-scrolling .eod-btn {
   .eod-cta__title,
   .eod-cta__row {
     margin-left: 1.25rem;
+  }
+  /* Restores the pre-reversal left-anchor + spacing on mobile: the
+     desktop-only "Design stays still" treatment above right-anchors
+     .eod-cta__title (margin-right: 0, margin-left: auto, smaller
+     bottom margin) — undone here since Evy's request was scoped to
+     desktop ("op desktop mag er wat minder spacing zijn"). */
+  .eod-cta__title {
+    margin-right: auto;
+    margin-bottom: 1em;
+  }
+  /* Same restore for .eod-cta__row: the desktop-only right-anchor-
+     under-"Design" treatment above (margin-left: auto, margin-right:
+     0) is also scoped to desktop — Evy's follow-up request to pin
+     the row to .eod-cta__suffix was itself desktop-only too
+     ("Op mobile blijft het zoals die eerst was"). Width falls back
+     to --eod-cta-row-width-mobile (script.js — .eod-cta__title's own
+     rendered width, the pre-change desktop behavior) instead of the
+     desktop var above (.eod-cta__suffix's width alone, far too
+     narrow for this row on mobile). */
+  .eod-cta__row {
+    margin-right: auto;
+    width: var(--eod-cta-row-width-mobile, auto);
   }
   /* .eod-cta__lede's data-eod-reveal="left" (base rule, applies at
      every width) slides it in from the left on entry — on mobile

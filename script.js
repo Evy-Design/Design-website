@@ -1116,33 +1116,56 @@
 
 /* ===========================================================
    CTA row width sync — .eod-cta__row (the body copy + Contact
-   button) is pinned to exactly .eod-cta__title's own rendered
-   width via --eod-cta-row-width, instead of stretching to the
-   section's full remaining width — otherwise the button could end
-   up sitting much further right than where the title above it
-   (e.g. short "UI/UX Design" vs. wide "Graphic Design") actually
-   ends. A ResizeObserver on the title re-measures automatically
-   whenever its width changes for ANY reason — a real window
-   resize, or just the word cycler swapping to a differently-sized
-   word — so this never needs to know about the cycler's own timing.
+   button) is pinned to a rendered width via a CSS var, instead of
+   stretching to the section's full remaining width. Two variants,
+   since Evy's "pin the row under Design" request was desktop-only:
+
+   --eod-cta-row-width (desktop, used by style.css's base rule):
+   .eod-cta__suffix's ("Design") own rendered width — right-anchored
+   under it in CSS the same way .eod-cta__title itself is now
+   anchored. Previously tracked the TITLE's full rendered width
+   instead, which meant the row's width (and, since it was right-
+   anchored, its left edge too) changed on every word-cycler swap,
+   visibly shifting the body text/button sideways under a line
+   nothing about them was supposed to react to — Evy flagged that as
+   unintended movement and asked the row be pinned to "Design"
+   itself, matching its position and width exactly.
+
+   --eod-cta-row-width-mobile (used by style.css's mobile media
+   query): still the TITLE's own full rendered width, i.e. the old
+   desktop behavior before the above change — mobile keeps its
+   original shared --eod-cta-indent left-anchor and was never part
+   of this request.
+
+   Both ResizeObservers re-measure automatically whenever their
+   element's width changes for any reason — a real window resize, or
+   (title only) the word cycler swapping to a differently-sized
+   word — so neither needs to know about the cycler's own timing.
    =========================================================== */
 (function () {
   function initCtaRowWidthSync() {
     const title = document.querySelector(".eod-cta__title");
+    const suffix = document.querySelector(".eod-cta__suffix");
     const cta = document.querySelector(".eod-cta");
-    if (!title || !cta || cta.dataset.eodRowWidthSyncInit) return;
+    if (!title || !suffix || !cta || cta.dataset.eodRowWidthSyncInit) return;
     cta.dataset.eodRowWidthSyncInit = "true";
 
-    function sync() {
-      cta.style.setProperty("--eod-cta-row-width", title.getBoundingClientRect().width + "px");
+    function syncDesktop() {
+      cta.style.setProperty("--eod-cta-row-width", suffix.getBoundingClientRect().width + "px");
+    }
+    function syncMobile() {
+      cta.style.setProperty("--eod-cta-row-width-mobile", title.getBoundingClientRect().width + "px");
     }
 
     if (typeof ResizeObserver !== "undefined") {
-      new ResizeObserver(sync).observe(title);
+      new ResizeObserver(syncDesktop).observe(suffix);
+      new ResizeObserver(syncMobile).observe(title);
     } else {
-      window.addEventListener("resize", sync);
+      window.addEventListener("resize", syncDesktop);
+      window.addEventListener("resize", syncMobile);
     }
-    sync();
+    syncDesktop();
+    syncMobile();
   }
 
   if (document.readyState === "loading") {

@@ -175,8 +175,13 @@ window.EOD_CONTENT = {
               (hasCta ?
                 '<div class="eod-timeline__cta">' +
                   '<a href="' + item.ctaHref + '" class="eod-btn eod-btn--secondary"' + (isExternal ? ' target="_blank" rel="noopener noreferrer"' : "") + '>' +
-                    '<span class="eod-btn__label">' + item.ctaLabel + "</span>" +
-                    '<span class="eod-btn__arrow" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                    '<span class="eod-btn__secondary-viewport">' +
+                      '<span class="eod-btn__secondary-track">' +
+                        '<span class="eod-btn__arrow-slot eod-btn__arrow-slot--lead" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                        '<span class="eod-btn__label">' + item.ctaLabel + "</span>" +
+                        '<span class="eod-btn__arrow-slot eod-btn__arrow-slot--trail" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>' +
+                      "</span>" +
+                    "</span>" +
                   "</a>" +
                 "</div>"
               : "") +

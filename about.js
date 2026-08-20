@@ -97,9 +97,29 @@
       mm.add("(min-width: 1025px)", function () {
         var split = splitAll();
         var photoEl = document.querySelector(".eod-journey__photo");
-        var push = (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
-        var photoHalfH = (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
         var triggers = [];
+
+        // Measured live (a function, not a value captured once here)
+        // — build() runs right after document.fonts.ready, which
+        // resolves before the page's layout has necessarily fully
+        // settled. A ONE-TIME measurement at that point genuinely
+        // returned a smaller box than the photo's real, final size
+        // (confirmed: ~137px half-height baked into the trigger maths
+        // below vs. ~175px once things had actually settled) — every
+        // line's contact point was calculated against a card that was
+        // never really that size, so the "fixed" snap window still
+        // landed short of true contact. Functions get re-invoked on
+        // every ScrollTrigger.refresh() (which GSAP itself fires
+        // automatically on window load, once fonts/images have
+        // genuinely finished), so this self-corrects instead of
+        // staying wrong for the page's whole lifetime — and stays
+        // correct across a real window resize too, for free.
+        function photoHalfH() {
+          return (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
+        }
+        function push() {
+          return (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
+        }
 
         // A wide, symmetric window (card's full height, eased linearly
         // the whole way through) made the push read as a slow drift
@@ -114,7 +134,7 @@
 
         function animateLine(line, dir) {
           var tw = gsap.fromTo(line, { x: 0, y: 0 }, {
-            x: dir * push,
+            x: function () { return dir * push(); },
             // The CTA button carries its OWN entrance animation
             // elsewhere (data-eod-reveal's fade+rise, a translateY)
             // that also touches transform. Explicitly owning y here
@@ -131,8 +151,29 @@
             ease: "power2.out",
             scrollTrigger: {
               trigger: line,
-              start: "bottom center+=" + photoHalfH,
-              end: "bottom center+=" + (photoHalfH - snapDistance),
+              // Ends exactly when the line's bottom edge reaches the
+              // card's own bottom edge (genuine vertical contact) —
+              // NOT starts there. Starting the window AT the contact
+              // point (an earlier version of this) meant the line was
+              // still sitting completely unpushed, x:0, at the exact
+              // moment it was already close enough to vertically
+              // overlap the card. Shifting the whole window
+              // snapDistance EARLIER means the push has fully finished
+              // by the time the line is anywhere near the card's
+              // vertical range, so there's nothing left to overlap
+              // once contact is even possible.
+              // Anchored to the line's TOP, not its bottom: the line
+              // has real height of its own, so its top edge enters the
+              // card's vertical span well BEFORE its bottom edge does
+              // — measured, a genuine overlap that a bottom-anchored
+              // window (however early it starts) can never rule out,
+              // since the top's own crossing point isn't part of that
+              // maths at all. Ending the window when the TOP reaches
+              // the card's bottom edge guarantees no part of the line
+              // is inside the card's vertical range until the push has
+              // already fully finished.
+              start: function () { return "top center+=" + (photoHalfH() + snapDistance); },
+              end: function () { return "top center+=" + photoHalfH(); },
               scrub: true,
             },
           });
@@ -154,27 +195,27 @@
       // Mobile/tablet: it's really one reading column (lede above
       // detail, see about.css) — every line pushes the SAME direction,
       // starting shifted left toward centre and easing right into its
-      // resting, left-aligned-text position next to the photo on the
-      // left. Same "one combined array, one shared stagger" fix as
-      // desktop. The range spans nearly the WHOLE body-block rather
-      // than just one viewport's worth — mobile stacks lede + both
-      // detail paragraphs into a single, often multi-screen-tall
-      // column, so a range sized for a one-viewport-tall block finished
-      // the push almost as soon as it started (the "paragraphs move a
-      // bit too early" report). It stops exactly at the sticky photo's
-      // OWN release point (bodyBlock's height, minus how tall the now-
-      // content-sized sticky wrapper is, plus one viewport for the
-      // lead-in) rather than at the block's true bottom — going any
-      // further would mean the text is still easing into place after
-      // the card has already scrolled away and released, which looks
-      // broken (text animating with nothing to "arrive" for).
+      // resting, left-aligned-text position next to the sticky photo
+      // on the left. Used to be ONE shared timeline (trigger: bodyBlock)
+      // with a flat per-line `stagger` faking each line's own timing —
+      // but a stagger is just a fixed TIME offset, blind to where any
+      // given line actually sits on the page relative to the fixed
+      // photo, so nothing guaranteed a line's push had finished before
+      // it was close enough to genuinely overlap the photo (measured: a
+      // real ~64px overlap on some lines). Per-line contact triggers,
+      // the same mechanic desktop and the Timeline both already use,
+      // fixes that at the source — see the desktop animateLine() above
+      // for the full reasoning (live-measured photo size, anchored to
+      // each line's own TOP edge, completing snapDistance before
+      // genuine contact).
       mm.add("(max-width: 1024px)", function () {
         var split = splitAll();
         var allLines = split.ledeLines.concat(split.detailLines, [document.querySelector(".eod-about-hero__cta")]);
         var photoStickyEl = document.querySelector(".eod-journey__photo-sticky");
-        var stickyH = photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 0;
-        var bodyH = bodyBlock.getBoundingClientRect().height;
-        var pushRange = bodyH - stickyH + window.innerHeight;
+        function photoHalfH() {
+          return (photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 300) / 2;
+        }
+        var snapDistance = 60;
         // A plain "-6em" starting offset resolves against each
         // element's OWN font-size — the lede, the detail paragraphs
         // and the CTA button all sit at different sizes, so "-6em"
@@ -185,21 +226,30 @@
         // every one of them the exact same absolute distance instead.
         var rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         var startX = -6 * rootPx;
-        var tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: bodyBlock,
-            start: "top bottom",
-            end: "+=" + pushRange,
-            scrub: true,
-          },
+        var triggers = [];
+
+        allLines.forEach(function (line) {
+          if (!line) return;
+          var tw = gsap.fromTo(line, { x: startX, y: 0 }, {
+            x: 0,
+            // Explicit y:0 — see the desktop animateLine() comment
+            // above; the CTA button here carries its own
+            // data-eod-reveal entrance transform this would otherwise
+            // collide with.
+            y: 0,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: line,
+              start: function () { return "top center+=" + (photoHalfH() + snapDistance); },
+              end: function () { return "top center+=" + photoHalfH(); },
+              scrub: true,
+            },
+          });
+          triggers.push(tw.scrollTrigger);
         });
-        // Explicit y:0 — see the desktop animateLine() comment above;
-        // the CTA button here carries its own data-eod-reveal entrance
-        // transform this would otherwise collide with.
-        tl.fromTo(allLines, { x: startX, y: 0 }, { x: 0, y: 0, ease: "none", stagger: 0.05 });
+
         return function () {
-          tl.scrollTrigger.kill();
-          tl.kill();
+          triggers.forEach(function (t) { t.kill(); });
           split.revert();
         };
       });
@@ -213,6 +263,20 @@
     } else {
       build();
     }
+
+    // Belt-and-braces on top of the live-measured start/end/x functions
+    // above: forces at least one ScrollTrigger.refresh() shortly after
+    // everything's up, so even if fonts.ready resolved before the
+    // page's layout had genuinely finished settling, the very next
+    // recalculation picks up the real, final numbers rather than
+    // whatever was measurable at that first, possibly-too-early
+    // moment. GSAP already does this on the window "load" event by
+    // itself — this only matters as a fallback for the case where
+    // "load" had already fired before this script got a chance to
+    // attach the listener.
+    setTimeout(function () {
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
+    }, 300);
   }
 
   if (document.readyState === "loading") {
@@ -330,8 +394,15 @@
         var splits = [];
         var triggers = [];
         var photoEl = document.querySelector(".eod-journey__photo");
-        var push = (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
-        var photoHalfH = (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
+        // Measured live — see the hero's own animateLine() above for
+        // why a one-time measurement here read the card's box smaller
+        // than its real, settled size.
+        function photoHalfH() {
+          return (photoEl ? photoEl.getBoundingClientRect().height : 300) / 2;
+        }
+        function push() {
+          return (photoEl ? photoEl.getBoundingClientRect().width : 300) / 2;
+        }
         var snapDistance = 60;
 
         function animateLine(line, dir) {
@@ -341,13 +412,21 @@
           // ScrollTrigger a null trigger target.
           if (!line) return;
           var tw = gsap.fromTo(line, { x: 0, y: 0 }, {
-            x: dir * push,
+            x: function () { return dir * push(); },
             y: 0,
             ease: "power2.out",
             scrollTrigger: {
               trigger: line,
-              start: "bottom center+=" + photoHalfH,
-              end: "bottom center+=" + (photoHalfH - snapDistance),
+              // See the hero's own animateLine() above for why this
+              // shifted snapDistance earlier instead of straddling the
+              // contact point — completing the push exactly AT contact
+              // rather than continuing 60px past it. Anchored to the
+              // line's TOP, not its bottom — see the hero's own
+              // animateLine() above for why bottom-anchoring can't
+              // actually rule out overlap once the line's own height
+              // is accounted for.
+              start: function () { return "top center+=" + (photoHalfH() + snapDistance); },
+              end: function () { return "top center+=" + photoHalfH(); },
               scrub: true,
             },
           });
@@ -386,7 +465,12 @@
         var splits = [];
         var triggers = [];
         var photoStickyEl = document.querySelector(".eod-journey__photo-sticky");
-        var photoHalfH = (photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 300) / 2;
+        // Measured live — see the hero's own animateLine() above for
+        // why a one-time measurement here read the card's box smaller
+        // than its real, settled size.
+        function photoHalfH() {
+          return (photoStickyEl ? photoStickyEl.getBoundingClientRect().height : 300) / 2;
+        }
         var snapDistance = 60;
         // Same reasoning as the hero's mobile branch above — "-4em"
         // resolves against each LINE's own font-size, and the title
@@ -419,8 +503,12 @@
               ease: "power2.out",
               scrollTrigger: {
                 trigger: line,
-                start: "bottom center+=" + photoHalfH,
-                end: "bottom center+=" + (photoHalfH - snapDistance),
+                // See the hero's own animateLine() above for why this
+                // shifted snapDistance earlier instead of straddling
+                // the contact point, and why it's anchored to the
+                // line's TOP rather than its bottom.
+                start: function () { return "top center+=" + (photoHalfH() + snapDistance); },
+                end: function () { return "top center+=" + photoHalfH(); },
                 scrub: true,
               },
             });
@@ -429,6 +517,62 @@
 
           addPhotoSwap(item, i, triggers);
         });
+
+        // The card should stay put for as long as there's still text
+        // arriving, then end bottom-aligned with the very last line —
+        // not float on, centred, for hundreds more pixels after the
+        // text is already done (confirmed: it used to sit frozen for
+        // ~500px after the last line had already scrolled past it).
+        // Native CSS sticky release is the wrong tool for this: it
+        // fires once the WHOLE .eod-journey__stack runs out of room,
+        // which has no relationship to when THIS particular line
+        // finishes. Instead, this measures the exact scroll position
+        // at which the card's own (fixed, while stuck) centred bottom
+        // edge would naturally coincide with the last line's bottom
+        // edge — both card and text positions are simple, predictable
+        // functions of scroll once you're past the push, so that
+        // crossing point is knowable in advance.
+        //
+        // An earlier version of this kept sliding the card 1:1 with
+        // scroll (matching normal document flow) all the way until it
+        // had fully scrolled off the top of the viewport, staying
+        // perfectly aligned with the text the whole way — correct, but
+        // it meant .eod-timeline needed ~700–900px of genuine trailing
+        // space underneath for that slide to have room to play out in,
+        // which read as a big empty gap of the section's own black
+        // background before Awards began. A short fade-out instead —
+        // the card holds its aligned position for one brief window
+        // and dissolves rather than travelling anywhere — needs only
+        // as much trailing space as that one short window, not an
+        // entire card-height's worth of scroll distance.
+        var lastItem = items[items.length - 1];
+        var lastLineEl = lastItem && (
+          lastItem.querySelector(".eod-timeline__cta") ||
+          lastItem.querySelector(".eod-timeline__desc") ||
+          lastItem.querySelector(".eod-timeline__title")
+        );
+        if (lastLineEl && photoStickyEl) {
+          var photoCenteredBottom = photoStickyEl.getBoundingClientRect().bottom;
+          var lastElAbsoluteBottom = lastLineEl.getBoundingClientRect().bottom + window.scrollY;
+          var alignScrollY = lastElAbsoluteBottom - photoCenteredBottom;
+          // Still tracks 1:1 with scroll (ease:"none") for this short
+          // stretch, so the card keeps riding exactly on the text's own
+          // (still-moving) bottom edge right up until it's gone, rather
+          // than freezing in place the instant the fade starts.
+          var settleWindow = 200;
+          var endTw = gsap.fromTo(photoStickyEl, { y: 0, opacity: 1 }, {
+            y: -settleWindow,
+            opacity: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: document.body,
+              start: alignScrollY,
+              end: alignScrollY + settleWindow,
+              scrub: true,
+            },
+          });
+          triggers.push(endTw.scrollTrigger);
+        }
 
         return function () {
           triggers.forEach(function (t) { t.kill(); });
@@ -442,6 +586,12 @@
     } else {
       build();
     }
+
+    // See initHeroPush()'s own version of this comment above — same
+    // fallback refresh, same reasoning.
+    setTimeout(function () {
+      if (window.ScrollTrigger) ScrollTrigger.refresh();
+    }, 300);
   }
 
   if (document.readyState === "loading") {
