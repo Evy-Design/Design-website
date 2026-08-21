@@ -258,6 +258,35 @@
             }
           );
           triggers.push(shapeTw.scrollTrigger);
+
+          // Evy: the small circle should be zoomed in a bit more on
+          // her face, not just whatever plain object-fit: cover
+          // happens to centre on the square crop. Scales the actual
+          // <img> up (not the box — that's the tween above) and back
+          // down to 1 over the exact same trigger, so the zoom finishes
+          // in lockstep with the shape morph. transform-origin biased
+          // up from dead-centre (50% 35%, not 50% 50%): the portrait's
+          // face sits in the upper third of the frame, not the middle
+          // (there's a lot of hair/shoulder below it) — scaling from
+          // the true centre would zoom toward her collarbone instead.
+          var heroImgEl = document.querySelector('.eod-journey__photo-img[data-slot="hero"]');
+          if (heroImgEl) {
+            heroImgEl.style.transformOrigin = "50% 35%";
+            var zoomTw = gsap.fromTo(heroImgEl,
+              { scale: 1.4 },
+              {
+                scale: 1,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: titleBlockEl,
+                  start: "top top",
+                  end: "bottom top",
+                  scrub: true,
+                },
+              }
+            );
+            triggers.push(zoomTw.scrollTrigger);
+          }
         }
 
         return function () {
@@ -271,6 +300,7 @@
           // photo via its own CSS rule (about.css), which inline
           // styles would otherwise keep overriding.
           gsap.set(photoEl, { clearProps: "width,height,borderRadius" });
+          if (heroImgEl) gsap.set(heroImgEl, { clearProps: "scale,transformOrigin" });
         };
       });
 
