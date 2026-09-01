@@ -1,0 +1,930 @@
+/* ===========================================================
+   Evy Diepenbroek — Projects (grid + case-study detail)
+   Everything shared with Home/About/Contact (fonts, colours, spacing
+   tokens, .eod-page, .eod-btn, [data-eod-reveal], CTA, Footer) lives
+   in shared.css, loaded before this file. Nav/CTA/Footer markup on
+   projects.html and project.html is copied verbatim from the other
+   pages (Evy: "logo an menu en footer mogen het zelfde blijven") —
+   nothing page-specific touches those here.
+
+   No side padding is set anywhere in this file, on either page's own
+   sections — .eod-page section (shared.css) already gives every
+   section 2.5em/1.25em, and every heading/grid below relies on that
+   same inherited edge rather than redeclaring its own (Evy: "Overal
+   keep the margin for the overal website" — this is what keeps "My
+   work" lined up with every other page's own heading). Where a max-
+   width cap is still needed for ultra-wide screens, it's added as an
+   INNER wrapper's max-width + margin: 0 auto — a different job
+   (capping content width, not edge spacing) from the section's own
+   padding, so the two combine rather than double up.
+   =========================================================== */
+
+/* Single source of truth for the corner radius used everywhere on
+   these two pages (project cards, gallery images, caption strip) —
+   defaults to the site-wide --eod-radius (shared.css) so it stays in
+   step with every other rounded corner on the site by default, but
+   can be tuned for just these pages by changing this one line. */
+.eod-page {
+  /* Tuned down from the site-wide --eod-radius (1em) — Evy: "mag de
+     radius van de corners iets minder rond zijn". */
+  --eod-projects-radius: 0.75em;
+}
+
+/* ---- Grid (projects.html, "My work") ---- */
+.eod-projects {
+  background: var(--eod-white);
+  padding-top: 8em;
+  padding-bottom: 8em;
+}
+.eod-projects__inner {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+}
+.eod-projects__heading {
+  margin: 0 0 1.5em;
+  font-size: clamp(2.5em, 4vw, 4em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.eod-projects__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5em;
+}
+
+/* Card: a fixed-ratio frame, overflow hidden. The photo fills it and
+   the title sits as a secondary-button-styled caption just below the
+   frame's own bottom edge (translateY(100%) — clipped out of view by
+   the frame's overflow: hidden, not by opacity, so nothing needs to
+   fade). On hover the photo slides UP by exactly the caption's own
+   height while the caption slides up to fill the gap that opens
+   beneath it — a push, not an overlay (Evy: "de foto die dus eigenlijk
+   in een vak staat, wanneer je erover hovert komt de tekst onderaan
+   te voorschijn maar duwt de foto omhoog, foto zelf blijft hetzelfde"
+   — the photo's own size/crop never changes, only its position). */
+/* The image keeps ONE height always — the same height it used to
+   only reach on hover, once the caption pushed it up (Evy: "hou de
+   hoogte van de image aan van wanneer je er overheen hoovert" — she
+   didn't want the photo to resize/shrink into view on hover, she
+   wanted that smaller size to just BE its resting size). So the
+   caption isn't an overlay that gets pushed into view any more — it
+   sits in normal flow right below the photo, in its own reserved
+   space, always visible. The card itself no longer needs a fixed
+   aspect-ratio/overflow-hidden box; that clipping moves onto
+   .eod-projects__photo-wrap alone, sized by ITS OWN aspect-ratio. */
+.eod-projects__card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.eod-projects__photo-wrap {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--eod-projects-radius);
+}
+.eod-projects__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--eod-projects-radius);
+  /* A subtle zoom is the only hover feedback left now that the old
+     push-up-to-reveal-the-caption motion is gone — cards still need
+     SOME reaction to a hover so they still read as clickable. */
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .eod-projects__card:hover .eod-projects__photo {
+    transform: scale(1.04);
+  }
+}
+.eod-projects__caption {
+  display: flex;
+  align-items: center;
+  padding: 1em 0 0;
+}
+/* The caption's own label — same component as the Timeline's CTAs
+   (Evy: "de tekst is het zelfde als de secondary button"), just
+   without its own left/right nudge on hover: the CARD hovering is
+   already the interaction here, so the label reuses the component's
+   look (no pill, no underline, sliding arrow pair) without needing
+   its own separate hover-triggered slide layered underneath. */
+.eod-projects__caption-btn {
+  width: 100%;
+}
+.eod-projects__caption-btn .eod-btn__label {
+  font-size: 1.05em;
+}
+/* Staggered exit for each grid card's caption as this page
+   leaves during the projects-grid -> case-study transition (Evy:
+   "ook 1 voor 1 uit laten animeren") — see shared.css for the
+   eod-list-out keyframe itself and eod-out-heading (which always
+   goes first, delay 0). Index/name assigned in content.js's
+   renderProjectsGrid, capped at 11 — a fixed, generated block
+   rather than open-ended since view-transition names cannot be
+   matched by a CSS pattern/selector the way a class can. */
+::view-transition-old(eod-out-card-0) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.05s;
+}
+::view-transition-old(eod-out-card-1) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.09s;
+}
+::view-transition-old(eod-out-card-2) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.13s;
+}
+::view-transition-old(eod-out-card-3) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.17s;
+}
+::view-transition-old(eod-out-card-4) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.21s;
+}
+::view-transition-old(eod-out-card-5) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.25s;
+}
+::view-transition-old(eod-out-card-6) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.29s;
+}
+::view-transition-old(eod-out-card-7) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.33s;
+}
+::view-transition-old(eod-out-card-8) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.37s;
+}
+::view-transition-old(eod-out-card-9) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.41s;
+}
+::view-transition-old(eod-out-card-10) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.45s;
+}
+::view-transition-old(eod-out-card-11) {
+  animation: eod-list-out 0.35s ease both;
+  animation-delay: 0.49s;
+}
+@media (max-width: 767px) {
+  .eod-projects {
+    padding-top: 5em;
+    padding-bottom: 5em;
+  }
+  .eod-projects__grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+/* ---- Detail (project.html, one shared template per case study) ----
+   Order/flow follows the source design directly (Evy: "the design
+   isnt there" about an earlier grid-then-text version of this page):
+   one large hero image, THEN title+description side by side, THEN
+   deliverables, THEN more gallery images (alternating full-width and
+   side-by-side pairs — see content.js's own gallery data comment for
+   why it's not a uniform grid), THEN a process section using the
+   SAME title/description two-column pattern, THEN the cross-links.
+   Typography/spacing values themselves are this site's own tokens
+   throughout (Evy: "keep the type and spacing from the overal
+   website"), not copied from the reference design. */
+.eod-project__hero {
+  background: var(--eod-white);
+  /* The nav header is position: fixed at ~102px/6.4em tall — the old
+     4em here was actually LESS than that, so the hero image started
+     partway behind the header rather than just sitting close to it
+     (Evy: "de hero...staat nu erg dicht tegen het logo"). 9em clears
+     it with real breathing room to spare. */
+  padding-top: 9em;
+}
+/* Big title + optional "Go to website" button, ahead of the image —
+   Evy's new Figma layout (node 295:2229/295:6907): the title reads as
+   the page's real h1 now, with .eod-project__title further down
+   staying a smaller h2 recap next to the description. Same capped
+   width as the hero image/back-link so all three line up. */
+.eod-project__hero-title-row {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+  display: flex;
+  gap: 2em;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 2em;
+}
+.eod-project__hero-title {
+  margin: 0;
+  max-width: 50%;
+  font-size: clamp(2.5em, 6vw, 5em);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.eod-project__website-btn {
+  flex: none;
+}
+/* .eod-btn's own `display` declaration (shared.css) has higher
+   specificity than the browser's default [hidden] { display: none }
+   rule, so without this the button stayed visible even with the
+   `hidden` attribute set (content.js hides it whenever a project has
+   no websiteUrl) — confirmed live: hidden was true, computed display
+   was still "block". */
+.eod-project__website-btn[hidden] {
+  display: none;
+}
+.eod-project__hero-img,
+.eod-project__hero-video {
+  max-width: var(--eod-content-max);
+  margin: 2em auto 0;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  border-radius: var(--eod-projects-radius);
+  display: block;
+  /* No transition here on purpose (a real bug this one had: putting
+     it here meant EVERY page load — even a plain direct visit, not
+     just one that arrives via the projects-grid transition — briefly
+     animated FROM this full size DOWN to .is--compact below, since
+     that class gets added a beat after this base rule has already
+     painted. That's the exact glitch Evy flagged in every browser,
+     including ones that don't even run the view-transition below at
+     all: "de size van eod-projects__photo moet hetzelfde blijven...
+     niet opeens in de hoek verdwijnen" — object-fit: cover
+     recropping mid-shrink reads as the photo lurching into a corner.
+     content.js adds .is--expanding (below) right before removing
+     .is--compact, which is the ONLY moment this should animate. */
+}
+.eod-project__hero-img[hidden],
+.eod-project__hero-video[hidden] {
+  display: none;
+}
+/* Lands here first — same size/ratio as one grid card on
+   projects.html (Evy: "de afbeelding dezelfde maat blijft") — then
+   content.js removes this class on the first scroll, which the
+   transition above eases into the full hero size (Evy: "vanaf het
+   moment dat je gaat scrollen wordt die volledig weergegeven"). Only
+   ever applied to the img (content.js guards this on !hasHeroVideo) —
+   a video hero always shows at full size right away. */
+.eod-project__hero-img.is--compact {
+  /* Exactly one grid card's own width formula, not an approximation
+     — .eod-projects__grid is repeat(2, 1fr) with a 1.5em gap inside
+     a --eod-content-max-capped container, so each card is
+     (that width - 1.5em) / 2. Approximating this with a flat 47%
+     landed close but not pixel-exact, which showed up as the shape
+     still visibly resizing (not just moving) during the page
+     transition (Evy: "ik zie dat de shape zelf nog steeds veranderd
+     tijdens de transformatie, het mag alleen van positie
+     veranderen") — the browser's view-transition morph is a pure
+     translate with zero scaling only when the old and new element's
+     actual rendered size match exactly. */
+  max-width: calc((min(100%, var(--eod-content-max)) - 1.5em) / 2);
+  aspect-ratio: 4 / 3;
+}
+/* content.js adds this right before removing .is--compact on the
+   first scroll — carries the transition that used to sit on the base
+   rule above (see the comment there for why it moved), so the ONLY
+   moment this animates is that scroll-triggered expand, never on
+   initial load. */
+.eod-project__hero-img.is--expanding {
+  transition: max-width 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    aspect-ratio 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+/* "Go back" arrow, top of the hero (Evy: "een 'go back'-pijl
+   helemaal bovenaan") — same capped width + auto margins as the hero
+   image right below it, so it lines up with that image's own left
+   edge rather than the section's raw (uncapped) one. */
+.eod-project__hero-top {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+  padding-bottom: 1.5em;
+}
+/* Icon-leading secondary button — a reusable variant, not styling
+   tied to .eod-project__back specifically (Evy later asked for the
+   same treatment on "Go to overview" too: "graag hier de zelfde soort
+   button als de go back button"). Plain secondary button, not a
+   circle (Evy: "dit mag gewoon een secondary button zijn met go
+   back"), and the FULL secondary-button component including its
+   hover slide, not a static icon+label: same
+   .eod-btn__secondary-viewport/-track markup, same transition, just
+   horizontally mirrored, since the icon sits permanently at the
+   FRONT here instead of trailing ("nu staat het icontje aan de
+   voorkant"). Rest state shows [icon, label] (the reverse of the
+   normal component's [label, icon]); hover slides the track LEFT
+   instead of RIGHT, clipping the front icon out of view while an
+   identical icon (positioned past the viewport's right edge,
+   mirroring how the normal component hides ITS extra icon past the
+   left edge) slides into view at the end — the same sweep, just
+   reversed. Uses its own --front/--back modifiers rather than the
+   shared --lead/--trail ones: --lead's `right: 100%` is anchored to
+   the LEFT of the track regardless of DOM position, and its 45°
+   rotation is specific to the site's diagonal corner-arrow glyph —
+   neither is right for an icon meant to sit at the front, or for the
+   plain horizontal arrow used here ("de arrow... mag gewoon
+   horizontaal zijn", the same glyph as the slider's prev/next
+   controls below). */
+.eod-btn--icon-lead .eod-btn__arrow-slot--front {
+  position: static;
+  margin-right: 0.6em;
+}
+.eod-btn--icon-lead .eod-btn__arrow-slot--back {
+  position: absolute;
+  left: 100%;
+  margin-left: 0.6em;
+}
+.eod-btn--icon-lead:hover .eod-btn__secondary-track {
+  transform: translateX(calc(-1 * (0.9em + 0.6em)));
+}
+.eod-project__body {
+  background: var(--eod-white);
+  /* Bumped again from 6em (Evy: "de margin boven en onder mag hier
+     groter"). */
+  padding-top: 8em;
+  padding-bottom: 8em;
+}
+/* Title (left) / description+deliverables (right), per Evy's own
+   screenshot reference — deliverables stacks below the description
+   INSIDE the right column, not spanning full width below both
+   columns (a couple of earlier attempts at this got the nesting
+   wrong: first beside the title with deliverables full-width below,
+   then title alone with both stacked full-width — this is the one
+   Evy actually confirmed). */
+.eod-project__body-inner {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3em;
+}
+.eod-project__title {
+  margin: 0;
+  font-size: clamp(1.8em, 3vw, 2.5em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.eod-project__body-right {
+  min-width: 0;
+}
+.eod-project__description {
+  margin: 0;
+  font-size: 1em;
+  line-height: 1.6;
+  color: var(--eod-muted);
+}
+.eod-project__deliverables {
+  margin-top: 2em;
+}
+/* Caption text (Evy: "dit is caption text") — the small uppercase
+   label ahead of a block of body copy ("What I delivered:",
+   "The process:"). One shared class rather than each usage rolling
+   its own, so it can't drift; both usages render an <h2> now too,
+   not one h2 and one h3 as before ("zorg dat overal waar dit
+   gebruikt wordt gelinkt staat aan caption"). */
+.eod-project__caption {
+  margin: 0 0 0.75em;
+  font-size: 0.8em;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--eod-muted);
+}
+.eod-project__tags {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4em 1em;
+  font-size: 1.1em;
+}
+.eod-project__gallery-section {
+  background: var(--eod-white);
+  /* Matches .eod-project__nav-inner:first-child's own padding-top
+     (8em) — the space above THAT section's divider line should equal
+     the space below it (Evy: "padding aan de onderkant moet net zo
+     groot zijn als na de line"). */
+  padding-bottom: 8em;
+}
+.eod-project__gallery {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+}
+.eod-project__gallery-row {
+  display: grid;
+  gap: 1.5em;
+}
+.eod-project__gallery-row--full {
+  grid-template-columns: 1fr;
+}
+.eod-project__gallery-row--pair {
+  grid-template-columns: 1fr 1fr;
+}
+/* Left h2 heading / right body copy, same column split as
+   .eod-project__body-inner — a spot to explain more about a specific
+   image inline, not just the page's own top intro (Evy: "een sectie
+   met left header en right body text... aboven this photo"), and also
+   what the old standalone "process" section became (Evy: "Delete
+   this and add here a text explain section"). Two Sanity block types
+   share this same heading/body markup (galleryBlock schema) — this
+   is the "Section text" one: a standalone block, even spacing above
+   and below. */
+.eod-project__gallery-row--text {
+  grid-template-columns: 1fr 1fr;
+  gap: 3em;
+  align-items: start;
+  padding: 6em 0 1.5em;
+}
+/* "Intro text" — the other Sanity block type sharing the heading/body
+   markup above, for a block that leads straight into the media right
+   after it (Evy, showing her new Figma layout: "i sometimes put text
+   in between to explain the photos that come after it, thats why the
+   padding onder te text is shorter") — same column layout, but the
+   bottom padding is deliberately much smaller than the top, so the
+   text reads as bound to what follows rather than floating evenly
+   between two unrelated blocks. */
+.eod-project__gallery-row--intro-text {
+  grid-template-columns: 1fr 1fr;
+  gap: 3em;
+  align-items: start;
+  padding: 6em 0 1em;
+}
+.eod-project__gallery-text-heading {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: 400;
+}
+.eod-project__gallery-text-body {
+  margin: 0;
+  font-size: 1em;
+  line-height: 1.6;
+  color: var(--eod-muted);
+}
+.eod-project__gallery-img {
+  width: 100%;
+  /* Fixed height on the IMAGE itself, not the row — so every single
+     photo lands on the same height whether it's alone in a "full"
+     row, side by side in a "pair" (desktop), or stacked in a "pair"
+     that's gone to 1 column (mobile, see below): each one is its own
+     grid item at this height regardless of how many share the row
+     (Evy: "alle gallery row section mogen even hoog zijn", then
+     later "op mobile mag alles onder elkaar" — a row-level height
+     can't satisfy both at once once a "pair" stacks to 2 images in
+     1 column, since two images sharing one fixed row height would
+     just halve each; per-image height doesn't have that problem).
+     In svh, not a fixed em (Evy: "de hoogte... mag ongeveer 70svh
+     zijn") — scales with the actual viewport instead of a constant
+     that reads very differently across screen heights. object-fit:
+     cover does the actual cropping to fit whatever this is set to. */
+  height: 70svh;
+  min-width: 0;
+  object-fit: cover;
+  border-radius: var(--eod-projects-radius);
+  display: block;
+}
+/* Black frame for a vertical/portrait process video — same row
+   height, radius and gap as a "full" image (Evy: "this section can
+   be the same as a full image, so also with the same radius and
+   padding"; a separate full-bleed 100svh black section was tried
+   first, per an earlier "full screen section die zwart is" request,
+   but Evy asked for it folded back into the regular gallery rhythm
+   instead). The video itself is centred and CONTAINED, not cropped —
+   object-fit: cover (used on .eod-project__gallery-img above) would
+   chop off a portrait recording, so this sizes down via max-width/
+   max-height instead and lets the black frame show as letterboxing
+   on whichever axis doesn't fill. */
+.eod-project__gallery-row--video {
+  grid-template-columns: 1fr;
+}
+.eod-project__gallery-video {
+  height: 70svh;
+  background: var(--eod-black);
+  border-radius: var(--eod-projects-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.eod-project__gallery-video video {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+/* "Process" — the bordered card from Evy's new Figma layout (node
+   …6871): badge + heading + body on the left, whatever media goes
+   with it on the right, inside one outlined card rather than the
+   process text and its media being separate elements in the page
+   flow. Sits as a direct child of .eod-project__gallery, same as any
+   other gallery row, so it picks up that container's own row gap for
+   free. */
+.eod-project__process {
+  border: 1px solid var(--eod-border);
+  border-radius: var(--eod-projects-radius);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* An implicit "auto" row sizes to its content regardless of the
+     max-height below (a container's max-height doesn't feed back
+     into grid track sizing on its own) — minmax(0, 1fr) makes the
+     one row an actual flexible track that's capped by the available
+     (max-height-bounded) space instead, which is what lets the
+     min-height: 0 + overflow-y: auto on the two columns below
+     actually do something instead of just growing past the card. */
+  grid-template-rows: minmax(0, 1fr);
+  gap: 3em;
+  padding: 3em;
+  min-height: 40svh;
+  max-height: 90svh;
+  overflow: hidden;
+}
+.eod-project__process-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2em;
+  max-width: 28em;
+  /* The card itself is capped at max-height: 90svh (Evy: "de process
+     section heeft een max height van 90svh") with overflow: hidden,
+     so a long body or a tall stack of media no longer grows the card
+     past that — this column scrolls internally instead once its own
+     content outgrows the card. Grid items default to align-items:
+     stretch (so this fills the row's — now bounded — height) AND
+     min-height: auto (so they refuse to shrink below their own
+     content, which would defeat that entirely) — min-height: 0
+     overrides the second part so the stretch + overflow-y actually
+     does something. */
+  min-height: 0;
+  overflow-y: auto;
+}
+.eod-project__process-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--eod-border);
+  border-radius: 999px;
+  padding: 0.4em 1em;
+  font-size: 0.85em;
+  color: var(--eod-muted);
+}
+.eod-project__process-heading {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.eod-project__process-body {
+  margin: 0;
+  font-size: 1em;
+  line-height: 1.6;
+  color: var(--eod-muted);
+}
+.eod-project__process-media {
+  border-radius: var(--eod-projects-radius);
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--eod-black);
+  /* Same min-height: 0 override as .eod-project__process-text above —
+     otherwise this grid item won't shrink below its content's natural
+     height and the overflow-y above never actually engages. */
+  min-height: 0;
+}
+.eod-project__process-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* contain, not cover — same reasoning as .eod-project__gallery-video:
+   a portrait recording (this card's own video is one) would get
+   cropped badly by cover; the black background above letterboxes it
+   instead. */
+.eod-project__process-media video {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+/* More than 1 photo in a process block (Evy: "if they add more then
+   one photo here that text at the left is sticky") — stack them
+   instead of just showing the first, each at its own natural
+   card-like size rather than all cramming into the single-media
+   height above. The container's own height then grows with however
+   many photos there are, which is what gives
+   .eod-project__process-text's position: sticky (above) something to
+   stick THROUGH as you scroll. */
+.eod-project__process-media.is--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background: none;
+}
+.eod-project__process-media.is--stacked img {
+  height: auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--eod-projects-radius);
+}
+.eod-project__nav {
+  /* Site's own default page background (--eod-white), not the
+     slightly-off grey --eod-cta-bg this used before — Evy: "de
+     achtergrond van deze sectie mag gewoon de primary-bg kleur
+     hebben". */
+  background: var(--eod-white);
+  /* Bumped again, now to 8em, matching .eod-project__body's own
+     (Evy: "mag meer ruimte aan de boven en onderkant"). */
+  padding-bottom: 8em;
+}
+.eod-project__nav-inner {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+}
+/* Divider line lives on the heading wrapper (the section's own first
+   child), not the section itself — a border-top on .eod-project__nav
+   draws at the section's own OUTER edge, spanning the full viewport
+   width; Evy asked for it to share the page's own margin instead
+   (Evy: "mag ook een page margin hebben"), so it needs to start/end
+   at the same inset every other element on this page already uses —
+   .eod-project__nav-inner's own max-width + auto margins, the exact
+   same pattern as .eod-project__body-inner etc. above. Same
+   --eod-border token used elsewhere on the site (e.g. the Awards
+   list's own row dividers, shared.css) at the same 1px solid weight
+   — Evy asked what that value was, so this is deliberately the same
+   var, not a new one. */
+.eod-project__nav-inner:first-child {
+  border-top: 1px solid var(--eod-border);
+  /* Bumped again, now to 8em, matching the section's own bottom. */
+  padding-top: 8em;
+}
+.eod-project__nav-label {
+  margin: 0 0 1em;
+  font-size: 1.2em;
+  font-weight: 400;
+}
+
+/* "Look at other projects" carousel (project-slider.js) — deliberately
+   NOT capped to --eod-content-max like .eod-project__nav-inner above:
+   the spatial curve reads best with real room either side for cards
+   to arc off into, so this only inherits the section's own side
+   padding (.eod-page section, shared.css), same as everywhere else,
+   just without the extra max-width clamp on top of it.
+
+   Card styling is .eod-projects__card itself (projects.css, above) —
+   unchanged — so a card here looks identical to one on the grid on
+   projects.html (Evy: "cange that so it looks like the work overview
+   as well"); only .eod-project-slider__card adds the fixed width the
+   slider's positioning maths needs (percentage/auto widths don't
+   give it a stable itemWidth to measure).
+
+   Everything with a [data-spatial-slider-*] attribute below is a
+   functional hook for project-slider.js, not just styling — don't
+   rename/remove those attributes without checking that file. */
+.eod-project-slider {
+  --slider-gap: 2em;
+  --slider-curve: 20deg;
+  --slider-perspective: 140em;
+  --slider-direction: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5em;
+  width: 100%;
+  padding-top: 2.5em;
+  position: relative;
+}
+.eod-project-slider__collection {
+  max-width: 100%;
+  position: relative;
+}
+.eod-project-slider[data-spatial-slider-drag-status="grab"] .eod-project-slider__collection {
+  cursor: grab;
+}
+.eod-project-slider[data-spatial-slider-drag-status="grabbing"] .eod-project-slider__collection {
+  cursor: grabbing;
+}
+.eod-project-slider__list {
+  -webkit-user-select: none;
+  user-select: none;
+  will-change: transform;
+  touch-action: pan-y;
+  backface-visibility: hidden;
+  column-gap: var(--slider-gap);
+  max-width: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  perspective: var(--slider-perspective);
+}
+.eod-project-slider__item {
+  flex: none;
+  position: absolute;
+}
+.eod-project-slider__list > :first-child {
+  position: relative;
+}
+.eod-project-slider__card {
+  width: 22em;
+}
+/* Caption sits transparent here (unlike the opaque white one on
+   projects.html's own grid) — Evy: "de achtergrond mag gewoon
+   transparant zijn" — so it reads as part of this section's own
+   background (--eod-white, set on .eod-project__nav below) rather
+   than a separate white card popping out of it. Scoped to the
+   slider specifically; the grid's own white caption is unchanged. */
+.eod-project-slider__card .eod-projects__caption {
+  background: transparent;
+}
+/* "Go to overview" and the two arrows share one row, at the same
+   height, on every breakpoint (Evy: "de slider navigation en de go
+   to overview button mogen op de zelfde hoogte staan") — dots
+   removed too, see project-slider.js. */
+.eod-project-slider__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.eod-project-slider__cta {
+  display: inline-block;
+}
+.eod-project-slider__arrows {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+}
+/* Plain icon, no circle/fill (Evy: "de arrows hoeven niet in
+   rondjes, doe deze maar gewoon alleen de icon") — the SVGs
+   themselves are also a plain horizontal arrow now, not this site's
+   usual 45°-diagonal corner-arrow glyph (Evy: "ze mogen gewoon
+   horizontaal dus niet 45 graden"), so both the wrapper and the icon
+   markup changed together (see project.html). */
+.eod-project-slider__control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  border: none;
+  padding: 0;
+  background: none;
+  color: var(--eod-ink);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+/* 2em (32px) is under the 40px minimum mobile tap target (Evy:
+   "buttons... minimaal 40px hoog") — grown via padding + a matching
+   negative margin so the arrow glyph itself doesn't get bigger. */
+@media (max-width: 767px) {
+  .eod-project-slider__control-btn {
+    padding: 4px;
+    margin: -4px;
+  }
+}
+.eod-project-slider__control-btn:hover {
+  opacity: 0.6;
+}
+.eod-project-slider__control-btn svg {
+  width: 1.6em;
+  height: 1.6em;
+  stroke: currentColor;
+}
+@media (max-width: 767px) {
+  .eod-project__hero {
+    /* Same fix as the desktop rule above — the mobile header is
+       ~3.5em tall, so this also needs to clear it, not just the
+       general mobile side-padding value. */
+    padding-top: 5em;
+  }
+  /* Less breathing room between sections on mobile (Evy: "in de
+     project page op mobiel mag er minder ruimte tussen de sections")
+     — the desktop 8em between hero/body/gallery/nav reads as an
+     oversized gap once everything's already stacked in 1 column on a
+     phone. */
+  .eod-project__body {
+    padding-top: 4em;
+    padding-bottom: 4em;
+  }
+  .eod-project__gallery-section {
+    padding-bottom: 4em;
+  }
+  .eod-project__nav-inner:first-child {
+    padding-top: 4em;
+  }
+  .eod-project__hero-img,
+  .eod-project__hero-video {
+    aspect-ratio: 4 / 3;
+  }
+  /* The desktop compact size is deliberately narrower than the full
+     hero (half a 2-column grid row) — on mobile the grid is already
+     1 column full-width, so there's no smaller "card size" to start
+     from; keep it at full width and let the aspect-ratio above do
+     the (smaller) job instead. */
+  .eod-project__hero-img.is--compact {
+    max-width: 100%;
+  }
+  .eod-project__hero-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+  }
+  .eod-project__hero-title {
+    max-width: none;
+  }
+  .eod-project__process {
+    grid-template-columns: 1fr;
+    padding: 1.5em;
+    min-height: 0;
+    /* The desktop max-height: 90svh + overflow: hidden is for the
+       side-by-side layout (text scrolls in its own column, media in
+       its own column). On mobile the two are stacked in a single
+       column instead, so the same cap would just chop off the
+       bottom of the card rather than let anything scroll — off here,
+       same as min-height above. */
+    max-height: none;
+    overflow: visible;
+  }
+  .eod-project__process-text {
+    max-width: none;
+    /* Desktop's internal scroll (overflow-y: auto, see base rule)
+       would be redundant/confusing once text and media are stacked
+       into one naturally-flowing column here. */
+    overflow-y: visible;
+    max-height: none;
+  }
+  .eod-project__process-media:not(.is--stacked) {
+    height: 40svh;
+  }
+  /* Title/description goes from side-by-side to stacked — a 50/50
+     column split reads as too narrow on a phone.
+     .eod-project__deliverables isn't a grid itself (it's nested
+     inside .eod-project__body-right, which stacks naturally once the
+     outer grid above it goes to 1 column), so it doesn't need
+     touching here. */
+  .eod-project__body-inner {
+    grid-template-columns: 1fr;
+    gap: 1.5em;
+  }
+  /* Pairs stack to 1 column here (Evy: "op mobile mag alles onder
+     elkaar") — safe to do now that the fixed height lives on each
+     IMAGE rather than the row (above): a stacked pair is just 2 grid
+     items in 1 column, each still 40svh on its own, so "every photo
+     the same height" keeps holding regardless of column count. */
+  .eod-project__gallery-row--pair {
+    grid-template-columns: 1fr;
+  }
+  .eod-project__gallery-img,
+  .eod-project__gallery-video {
+    height: 40svh;
+  }
+  .eod-project__gallery-row--text {
+    grid-template-columns: 1fr;
+    gap: 0.75em;
+    padding: 0;
+  }
+  .eod-project__gallery-row--intro-text {
+    grid-template-columns: 1fr;
+    gap: 0.75em;
+    padding: 1.5em 0 0;
+  }
+  .eod-project-slider {
+    --slider-gap: 1em;
+    --slider-curve: 32deg;
+  }
+  .eod-project-slider__card {
+    width: 15em;
+  }
+  /* Caption moves BELOW the photo here instead of overlaying it
+     (Evy: "op mobile staat de tekst nu op de foto, zorg dat de title
+     text hier onder de foto staat... de section kan dan wat hoger
+     worden") — scoped to the slider's own cards only, the plain grid
+     on projects.html keeps its usual overlay-on-touch caption.
+     .eod-projects__card's own aspect-ratio (set above, in the grid's
+     mobile block) is dropped so the card can grow to fit the caption
+     underneath; the photo gets its own aspect-ratio directly since it
+     can no longer rely on the card's. */
+  .eod-project-slider__card {
+    aspect-ratio: unset;
+  }
+  .eod-project-slider__card .eod-projects__photo-wrap {
+    position: static;
+    aspect-ratio: 4 / 3;
+  }
+  .eod-project-slider__card .eod-projects__caption {
+    position: static;
+    transform: none;
+    height: auto;
+    padding: 0.75em 0 0;
+  }
+}

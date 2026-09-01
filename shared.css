@@ -16,6 +16,7 @@
      - .eod-awards component
      - .eod-cta "I am a [ ] Design" component
      - .eod-footer* component
+     - Cross-document view transition (projects grid -> a case study)
    =========================================================== */
 
 /* PP Mori — self-hosted. These 3 files (fonts/PPMori-*.woff2) need to
@@ -294,6 +295,24 @@ body.eod-is-scrolling .eod-btn {
 }
 .eod-btn--secondary:hover .eod-btn__secondary-track {
   transform: translateX(calc(0.9em + 0.6em));
+}
+
+/* Mobile tap target — .eod-btn--secondary ("Go back", "Go to
+   overview", every Timeline link) is just plain text with no padding
+   of its own, so its visible size IS its clickable size: fine on
+   desktop with a mouse, too small to reliably tap on a phone (Evy:
+   "op mobiel moeten buttons... minimaal 40px hoog zijn"). This grows
+   the tappable area via padding + a matching negative margin so nei
+   the surrounding layout nor the label's own visual size changes —
+   same trick .underlay-nav__toggle already uses. */
+@media (max-width: 767px) {
+  .eod-btn--secondary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    margin: -0.5em 0;
+    padding: 0.5em 0;
+  }
 }
 
 /* ---- Scroll-reveal-in: fade + rise (default), applied to any
@@ -923,6 +942,27 @@ body.eod-is-scrolling .eod-btn {
   margin-left: auto;
   margin-right: auto;
 }
+/* Per-letter reveal when the footer scrolls into view (Evy, after
+   yourwave.nl: "de letters komen 1 voor 1 van beneden uit het frame
+   naar boven") — each <path> in the wordmark rises up from below its
+   OWN clip window (script.js's setupClipMasks gives every path a
+   <clipPath> sized to its own getBBox(), plus a --letter-offset equal
+   to its own height), so it's genuinely hidden behind the frame's
+   bottom edge at rest, not just faded out, and visibly emerges as it
+   crosses back into the clipped area — not a fade standing in for a
+   mask. Each letter staggered via its own --i (set inline per path,
+   see chrome.js). Triggered by script.js adding .is-inview the first
+   time [data-eod-letters-reveal] enters the viewport (same
+   IntersectionObserver-driven, fires-once pattern as the site's plain
+   [data-eod-reveal], just per-path instead of per-element). */
+.eod-footer__logo path {
+  transform: translateY(var(--letter-offset, 20px));
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 0.06s);
+}
+[data-eod-letters-reveal].is-inview path {
+  transform: translateY(0);
+}
 @media (max-width: 767px) {
   .eod-footer__top {
     padding-bottom: 3em;
@@ -933,4 +973,153 @@ body.eod-is-scrolling .eod-btn {
   .eod-footer__label {
     font-size: 0.9em;
   }
+}
+
+/* ---- Cross-document view transition: projects grid -> a case study
+   (Evy: "als je op een case klikt gaat de afbeelding mee... de rest
+   verdwijnt in een mooie out-transformatie... de afbeelding
+   verplaatst naar zijn nieuwe plek, wat de hero-afbeelding van de
+   case wordt"). "navigation: auto" is the opt-in for browsers that
+   support cross-document View Transitions (Chrome/Edge, Safari) — it
+   needs to be present on BOTH the page you're leaving and the page
+   you're landing on, which is exactly why this lives in shared.css
+   rather than projects.css/project.html's own stylesheet. On a
+   browser without support this rule is simply ignored and navigation
+   behaves like a normal page load — no fallback JS needed. The named
+   element itself (the clicked project's photo -> the case's hero
+   image) is tagged view-transition-name in content.js, matching by
+   slug so only that one image gets pulled out of the default
+   crossfade below and animated as its own group. */
+@view-transition {
+  navigation: auto;
+}
+/* Everything WITHOUT its own view-transition-name (i.e. whatever's
+   left of both pages once the heading/cards/hero-text below have all
+   claimed their own names) is the "root" group. A touch more than a
+   plain crossfade (Evy: "de overige elementen iets meer visuele out
+   transformation") — a slight rise-and-fade in each direction, same
+   motion language as [data-eod-reveal] elsewhere on the site rather
+   than a flat dissolve. */
+@keyframes eod-root-out {
+  to {
+    opacity: 0;
+    transform: translateY(-1.2em);
+  }
+}
+@keyframes eod-root-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.2em);
+  }
+}
+::view-transition-old(root) {
+  animation: eod-root-out 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}
+::view-transition-new(root) {
+  /* Delayed until the hero image has actually finished landing —
+     which itself now only starts once every OUT element below has
+     finished leaving (Evy: "pas wanneer de hero image op zijn nieuwe
+     plek staat mogen de andere elementen in animeren", then "ook
+     andersom... pas wanneer de andere elementen zijn uitgeanimeerd...
+     mag de image gaan verplaatsen"). Three beats in sequence: OUT
+     (0 to ~0.85s, see eod-out-heading/eod-out-card-N) -> hero move
+     (0.85s to 1.45s, see ::view-transition-group(*) below) -> IN
+     (from 1.45s, here and project.html's hero-top/title-row). */
+  animation: eod-root-in 0.45s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 1.45s;
+}
+/* The projects-grid heading and each card's caption leave in their
+   own staggered cascade rather than as part of that flat root group
+   (Evy: "ook 1 voor 1 uit laten animeren") — exit-only, no matching
+   name on project.html, so these just lift-and-fade away instead of
+   morphing into anything. See projects.css for the actual per-card
+   stagger delays (indices are generated in content.js's
+   renderProjectsGrid, capped at 11). */
+@keyframes eod-list-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.8em);
+  }
+}
+::view-transition-old(eod-out-heading) {
+  animation: eod-list-out 0.35s ease both;
+}
+/* The named hero image's own move+resize between its two pages.
+   "*" is every non-root named group — in practice only the hero
+   photo uses one, but this is written generically rather than
+   against one hardcoded name since the name itself is per-project
+   (eod-hero-<slug>, set in content.js). */
+::view-transition-group(*) {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Waits for the OUT cascade below to actually finish first (last
+     card caption finishes at 0.49s delay + 0.35s duration = 0.84s;
+     0.85s gives it a hair of breathing room) — Evy: "pas wanneer de
+     andere elementen zijn uitgeanimeerd... mag de image gaan
+     verplaatsen". Applies to every non-root named group, but in
+     practice only the clicked hero photo actually MOVES — an
+     unmatched (exit-only) card image has no new-page position to
+     interpolate toward, so this delay is a no-op for those; they're
+     already handled by their own image-pair blur/crossfade instead. */
+  animation-delay: 0.85s;
+}
+/* A project's hero image isn't always the same photo as its grid
+   cover (Evy: "sommige hero-afbeeldingen zijn anders dan de overview
+   hero-afbeelding, daarom wordt de afbeelding zelf geblurd en
+   verandert die naar de nieuwe hero-afbeelding terwijl deze van plek
+   verandert") — the browser already crossfades the old/new photo
+   automatically whenever they differ; this blur pulse rides along on
+   top of that crossfade. Deliberately much SHORTER than the group's
+   own 0.6s move/resize above (Evy, correcting a first pass that used
+   the same 0.6s here: "de shape zelf wordt nu ook geblurd... de shape
+   moet wel echt die shape blijven en transformeren... alleen de
+   afbeelding die verandert") — a quick, subtle blur pulse that clears
+   within the slow first stretch of the group's own ease-in-out move
+   reads as "the photo swapped" without ever reading as "the shape is
+   blurry while it resizes". Excluded from root (below) so the rest
+   of the page doesn't blur along with it. */
+@keyframes eod-hero-swap-blur {
+  0% {
+    filter: blur(0);
+  }
+  40% {
+    filter: blur(8px);
+  }
+  100% {
+    filter: blur(0);
+  }
+}
+/* Bug: this used to run its own short 0.22s timeline starting at
+   t=0 — fine back when the group itself also started moving at t=0,
+   but once the group's move got pushed to start at 0.85s (above),
+   the photo crossfade (this blur, AND the browser's own default
+   old/new fade — see the wildcard rule below) kept firing at t=0
+   regardless, fully swapping to the new photo circa t=0.25s and then
+   just sitting there, static, for another 0.6s before the group
+   finally started moving. That's exactly what read as "2
+   verschillende images" / "even wit tussendoor" (Evy) — the swap
+   and the move need to happen in the SAME window, not one after the
+   other. Now matches the group's own 0.85s delay + 0.6s duration
+   exactly. */
+::view-transition-image-pair(*) {
+  animation-name: eod-hero-swap-blur;
+  animation-duration: 0.6s;
+  animation-delay: 0.85s;
+  animation-timing-function: ease-out;
+}
+::view-transition-image-pair(root) {
+  animation-name: none;
+}
+/* The actual old-photo-fades-out/new-photo-fades-in crossfade is a
+   browser default animation on these two (not something with its
+   own @keyframes here) — same fix, same reasoning: without an
+   explicit duration/delay it runs on the UA's own short default
+   timeline starting at t=0, out of sync with the group's move. The
+   exact-name ::view-transition-old(root)/new(root) rules elsewhere
+   in this file are more specific than this wildcard and keep their
+   own timing untouched. */
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 0.6s;
+  animation-delay: 0.85s;
 }

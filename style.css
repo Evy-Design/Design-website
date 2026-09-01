@@ -255,7 +255,7 @@
     right: 0;
     max-width: none;
     margin: 0;
-    text-align: center;
+    text-align: left;
   }
   .eod-hero__intro-title {
     font-size: 2.2em;
@@ -273,26 +273,37 @@
     -webkit-line-clamp: 3;
     overflow: hidden;
   }
-  /* "From behind the card": each rests just clear of it (bottom/top)
-     but starts pulled in further toward that center line — roughly
-     at the card itself, hidden behind it (z-index 5 vs. the card's
-     9999) — and travels out to its resting spot as it fades in. */
+  /* "From behind the card": each rests just clear of it (bottom/top).
+     Travel distance used to be tied to --eod-card-h itself (roughly
+     the card's own half-height, ~90-110px in practice) — Evy flagged
+     the reveal as reading like a big block "building" into place
+     rather than a smooth entrance, and at that distance both title
+     and body sliding the same distance at the same instant does read
+     as a heavy synchronised slam rather than a gentle rise. Shrunk to
+     a flat 1.5em (matching the subtler offsets used for reveals
+     elsewhere on this page, e.g. the desktop title's own 3em) —
+     still direction-coded toward the card, just no longer scaled to
+     its full height. Body's transition-delay (below) staggers it very
+     slightly after the title, so the two read as a small cascade
+     instead of one simultaneous block. */
   .eod-hero__intro-title {
     bottom: calc(var(--eod-card-h, 20em) / 2 + 1.5em);
-    transform: translateY(calc(var(--eod-card-h, 20em) / 2 + 1em));
+    transform: translateY(1.5em);
   }
   .eod-hero__intro-body {
     top: calc(var(--eod-card-h, 20em) / 2 + 1.5em);
-    align-items: center;
+    align-items: flex-start;
+    transition-delay: 0.1s;
     /* The shared rule above resets max-width: none (needed so left:0;
-       right:0 can center title/body against the full screen width) —
+       right:0 can size title/body against the full screen width) —
        but that let the bio paragraph run edge-to-edge, hurting
-       readability on a wide phone. Capped again here and centered
-       within that full-width box via auto margins. */
+       readability on a wide phone. Capped again here; left flush
+       against the container's own left:0 rather than centred, to
+       match the left-aligned title above it (Evy: "zorg er ook voor
+       dat alles links is uitgelijnt"). */
     max-width: 26em;
-    margin-left: auto;
-    margin-right: auto;
-    transform: translateY(calc(var(--eod-card-h, 20em) / -2 - 1em));
+    margin: 0;
+    transform: translateY(-1.5em);
   }
 }
 
@@ -327,6 +338,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* Now an <a>, not a div (clicking a card goes to the work
+     overview) — reset link defaults so it still just looks like a
+     card, not a piece of text. */
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 /* The card itself gets a second, independent 3D rotation (the

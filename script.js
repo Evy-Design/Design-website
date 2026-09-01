@@ -58,16 +58,26 @@
     return `rgb(${Math.round(lerp(r1, r2, t))}, ${Math.round(lerp(g1, g2, t))}, ${Math.round(lerp(b1, b2, t))})`;
   }
 
+  // A plain <a>, not a div + click listener — the card's own inner
+  // content (.demo-card and everything in it) is pointer-events: none
+  // (style.css), specifically so hit-testing always resolves to this
+  // outer element regardless of which face/image is on top, so an
+  // anchor here is naturally clickable across the whole card with no
+  // extra plumbing. position: absolute (style.css) already forces its
+  // display to block, so swapping the tag from div doesn't change
+  // layout, and GSAP only ever targets it by class, never by tag.
+  // (Evy: "als je op een van de cards van de tornado klickt ga je
+  // naar de my work... project overview page toe".)
   function buildCardMarkup() {
     return EOD_DATA.cards
       .map(
         (card) => `
-      <div class="cards-tornado__item" data-3d-tornado-item>
+      <a href="projects" class="cards-tornado__item" data-3d-tornado-item aria-label="Go to my work">
         <div class="demo-card">
           <div class="demo-card__face demo-card__face--front"><img class="cover-image" src="${card.src}" alt="${card.alt}" /></div>
           <div class="demo-card__face demo-card__face--back"><img class="cover-image" src="${EOD_DATA.portrait}" alt="Evy Olivia Diepenbroek" /></div>
         </div>
-      </div>`
+      </a>`
       )
       .join("");
   }
@@ -468,6 +478,9 @@
     let ejectedFace = null;
     let glideTimer = null;
     let returnGlideTimer = null;
+    // True for the GLIDE_MS window right after a card is picked — see
+    // the guard on updateEject's call site below for why this exists.
+    let isGliding = false;
 
     function pickCenterCard() {
       let best = null;
@@ -485,13 +498,6 @@
 
     function beginEject() {
       const card = pickCenterCard();
-      console.log("[EOD-DEBUG] beginEject", {
-        t: Math.round(performance.now()),
-        scrollY: window.scrollY,
-        cardsLength: state.cards.length,
-        amount: state.amount,
-        foundCard: !!card,
-      });
       if (!card) return;
 
       // In case this exact card is caught mid glide-back (a fast
@@ -557,9 +563,11 @@
       card.style.transition = `transform ${GLIDE_MS}ms cubic-bezier(0.16, 1, 0.3, 1)`;
       card.style.transform = "translate(-50%, -50%) scale(1)";
 
+      isGliding = true;
       clearTimeout(glideTimer);
       glideTimer = setTimeout(() => {
         if (ejectedItem === card) card.style.transition = "";
+        isGliding = false;
       }, GLIDE_MS);
     }
 
@@ -569,6 +577,22 @@
     // in `progress`, so they run the whole time you're scrolling
     // through the frame, in step with the scroll — no separate phases.
     function updateEject(progress) {
+      // beginEject() arms a one-time 600ms transition on `transform`
+      // for the pop-in glide (old orbit position -> centred), then
+      // only clears it after GLIDE_MS via glideTimer. But this runs
+      // on every scroll frame during that same window, so without
+      // this line every one of THOSE writes was inheriting that
+      // still-armed transition too — instead of snapping straight to
+      // this frame's scroll position, the transform kept easing
+      // toward whatever was written a frame ago, permanently lagging
+      // behind the actual scroll position for up to 600ms. That read
+      // as jank right at the start of any scroll gesture (worst on
+      // mobile, where touch scroll delivers bigger position deltas
+      // per frame than a mouse wheel does) — exactly the "not smooth"
+      // Evy flagged. Clearing it here makes every scroll-driven write
+      // land instantly, matching this function's own original intent
+      // (see the comment on the transition line in beginEject).
+      ejectedItem.style.transition = "none";
       const landedScale = 1.2;
       const scale = lerp(1, landedScale, progress);
       ejectedItem.style.transform = `translate(-50%, -50%) scale(${scale})`;
@@ -848,8 +872,18 @@
       // Skipped once landed — the card is position:absolute by then
       // (settle() already gave it its final transform/placement), so
       // this would just keep rewriting the exact same values on every
-      // remaining scroll tick for no visible effect.
-      if (ejectedItem && !isLanded) updateEject(progress);
+      // remaining scroll tick for no visible effect. ALSO skipped
+      // while isGliding — beginEject() just above arms a 600ms
+      // transition to glide the card in from its old orbit position;
+      // updateEject writes transform directly (transition: none, by
+      // design, so scroll tracking stays 1:1 later on) which used to
+      // fire on this exact same tick right after beginEject and kill
+      // that transition before the browser ever painted a single
+      // frame of it — the card just snapped straight to centre
+      // instead of gliding (Evy: "hij springt er best abrupt uit").
+      // Skipping updateEject for the glide's own short window lets it
+      // actually play before scroll-linked scale/rotation take over.
+      if (ejectedItem && !isLanded && !isGliding) updateEject(progress);
       if (ejectedItem && progress >= 1) settle();
       if (ejectedItem && progress < 1) unsettle();
       // Re-arms the idle-debounced hug-resize (see scheduleHugHeight)
@@ -965,6 +999,107 @@
     document.addEventListener("DOMContentLoaded", initReveal);
   } else {
     initReveal();
+  }
+})();
+
+/* ===========================================================
+   Footer letters reveal — each letter rises up INTO view from below
+   the frame, not just a fade+nudge (Evy, after seeing the first pass:
+   "de letters komen 1 voor 1 van beneden [uit het frame] naar
+   boven"). That needs an actual mask, not opacity: a plain translateY
+   still paints the letter the whole time, just moved — nothing
+   stops you seeing it early, low in the footer, before it "arrives".
+   So each <path> gets its own SVG <clipPath> sized to exactly that
+   letter's own bounding box (computed via getBBox() — the paths are
+   arbitrary compound shapes, not uniform grid cells, so this can't be
+   hand-guessed); the path then starts translated down by its own
+   height (also from getBBox(), as a CSS custom property so shared.css
+   doesn't need one offset value to fit every letter), fully behind
+   its clip window, and animates up through it — genuinely emerging
+   from the bottom edge as it crosses into the clipped area, the same
+   mechanic as a mask-reveal, not a fade standing in for one.
+
+   Same fires-once IntersectionObserver pattern as data-eod-reveal
+   above for the actual scroll trigger, kept as its own block rather
+   than merged in — that one also sets up transition-delay from a
+   dataset attribute, which doesn't apply here (delay comes from --i
+   per path, set inline in chrome.js, not one delay per element).
+   =========================================================== */
+(function () {
+  const SVG_NS = "http://www.w3.org/2000/svg";
+
+  // One-time per element: give every path inside it its own clip
+  // window + starting offset. Guarded by a dataset flag same as the
+  // observe step below, so a duplicate script tag can't double-run
+  // this and stack duplicate <clipPath> defs.
+  function setupClipMasks(svg) {
+    if (svg.dataset.eodLettersSetup) return;
+    svg.dataset.eodLettersSetup = "true";
+
+    let defs = svg.querySelector("defs");
+    if (!defs) {
+      defs = document.createElementNS(SVG_NS, "defs");
+      svg.insertBefore(defs, svg.firstChild);
+    }
+
+    svg.querySelectorAll("path").forEach((path, i) => {
+      let bbox;
+      try {
+        bbox = path.getBBox();
+      } catch (e) {
+        return; // not laid out (e.g. a hidden ancestor) — leave this one alone rather than clip it into permanent invisibility
+      }
+      if (!bbox || !bbox.height) return;
+
+      const clipId = "eod-letter-clip-" + i + "-" + Math.random().toString(36).slice(2, 8);
+      const rect = document.createElementNS(SVG_NS, "rect");
+      rect.setAttribute("x", bbox.x);
+      rect.setAttribute("y", bbox.y);
+      rect.setAttribute("width", bbox.width);
+      rect.setAttribute("height", bbox.height);
+
+      const clipPath = document.createElementNS(SVG_NS, "clipPath");
+      clipPath.setAttribute("id", clipId);
+      clipPath.appendChild(rect);
+      defs.appendChild(clipPath);
+
+      path.setAttribute("clip-path", "url(#" + clipId + ")");
+      // Its own height (+ a hair of margin) as the starting offset —
+      // CSS px on a path inside its own (unscaled-relative-to-itself)
+      // SVG coordinate space maps 1:1 to SVG user units, so this
+      // lines up with the clip rect above without unit conversion.
+      path.style.setProperty("--letter-offset", (bbox.height + 4) + "px");
+    });
+  }
+
+  function initLettersReveal() {
+    const els = document.querySelectorAll("[data-eod-letters-reveal]");
+    if (!els.length) return;
+
+    els.forEach(setupClipMasks);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-inview");
+          io.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
+    );
+
+    els.forEach((el) => {
+      if (el.dataset.eodLettersObserved) return;
+      el.dataset.eodLettersObserved = "true";
+      io.observe(el);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initLettersReveal);
+  } else {
+    initLettersReveal();
   }
 })();
 

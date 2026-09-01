@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evy Diepenbroek — Project</title>
+  <link rel="stylesheet" href="shared.css?v=21" />
+  <link rel="stylesheet" href="test-navigation.css?v=11" />
+  <link rel="stylesheet" href="projects.css?v=45" />
+  <style>body { margin: 0; }</style>
+  <!-- Must load before the nav/footer injector scripts below, which
+       call window.EOD_CHROME synchronously as the HTML is parsed. -->
+  <script src="chrome.js?v=3"></script>
+</head>
+<body>
+
+  <!-- Nav — single source of truth is chrome.js (EOD_CHROME.nav()),
+       not this file. -->
+  <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.nav());</script>
+
+  <main class="eod-page" data-eod-project-detail>
+    <!-- Everything below is rendered by content.js's renderProjectDetail()
+         from window.EOD_CONTENT.projects, picking the entry via ?slug=
+         in the URL — this file is one shared template for every case
+         study, not one file per project. -->
+    <!-- Order below matches the source design's own editorial flow —
+         hero image, THEN title/description, THEN deliverables, THEN
+         gallery images interleaved with any "text" blocks (including
+         what used to be a separate "process" section) — not "all
+         images, then all text" like an earlier version of this page
+         had. -->
+    <!-- New hero layout from Evy's Figma (node 295:2224): back link,
+         THEN the big title paired with an optional "Go to website"
+         button, THEN a divider, THEN the image — not just the image
+         straight after "Go back" like before. -->
+    <!-- data-eod-reveal on the back link + title row (below): fade+rise
+         as this page arrives, same system used elsewhere on the site.
+         transition-delay is hardcoded here (not the usual
+         data-eod-reveal-delay, which is too small a scale for this) —
+         three beats in sequence (Evy: "pas wanneer de hero image op
+         zijn nieuwe plek staat mogen de andere elementen in
+         animeren", then "ook andersom... pas wanneer de andere
+         elementen zijn uitgeanimeerd... mag de image gaan
+         verplaatsen"): the projects-grid heading/cards finish leaving
+         by ~0.85s (shared.css), THEN the hero image moves for 0.6s
+         (0.85s -> 1.45s), THEN these two arrive from 1.45s / 1.55s.
+         Applies on a plain direct visit too, not just one that
+         arrives via the transition — simpler and identical in every
+         browser rather than conditioning it on transition support. -->
+    <section class="eod-project__hero">
+      <div class="eod-project__hero-top" data-eod-reveal style="transition-delay: 1.45s">
+        <a href="projects" class="eod-btn eod-btn--secondary eod-btn--icon-lead eod-project__back">
+          <span class="eod-btn__secondary-viewport">
+            <span class="eod-btn__secondary-track">
+              <span class="eod-btn__arrow-slot eod-btn__arrow-slot--front" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+              <span class="eod-btn__label">Go back</span>
+              <span class="eod-btn__arrow-slot eod-btn__arrow-slot--back" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+            </span>
+          </span>
+        </a>
+      </div>
+      <div class="eod-project__hero-title-row" data-eod-reveal style="transition-delay: 1.55s">
+        <h1 class="eod-project__hero-title"></h1>
+        <!-- Hidden by default, shown by content.js only when the
+             project has a websiteUrl set in Sanity (Evy's "Go to
+             website" button next to the big title). -->
+        <a href="#" class="eod-btn eod-btn--dark eod-project__website-btn" target="_blank" rel="noopener noreferrer" hidden>
+          <span class="eod-btn__label">Go to website</span>
+          <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+          <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+        </a>
+      </div>
+      <img class="eod-project__hero-img" alt="" />
+      <!-- Shown instead of the img above when the project has a
+           Sanity "heroVideo" set — see content.js's renderProjectDetail(). -->
+      <video class="eod-project__hero-video" autoplay muted loop playsinline hidden></video>
+    </section>
+
+    <!-- Title (left) / description (right) two-column split, per
+         Evy's screenshot reference — deliverables sits stacked BELOW
+         the description, inside that same right column, not spanning
+         full width below both (an earlier version tried that, then
+         a "title-alone, deliverables full-width" layout — Evy's
+         screenshot made clear it was always meant to nest here). -->
+    <section class="eod-project__body">
+      <div class="eod-project__body-inner">
+        <h2 class="eod-project__title"></h2>
+        <div class="eod-project__body-right">
+          <p class="eod-project__description"></p>
+          <div class="eod-project__deliverables" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The old standalone process-text section, and the separate
+         full-screen vertical-video container that used to sit after
+         it, are both gone — those are just "text" and "video" gallery
+         blocks now, sized/rounded the same as any other gallery row
+         (Evy: "Delete this and add here a text explain section", then
+         "this section can be the same as a full image, so also with
+         the same radius and padding"; see content.js's gallery data). -->
+    <section class="eod-project__gallery-section">
+      <div class="eod-project__gallery"></div>
+    </section>
+
+    <!-- "Look at other projects" — a draggable 3D spatial carousel
+         (project-slider.js), each card the SAME .eod-projects__card
+         component (image + hover-push secondary-button caption) used
+         on projects.html itself, so this reads as an extension of the
+         work overview rather than a different component (Evy: "cange
+         that so it looks like the work overview as well"). Cards are
+         injected by initEodProjectSlider() in project-slider.js, not
+         content.js — the slider math needs the DOM to be fully built
+         (clones, a proxy element) before it can run, which doesn't
+         fit content.js's plain render-and-done functions. -->
+    <section class="eod-project__nav">
+      <div class="eod-project__nav-inner">
+        <h2 class="eod-project__nav-label">Look at other projects:</h2>
+      </div>
+      <div data-spatial-slider-init data-spatial-slider-drag-status="grab" class="eod-project-slider">
+        <div data-spatial-slider-collection class="eod-project-slider__collection">
+          <div data-spatial-slider-list class="eod-project-slider__list"></div>
+        </div>
+        <!-- Just the two arrows (Evy: "de slidernavigatie hoeft
+             alleen uit 2 pijlen te bestaan") — no dot indicators,
+             no circle background, plain horizontal arrow glyphs (not
+             the site's usual 45°-diagonal corner-arrow icon — Evy
+             asked for both explicitly, see projects.css). -->
+        <div class="eod-project-slider__controls">
+          <!-- "Go to overview" + the two arrows, always on the same
+               row/height (Evy: "de slidernavigatie en de go to
+               overview button mogen op de zelfde hoogte staan") — one
+               link now, not a desktop row + a separate mobile
+               duplicate. Lives HERE, inside the slider's own
+               container, because project-slider.js finds prev/next
+               via container.querySelectorAll() scoped to
+               [data-spatial-slider-init] — moving the arrows outside
+               that container would break the JS. -->
+          <a href="projects" class="eod-btn eod-btn--secondary eod-btn--icon-lead eod-project-slider__cta">
+            <span class="eod-btn__secondary-viewport">
+              <span class="eod-btn__secondary-track">
+                <span class="eod-btn__arrow-slot eod-btn__arrow-slot--front" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+                <span class="eod-btn__label">Go to overview</span>
+                <span class="eod-btn__arrow-slot eod-btn__arrow-slot--back" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+              </span>
+            </span>
+          </a>
+          <div class="eod-project-slider__arrows">
+            <button data-spatial-slider-control="prev" class="eod-project-slider__control-btn" aria-label="Previous project">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg>
+            </button>
+            <button data-spatial-slider-control="next" class="eod-project-slider__control-btn is--next" aria-label="Next project">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M6 16H26M26 16L18 8M26 16L18 24" stroke-width="2" stroke-miterlimit="10"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- Footer — single source of truth is chrome.js (EOD_CHROME.footer()). -->
+  <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.footer());</script>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <!-- Draggable + InertiaPlugin: only needed here, for the "Look at
+       other projects" spatial carousel (project-slider.js) — no
+       other page on this site uses either. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Draggable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/InertiaPlugin.min.js"></script>
+  <script src="test-navigation.js?v=12"></script>
+  <script src="sanity-client.js?v=2"></script>
+  <script src="content.js?v=31"></script>
+  <script src="script.js?v=33"></script>
+  <script src="project-slider.js?v=4"></script>
+</body>
+</html>

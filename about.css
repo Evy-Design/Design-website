@@ -434,7 +434,7 @@
 .eod-logos {
   background: var(--eod-white);
   padding-top: 6em;
-  padding-bottom: 6em;
+  padding-bottom: 8em;
 }
 .eod-logos__grid {
   list-style: none;
@@ -466,7 +466,7 @@
 @media (max-width: 767px) {
   .eod-logos {
     padding-top: 4em;
-    padding-bottom: 4em;
+    padding-bottom: 5.5em;
   }
   .eod-logos__grid {
     grid-template-columns: repeat(2, 1fr);

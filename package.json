@@ -1,0 +1,9 @@
+{
+  "name": "evy-design-web",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build-content": "node scripts/build-content.mjs",
+    "dev": "npx serve . -l 3000"
+  }
+}

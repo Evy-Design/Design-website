@@ -22,26 +22,51 @@
   position: fixed;
   inset: 0% 0% auto;
   pointer-events: none;
-  transition: color .3s ease;
+  transition: color .3s ease, transform .35s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .underlay-nav__header.is--dark {
   color: #1a1a1a;
 }
 
+/* Auto-hide on scroll down, reveal on scroll up — site-wide (see
+   test-navigation.js's initAutoHideNav()). pointer-events is already
+   none on the header itself; .underlay-nav__logo/__toggle re-enable
+   it individually, so those become unreachable while slid off-screen
+   too, not just visually gone. */
+.underlay-nav__header.is--nav-hidden {
+  transform: translateY(-100%);
+}
+
 .underlay-nav__header.is--dark .underlay-nav__toggle {
   color: #1a1a1a;
 }
 
+/* Padding lives here, on the OUTER full-width bar — same two-level
+   split as every section on the site (section: padding: 2.5em, then
+   an inner div: max-width + margin: auto, no padding of its own).
+   Splitting it this way (rather than combining padding + max-width
+   on one element, content-box's default) is what makes the logo's
+   own left edge land exactly on the page content's left edge instead
+   of --eod-content-max plus this padding on top of it (Evy: "de
+   navigation container inhoud mag de zelfde max width als de rest
+   van de website hebben"). */
 .underlay-nav__bar {
   width: 100%;
+  padding: 2.5em;
+  /* Without this, width: 100% + padding together render WIDER than
+     the header itself (content-box adds padding on top of the 100%
+     instead of eating into it) — the same box-sizing gap that broke
+     the max-width match in the first place, just one level out. */
+  box-sizing: border-box;
 }
 
 .underlay-nav__container {
   justify-content: space-between;
   align-items: center;
-  padding: 2.5em;
   display: flex;
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
 }
 
 .underlay-nav__logo {
@@ -306,20 +331,31 @@
 
 /* Responsive */
 @media screen and (max-width: 767px) {
-  .underlay-nav__container {
+  .underlay-nav__bar {
     padding: 1.25em;
   }
 
   .underlay-nav__logo {
-    width: 5em;
+    /* The wordmark's own aspect ratio (viewBox 1228 x 244, LOGO_SVG
+       in chrome.js) is ~5.03:1 — width: 201px is what makes it render
+       at an actual 40px tall (Evy: "logo van de navigatie mogen op
+       mobiel ook wat groter, die 40px hoog graag" — a real visual
+       size, not just an invisible bigger tap area like the first pass
+       at this used). */
+    width: 201px;
   }
 
+  /* Evy: "de menu button... mag op mobiel ook wat groter, die 40px
+     hoog graag" — a real size bump (icon + label scaled up together,
+     not just the invisible tap-padding this had before). */
   .underlay-nav__toggle-text {
-    height: 1.25em;
+    height: 1.75em;
   }
-
   .underlay-nav__toggle-label {
-    font-size: 1em;
+    font-size: 1.375em;
+  }
+  .underlay-nav__toggle-icon {
+    font-size: 1.6em;
   }
 
   .underlay-nav__inner {

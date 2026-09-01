@@ -1,0 +1,617 @@
+{
+  "settings": {
+    "aboutHeroDetail1": "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.",
+    "aboutHeroDetail2": "I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.",
+    "aboutHeroHeading": "Hi, I’m Evy Olivia Diepenbroek. Nice to meet you!",
+    "aboutHeroLede": "I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.",
+    "aboutPortrait": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
+    "awards": [
+      {
+        "body": "My book design cover was shortlisted for the 2022 Fiction category, Girl, Woman, Other by Bernardine Evaristo with Penguin Random House UK. Everything was incredible. I've learned alot and met some amazing and inspirational people. I'm grateful and honoured to have been selected for this.",
+        "title": "The Penguin Cover Design Award",
+        "year": "2022"
+      },
+      {
+        "body": "In this challenge, I won the Motion Design Honorable Mention Prize. The goal was to celebrate authenticity and unique craftsmanship, using the Netherlands as a canvas. Global and RA*W launched the 2024 Digital Out-of-Home challenge, showcasing work on over 2650 digital screens nationwide. The focus was on evoking emotions and inspiring passersby with creativity. I'm honored to be recognized for my contribution.",
+        "title": "Motion Graphic Honorable Mention Prize – Your Craft DOOH‑design challenge",
+        "year": "2024"
+      }
+    ],
+    "contactIntro": "Don’t be a stranger, and let’s team up. You can find me on my",
+    "cta": {
+      "body": "Lets have a coffee and talk about what I can be for you, text here longer need",
+      "roles": [
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/c3c3d6d2455811898b61d6b26c25708f5ace4eb8-500x700.jpg",
+          "word": "Motion"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/61edc350eee9ef7e12dc1d684d7c3d60c4583710-500x700.jpg",
+          "word": "Brand"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/146ea45a6af90588a57d3cf55b7f02196242fedd-500x700.jpg",
+          "word": "UI/UX"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/e55fdf6df9937c2d7f1c138a0f496a4f45a7dc6e-500x700.jpg",
+          "word": "Graphic"
+        }
+      ],
+      "suffix": "Design"
+    },
+    "email": "Evy@Diepenbroek.com",
+    "homeHeroBody": "I’m a Designer. always chasing what's next. I'm currently a nominated graphic designer with two degrees in the field and over 4 years of agency experience.",
+    "homeHeroTitle": "Who is behind this work? \nHi, I’m Evy Olivia Diepenbroek",
+    "instagramUrl": null,
+    "linkedinUrl": null,
+    "timeline": [
+      {
+        "alt": "Evy's work at Kool Collective",
+        "body": null,
+        "ctaHref": "https://koolcollective.nl",
+        "ctaLabel": "Go to website",
+        "image": "https://cdn.sanity.io/images/16akn05z/production/331662be1dc2738752b1a96a675da1521186ca48-2000x3000.jpg",
+        "title": "Creative / UX&UI designer at Kool Collective",
+        "year": "2026 – Now"
+      },
+      {
+        "alt": "Evy's brand design work at NOSUCH",
+        "body": "As a designer at NOSUCH, I create and maintain comprehensive visual identities, covering logo design, typography, UX design, motion graphics, and all other aspects of visual identity. Within the agency, I collaborate closely with various creative professionals, designing for major companies like Microsoft and Shell, as well as startups and smaller companies.",
+        "ctaHref": "https://nosuch.nl",
+        "ctaLabel": "Go to website",
+        "image": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
+        "title": "Brand Designer at NOSUCH",
+        "year": "2022 – 2025"
+      },
+      {
+        "alt": "Evy's Digital Out-of-Home motion design entry",
+        "body": "In this challenge, I won the Motion Design Honorable Mention Prize. The goal was to celebrate authenticity and unique craftsmanship, using the Netherlands as a canvas. Global and RA*W launched the 2024 Digital Out-of-Home challenge, showcasing work on over 2650 digital screens nationwide. The focus was on evoking emotions and inspiring passersby with creativity. I’m honored to be recognized for my contribution.",
+        "ctaHref": null,
+        "ctaLabel": null,
+        "image": "https://cdn.sanity.io/images/16akn05z/production/29df925bc60c5a69b672107895540b97624097f3-800x450.jpg",
+        "title": "Global DOOH-Motion Design Challenge Honorable Mention Prize",
+        "year": "2024"
+      },
+      {
+        "alt": "Evy's graduation work in Graphic Communication",
+        "body": "In 2021 I got the opportunity to move to the United Kingdom and get my bachelor's degree in Graphic Communication from The University of Northampton. I did this not only for the amazing travel experience but also expand my range in design and to increase my level at the same time.",
+        "ctaHref": "#",
+        "ctaLabel": "View my LinkedIn",
+        "image": "https://cdn.sanity.io/images/16akn05z/production/2b4cfa038f78a45d5743684057aad43c243078f0-1731x2164.jpg",
+        "title": "Bachelor Of Arts In Graphic Communication",
+        "year": "2022"
+      },
+      {
+        "alt": "The Girl, Woman, Other Penguin book cover design",
+        "body": "My book design cover was shortlisted for the 2022 Fiction category, Girl, Woman, Other by Bernardine Evaristo with Penguin Random House UK. Everything was incredible. I've learned alot and met some amazing and inspirational people. I'm grateful and honoured to have been selected for this.",
+        "ctaHref": "project.html?slug=penguin-cover-design-award",
+        "ctaLabel": "View this project",
+        "image": "https://cdn.sanity.io/images/16akn05z/production/dd88259fd0a397c7d2e1b443fe1b47fd8a1b141f-500x455.webp",
+        "title": "The Penguin Cover Design Award",
+        "year": "2022"
+      },
+      {
+        "alt": "Evy's MBO Media & Corporate Design coursework",
+        "body": "in 2021 I graduated as a graphic designer at Grafisch Lyceum Rotterdam. After studying for 3 years, I could then officially call myself a graphic designer.",
+        "ctaHref": null,
+        "ctaLabel": null,
+        "image": "https://cdn.sanity.io/images/16akn05z/production/93c27c2e329aaab255cb9396b70a7b75704e7cbd-500x434.webp",
+        "title": "MBO Media & Corporate Design",
+        "year": "2021 – 2018"
+      },
+      {
+        "alt": "Evy's Masterclass coursework",
+        "body": "I am a dedicated worker who thrives on new challenges. And as they say, working hard pays off. So, after the first year of my study, I was accepted into the Masterclass of my college. Every year a select number of people are allowed to enter this class. This class is for students with a higher level of design and who wants an extra challenge. In this class you get more assignments and you work together with the class for external companies.",
+        "ctaHref": null,
+        "ctaLabel": null,
+        "image": "https://cdn.sanity.io/images/16akn05z/production/59b7a30d494e6fb4aa5e14d8a19e2c1e03fca743-1339x1153.webp",
+        "title": "Masterclass",
+        "year": "2018"
+      }
+    ]
+  },
+  "projects": [
+    {
+      "alt": "Spread from the What the F*ck is Blockchain magazine",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/8334038ad369ce66beec5792f9f3b0f52e30583a-1536x1536.jpg",
+      "deliverables": [
+        "Rebranding",
+        "Design System",
+        "UX Design decisions"
+      ],
+      "description": "You have probably already heard about its Bitcoin, NFTs or Blockchain. On the news, on social media or just in a conversation. It is everywhere. But what does it all mean? People throw around terms such as blockchain, crypto art, ledger, and NFTs and expect other people to understand what they mean. So, I made a magazine explaining the basics of blockchain in the simplest way possible. This work was also displayed at the NewDesigners exhibition in London.",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/96ff0efae4feada66c21cb4d60c6b5beab17c141-4769x2683.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/9e5551e70ff0a9052c266a5c68c12c6a57584f42-1536x1536.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/2505c09dad2afe1770875521f5a903cfbbaad68f-1536x1017.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/257897e59a6196a7756ee2ffcb06c4c527b0a0c8-1536x1017.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/6cd220372c77708d7d631dd4a0eb4aa9d540419e-1536x1177.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/257897e59a6196a7756ee2ffcb06c4c527b0a0c8-1536x1017.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": null,
+          "type": "video",
+          "video": "https://cdn.sanity.io/files/16akn05z/production/827726d5c342e8f6d58b699426497290f7507918.mp4"
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": "It is a lot of information, and after a while reading, that can get too much. That's why after a block of information, you can scan the book and it will come to life.",
+          "src": null,
+          "type": "sectionText",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/233703f48e159538236b862d22e031c1e8dd1ff4-1536x1017.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/8236e7f0e920eb5d4768bec6ce28968eeedc7575-1536x1017.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/6bcc74a4d7f0878183709dfed563bbcd6d037f02-1536x1017.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": "Throughout the process, I was involved every step of the way. That’s why you’ll see my face multiple times in this magazine ;) All the connections, illustrations, and everything else you see were created by me myself.",
+          "heading": "I handled everything from developing the idea and concept to conducting research, writing, collecting content, and designing the visuals.",
+          "src": null,
+          "type": "process",
+          "video": "https://cdn.sanity.io/files/16akn05z/production/961916dbd744d390add69bacb21b11ea4c0b3942.mp4"
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/ebd158e7c5e1bd7a8f8cd151b669989889631725-1536x1024.png",
+      "heroVideo": null,
+      "slug": "blockchain",
+      "title": "What the F*ck is Blockchain?",
+      "websiteUrl": null
+    },
+    {
+      "alt": "Illuminated typography installation in an alley",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/098d1cb951d0898d7251635b5e24dedd328b4b47-1625x914.png",
+      "deliverables": null,
+      "description": "This alley is mainly known as the pissing alley, but also as a scary alley where you don’t want to be in the evening. I have highlighted this with all kinds of colourful typography that also refer to the text that is there. With all kinds of jokes about peeing, it is already a nice place for an Instagram story. But when I looked at my target group I saw that most young people who come here find the most important thing in the evening to show where they have been out on social media. I could use this to make this alley safer as well because no one wants to appear naked or peeing on Instagram. Therefore, by having large luminous letters stuck between the walls I made it a perfect place to take pictures for. Plus it lights up the alley too.",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/26f7901661400b5a17904973f884e1501f524ad4-1536x1516.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/4c0b8c263cb556caccff67e2f49bc6a5e7ff3d15-1290x1258.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/d27ae6f7c54a24f0f355131babd05ce504445860-1536x1513.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/96eb719d0a861d39022d3e56706cb1bd56eaa4c1-1536x1512.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg",
+      "heroVideo": null,
+      "slug": "my-type-of-place",
+      "title": "My Type Of Place",
+      "websiteUrl": null
+    },
+    {
+      "alt": null,
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/7167eea7a4d3db67084cf1aa6f9b8654ce3c2dde-1920x1198.jpg",
+      "deliverables": [
+        "Visual Identity",
+        "UI/UX design",
+        "Development"
+      ],
+      "description": null,
+      "gallery": [
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/135a172b66e8e1d4785167a4dbf14448fdb02ba0-7538x4240.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/70e71f93708b2f0e5492bfcadb97914b4354a2b7-1920x1080.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/f27cebcf719218a084b225294513b383ce7cfd20-1920x1080.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/9f47d40f43dce4133295f2b246d6c6faab170aef-1920x1080.png"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/b322e3277fc7b48afc74b6b528a88d4ee43f941f-1920x1080.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/7ea6d25710541ef3de95d5f8fe0b82468931d071-4001x2251.png"
+            }
+          ],
+          "type": "full",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/7167eea7a4d3db67084cf1aa6f9b8654ce3c2dde-1920x1198.jpg",
+      "heroVideo": null,
+      "slug": "Weavr",
+      "title": "Weavr",
+      "websiteUrl": "https://weavr.nl"
+    },
+    {
+      "alt": "The Girl, Woman, Other Penguin book cover design",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/23c589b96b196d30e25746d630b338f150c6d2a5-1536x864.jpg",
+      "deliverables": null,
+      "description": "My book design cover was shortlisted for the 2022 Fiction category, Girl, Woman, Other by Bernardine Evaristo with Penguin Random House UK. Everything was incredible. I've learned a lot and met some amazing and inspirational people. I'm grateful and honoured to have been selected for this.",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/60533c46378b913db23995703ffe2c74fbb017c5-500x455.png"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": "I find it difficult to illustrate something that reflects all these subjects at once. So, I took a break from my sketchbook and started reading the first chapter. When I started reading the book, it began with a scene where they mentioned the theatre. I did some theatre myself, and I remembered there were always saying “ don’t forget the red thread of the story”, so the thought of doing something with thread was already in my mind. \n\nI tried to stop illustrating the situations too literally and was focusing more on what it made the characters feel. The several topics made me feel stuck. And then the red thread comes in handy. I tried many things like making the letters stuck or one person, but I feel like it didn’t bring out all the stories of the book. I remember that I both thread to take photos for the book cover, and I was playing with the thread in my hand when I realized you can express so much with hands. We do things with our hands. Then everything was falling together fast. Subjects I have linked with hands and rope. All these hands visualize a topic; some are pulling, some are stuck, some are being played and some pick up the paces. I like that it doesn’t immediately give away what it is about but does connect well with the subjects.",
+          "heading": "I first let loose on paper and sketches and visual illustrations dealing with women, class, race, and sexuality.",
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/ce93b34d561006c72097ea8f7158168452c79bd7-1600x579.png"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/c1a83ab474b7a0624857692fae67d1e5f6ab9b00-1536x621.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": null
+            }
+          ],
+          "type": "process",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/23c589b96b196d30e25746d630b338f150c6d2a5-1536x864.jpg",
+      "heroVideo": null,
+      "slug": "penguin-cover-design-award",
+      "title": "The Penguin Cover Design Award",
+      "websiteUrl": null
+    },
+    {
+      "alt": "Cense project_Made-at-NOSUCH",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/b4577fa04b2809e0b17f4af6a952a067921a087f-1536x674.jpg",
+      "deliverables": [
+        "Visual Identity"
+      ],
+      "description": null,
+      "gallery": [
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/acf568fb222fe9617c402b3b89fd56caa1bfbf55-1910x1181.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/65215712861a54a81af1beea2fef67fa7a8af9db-1920x1080.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/c4584649a4bacb041ba9839425a83003ba11d264-1502x845.png"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/3df2d6c26a235cc8c4dedb2ff5fd81f8357f1698-1672x941.png"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": null
+            },
+            {
+              "isVideo": false,
+              "url": null
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/53b81d8ccd2bb29e4c70fe9ad4b5255d1ba1c03f-3840x2160.png"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/659403d4e1a64c63b0ff47c066dd8a7ad23ad040-5906x2594.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "heading": null,
+          "src": null,
+          "type": "video",
+          "video": "https://cdn.sanity.io/files/16akn05z/production/6df6275979f852e2ab2d5567ed2cf84318011738.mp4"
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/b4577fa04b2809e0b17f4af6a952a067921a087f-1536x674.jpg",
+      "heroVideo": null,
+      "slug": "cense",
+      "title": "Cense",
+      "websiteUrl": "https://nosuch.nl/en/work/decoding-complexity/"
+    },
+    {
+      "alt": null,
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/164cba6a597ca7ebc9197c4fdfed696ee0770809-2000x1500.jpg",
+      "deliverables": null,
+      "description": null,
+      "gallery": null,
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/7e799ecf2c2138f266d18322d49621d33d5eb828-2250x2250.gif",
+      "heroVideo": null,
+      "slug": "beyond-the-page",
+      "title": "Editorial Beyond The Page: When 1+1=3",
+      "websiteUrl": null
+    },
+    {
+      "alt": null,
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/5eaad511f1cc4b722ee6a3ee76857095aeb3802e-2299x1500.jpg",
+      "deliverables": null,
+      "description": "My dissertation was a big part of my graduation, I chose to make it about the \"Narrow Vision Of Design, How new technology is changing the process and psychology of design\". a brief introduction to this is this (this can also be read in my desertion):\n\nIf you look at the design back in the day, it looked very different than it does now. Nevertheless, one thing that stands out currently is that all design is starting to look more and more alike. The aesthetic of our experiences has changed significantly in the design world. Despite our inability to predict the future, there is still much to be predicted.\n\nWe live in a world in which technological advancements are quickly evolving, and we, as graphic designers, are naturally influenced by this. Many new technologies will help graphic designers make better designs and give them more opportunities with extended reality (X.R.), Artificial intelligence (A.I.) and Social Media. However, isn’t this also not the reason for the development of tunnel vision in the creative industry. Fresh ideas and new perspectives are the lifeblood of great work.",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/196a4692bca2219aad4c9dc8166f25aec655ced6-6000x4500.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/bf2de31f4c56f4e93bdaad7e46ca52a984e4e0f2-2000x2000.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/34384f45f89b31a258e9cd0fcc032301fad2fc88-2000x2000.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/e036e664c319f5a4372760192d5f2f9f132f364c-2000x2000.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/d9498277b7812314bafb8157eb148da734f9fbf3-2000x1485.jpg",
+      "heroVideo": null,
+      "slug": "narrow-vision-of-design",
+      "title": "Dissertation: Narrow Vision of Design",
+      "websiteUrl": null
+    }
+  ]
+}
