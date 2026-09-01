@@ -538,15 +538,19 @@
       ejectedFace = card.querySelector(".demo-card");
       hero.appendChild(card); // escape the tornado's clipped/3D stacking context
 
-      // position:sticky does the actual work here: `top: 50vh` (a
+      // position:sticky does the actual work here: `top: <anchor>` (a
       // VIEWPORT unit, not a % of the container) means "stick once
-      // you'd otherwise scroll within 50vh of the top of the screen" —
-      // combined with translate(-50%,-50%) below, that keeps the card
-      // dead-centered on screen for as long as you're still scrolling
-      // through .eod-hero, then it releases on its own once you scroll
-      // past the bottom of that container. No manual position math.
+      // you'd otherwise scroll within that much of the top of the
+      // screen" — combined with translate(-50%,-50%) below, that keeps
+      // the card pinned at that screen height for as long as you're
+      // still scrolling through .eod-hero, then it releases on its own
+      // once you scroll past the bottom of that container. No manual
+      // position math. Reads --eod-eject-anchor-y (style.css) rather
+      // than a hardcoded 50vh so the mobile media query there can move
+      // the landing point lower, off dead-center, without this needing
+      // its own breakpoint check.
       card.style.position = "sticky";
-      card.style.top = "50vh";
+      card.style.top = "var(--eod-eject-anchor-y, 50vh)";
       card.style.left = "50%";
       card.style.width = cardWidth + "px";
       card.style.height = cardHeight + "px";
@@ -709,10 +713,14 @@
     // animating), the card would stay glued to screen-centre for the
     // entire remaining scroll and only pop free at the last possible
     // moment, leaving no breathing room before whatever comes next.
-    // Kept small — this is literally empty scroll distance (blank
-    // .eod-hero background) between the card landing and Awards
-    // starting, so more than a small buffer just reads as dead space.
-    const TAIL_BUFFER_VH = 8;
+    // This is literally empty scroll distance (blank .eod-hero
+    // background) between the card landing and Awards starting, so too
+    // much reads as dead space — but too little meant the intro text
+    // scrolled straight past before you'd even finished reading it
+    // (Evy: "dat je misschien net wat langer op dit moment stil staat
+    // zodat je niet meteen de tekst uit het frame scrolt"). Raised from
+    // 8 to 14, a middle ground between those two.
+    const TAIL_BUFFER_VH = 14;
 
     // Once landed, stop tracking the viewport (position:sticky) and pin
     // the card to the exact document spot it's already sitting at — it
@@ -843,7 +851,7 @@
       isLanded = false;
       const card = ejectedItem;
       card.style.position = "sticky";
-      card.style.top = "50vh";
+      card.style.top = "var(--eod-eject-anchor-y, 50vh)";
       card.style.left = "50%";
       hero.classList.remove("is-landed");
       clearTimeout(hugResizeTimer);
@@ -1404,4 +1412,85 @@
     },
     { passive: true }
   );
+})();
+
+/* ===========================================================
+   Projects grid — mouse-reactive glass/water hover (Evy: "a cool
+   glass water effect on the image when you hover over, also that it
+   reacts on the mouse movements"). The actual look (highlight +
+   dark tint + backdrop-filter blur) is CSS (projects.css,
+   .eod-projects__glass) — this just tracks the cursor and writes its
+   position as --eod-glass-x/-y on whichever card it's currently over,
+   as a % of THAT card's own photo, so the highlight is correctly
+   positioned regardless of where the card sits in the grid.
+
+   Delegated on .eod-projects__grid itself, not one listener per card:
+   content.js's renderProjectsGrid() replaces the grid's innerHTML
+   wholesale on every render (e.g. after a Sanity content refresh), so
+   per-card listeners would silently pile up as orphaned duplicates —
+   this survives that because the grid element itself is never
+   replaced, only what's inside it. mousemove (not mouseenter) is what
+   makes it feel reactive rather than just "on/off". */
+(function () {
+  const grid = document.querySelector(".eod-projects__grid");
+  if (!grid) return;
+
+  grid.addEventListener("mousemove", (e) => {
+    const wrap = e.target.closest(".eod-projects__photo-wrap");
+    if (!wrap) return;
+    const rect = wrap.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    wrap.style.setProperty("--eod-glass-x", x + "%");
+    wrap.style.setProperty("--eod-glass-y", y + "%");
+  });
+
+  // The actual pixel-warp (Evy, after seeing the first pass: "more
+  // glassy and watery... like your touching water but the shine of
+  // glass") — a CSS gradient can only ever fake light, not genuine
+  // distortion, so this drives each card's own
+  // <feDisplacementMap scale> (projects.html) instead. SVG element
+  // attributes don't support CSS transitions, so easing the ripple in
+  // and out is a small hand-rolled rAF tween rather than a CSS one —
+  // wrapPos.animId tracks the in-flight tween per wrap so a fast
+  // in/out/in doesn't leave two competing loops fighting over the
+  // same attribute.
+  const RIPPLE_SCALE = 26;
+  const RIPPLE_MS = 650;
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
+  function animateRippleScale(wrap, to) {
+    const img = wrap.querySelector(".eod-projects__photo");
+    const index = img && img.dataset.glassIndex;
+    if (index == null) return;
+    const map = document.querySelector("#eod-glass-water-" + index + " feDisplacementMap");
+    if (!map) return;
+
+    if (wrap._eodRippleFrame) cancelAnimationFrame(wrap._eodRippleFrame);
+    const from = parseFloat(map.getAttribute("scale")) || 0;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / RIPPLE_MS, 1);
+      const value = from + (to - from) * easeOutCubic(t);
+      map.setAttribute("scale", value.toFixed(2));
+      if (t < 1) {
+        wrap._eodRippleFrame = requestAnimationFrame(tick);
+      } else {
+        wrap._eodRippleFrame = null;
+      }
+    }
+    wrap._eodRippleFrame = requestAnimationFrame(tick);
+  }
+
+  grid.addEventListener("mouseover", (e) => {
+    const wrap = e.target.closest(".eod-projects__photo-wrap");
+    if (!wrap || wrap.contains(e.relatedTarget)) return;
+    animateRippleScale(wrap, RIPPLE_SCALE);
+  });
+  grid.addEventListener("mouseout", (e) => {
+    const wrap = e.target.closest(".eod-projects__photo-wrap");
+    if (!wrap || wrap.contains(e.relatedTarget)) return;
+    animateRippleScale(wrap, 0);
+  });
 })();

@@ -40,6 +40,14 @@
   background: var(--eod-black);
   perspective: 75em;
   /* font-family not redeclared here: inherited from .eod-page (shared.css) — .eod-hero is a descendant of it. */
+  /* Where the ejected card sticks/lands, vertically — script.js reads
+     this via var() for its inline `top` (both beginEject() and
+     unsettle()) instead of a hardcoded "50vh", specifically so the
+     mobile override below can shift the landing point without any
+     JS-side breakpoint check. Dead center on desktop, where title/body
+     flank the card left-right; overridden lower on mobile, where they
+     stack above/below it instead (see that media query for why). */
+  --eod-eject-anchor-y: 50vh;
 }
 /* script.js measures the landed intro text and resizes .eod-hero
    (via .style.height) to hug it — once scrolling has gone idle after
@@ -194,6 +202,15 @@
   color: var(--eod-muted);
 }
 @media (max-width: 767px) {
+  /* The stacked title-above/body-below layout below needs more room
+     ABOVE the card than dead-center (50vh) leaves it — the title was
+     landing partly above the top of the screen, cut off (Evy: "op
+     mobile valt deze tekst buiten het frame"). Lower, not higher, so
+     the title gets the extra headroom while the body (which had
+     spare room below it already) gives some up. */
+  .eod-hero {
+    --eod-eject-anchor-y: 62vh;
+  }
   /* Desktop lays "Have a look" / "at all my work" side by side in one
      row (space-between). On a narrow screen that crams both phrases
      into one cramped line fighting the spinning cards for space —

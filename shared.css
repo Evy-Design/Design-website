@@ -442,7 +442,14 @@ body.eod-is-scrolling .eod-btn {
 .eod-awards__item-chevron {
   flex: none;
   display: inline-flex;
+  width: 0.9em;
+  height: 0.9em;
   transition: transform 0.25s ease;
+}
+.eod-awards__item-chevron svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
 }
 .eod-awards__item-header[aria-expanded="true"] .eod-awards__item-chevron {
   transform: rotate(180deg);
