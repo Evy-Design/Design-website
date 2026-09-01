@@ -50,6 +50,19 @@ window.EOD_CHROME = (function () {
     { href: "contact.html", label: "Contact" },
   ];
 
+  // Production only, not staging (Evy: "voordat we weer aan de github
+  // staging websites gaan werken, kan je de project page offline
+  // zetten... en daar coming soon terug zetten") — checked by hostname
+  // rather than a hardcoded flag so this can't accidentally get
+  // reverted the next time staging's chrome.js is copied over to
+  // production wholesale; the same file behaves correctly on both
+  // domains without needing to remember to flip anything back.
+  // Restores the exact markup/copy the site used before the Sanity
+  // project pages existed (disabled label + badge, no real href).
+  var PROJECTS_COMING_SOON =
+    typeof location !== "undefined" &&
+    /(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
+
   // No currentPage param, and no w--current here: test-navigation.js's
   // own highlightCurrentPage() already sets that dynamically from
   // window.location.pathname on every page load (it runs right after
@@ -58,6 +71,13 @@ window.EOD_CHROME = (function () {
   // same thing.
   function nav() {
     var links = NAV_LINKS.map(function (link) {
+      if (PROJECTS_COMING_SOON && link.href === "projects.html") {
+        return (
+          '<li data-reveal-l><span class="underlay-nav__link-large is--soon" aria-disabled="true"><span class="underlay-nav__link-label">' +
+            link.label +
+          '</span><span class="underlay-nav__soon-badge">Coming soon</span></span></li>'
+        );
+      }
       return (
         '<li data-reveal-l><a href="' + link.href + '" class="underlay-nav__link-large"><span class="underlay-nav__link-label">' + link.label + "</span></a></li>"
       );

@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evy Diepenbroek — Contact</title>
+  <title>Evy Diepenbroek — Projects</title>
   <link rel="stylesheet" href="shared.css?v=21" />
   <link rel="stylesheet" href="test-navigation.css?v=11" />
-  <link rel="stylesheet" href="style.css?v=40" />
-  <link rel="stylesheet" href="contact.css?v=1" />
+  <link rel="stylesheet" href="projects.css?v=45" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
        call window.EOD_CHROME synchronously as the HTML is parsed. -->
@@ -20,26 +19,19 @@
   <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.nav());</script>
 
   <main class="eod-page">
-    <section class="eod-contact" data-eod-contact>
-      <div class="eod-contact__group">
-        <p class="eod-contact__text" data-eod-word-reveal data-eod-text="contactIntro">Don&rsquo;t be a stranger, and let&rsquo;s team up. You can find me on my <a href="#" class="eod-contact__link" data-eod-reveal-text="@Evy.Design" data-eod-text="instagramUrl">Instagram</a> or <a href="#" class="eod-contact__link" data-eod-reveal-text="/in/EvyDiepenbroek" data-eod-text="linkedinUrl">LinkedIn</a> and send me a message there.</p>
+    <!-- Grid of case studies, rendered by content.js's renderProjectsGrid()
+         from window.EOD_CONTENT.projects — add a project there, not here.
+         See projects.css for the hover push mechanic. -->
+    <section class="eod-projects">
+      <div class="eod-projects__inner">
+        <h1 class="eod-projects__heading" style="view-transition-name: eod-out-heading">My work</h1>
+        <ul class="eod-projects__grid"></ul>
       </div>
     </section>
 
   <!-- Footer — single source of truth is chrome.js (EOD_CHROME.footer()). -->
   <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.footer());</script>
   </main>
-
-  <!-- Deliberately OUTSIDE <main>: test-navigation.js applies a GSAP
-       transform to <main> (needed for the slide-menu-open animation),
-       and any transform on an ancestor turns position: fixed
-       descendants into position: absolute-relative-to-that-ancestor
-       instead of the true viewport — this banner is meant to pin to
-       the actual bottom of the screen regardless of page scroll or
-       the menu's own state, so it has to live outside that subtree. -->
-  <div class="eod-contact__banner" data-eod-contact-banner aria-hidden="true">
-    <span class="eod-contact__banner-text" data-eod-contact-banner-text></span>
-  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
@@ -49,6 +41,5 @@
   <script src="sanity-client.js?v=2"></script>
   <script src="content.js?v=31"></script>
   <script src="script.js?v=34"></script>
-  <script src="contact.js?v=3"></script>
 </body>
 </html>

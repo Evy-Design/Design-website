@@ -68,16 +68,31 @@
   // layout, and GSAP only ever targets it by class, never by tag.
   // (Evy: "als je op een van de cards van de tornado klickt ga je
   // naar de my work... project overview page toe".)
+  //
+  // Production only (same hostname check as chrome.js's own
+  // PROJECTS_COMING_SOON, kept independent here rather than shared
+  // since this file doesn't otherwise depend on chrome.js) — while
+  // the projects page is offline there, the card becomes a plain
+  // (unclickable) div instead of a link. Nothing else about the
+  // tornado changes: position: absolute + GSAP targeting by class,
+  // not tag, both already tolerate either element (see the comment
+  // above this function).
+  var PROJECTS_COMING_SOON =
+    typeof location !== "undefined" &&
+    /(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
+
   function buildCardMarkup() {
+    const tag = PROJECTS_COMING_SOON ? "div" : "a";
+    const linkAttrs = PROJECTS_COMING_SOON ? "" : 'href="projects" ';
     return EOD_DATA.cards
       .map(
         (card) => `
-      <a href="projects" class="cards-tornado__item" data-3d-tornado-item aria-label="Go to my work">
+      <${tag} ${linkAttrs}class="cards-tornado__item" data-3d-tornado-item aria-label="Go to my work">
         <div class="demo-card">
           <div class="demo-card__face demo-card__face--front"><img class="cover-image" src="${card.src}" alt="${card.alt}" /></div>
           <div class="demo-card__face demo-card__face--back"><img class="cover-image" src="${EOD_DATA.portrait}" alt="Evy Olivia Diepenbroek" /></div>
         </div>
-      </a>`
+      </${tag}>`
       )
       .join("");
   }
