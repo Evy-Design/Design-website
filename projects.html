@@ -4,15 +4,82 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — Projects</title>
-  <link rel="stylesheet" href="shared.css?v=21" />
+  <link rel="stylesheet" href="shared.css?v=22" />
   <link rel="stylesheet" href="test-navigation.css?v=11" />
-  <link rel="stylesheet" href="projects.css?v=45" />
+  <link rel="stylesheet" href="projects.css?v=51" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
        call window.EOD_CHROME synchronously as the HTML is parsed. -->
   <script src="chrome.js?v=4"></script>
 </head>
 <body>
+
+  <!-- Real pixel-warp for the projects grid glass/water hover (Evy:
+       "more glassy and watery... like your touching water but the
+       shine of glass") — the CSS gradient highlight/tint in
+       projects.css does the light/shine half, this SVG filter does
+       the actual distortion half, which a CSS gradient alone can
+       never fake. One <filter> per card (capped at 11, same as the
+       view-transition/caption-exit indices elsewhere), not one
+       shared across all of them — feDisplacementMap's own scale is
+       what script.js eases up/down on hover, and every element
+       referencing the SAME filter would ripple together if they
+       shared one. scale starts at 0 (no visible warp) until then.
+       Different seed per filter purely so several cards hovered in
+       a row don't all show literally the same ripple pattern. -->
+  <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+    <defs>
+      <filter id="eod-glass-water-0" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="3" result="eod-noise-0" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-0" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-1" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="10" result="eod-noise-1" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-1" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-2" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="17" result="eod-noise-2" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-2" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-3" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="24" result="eod-noise-3" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-3" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-4" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="31" result="eod-noise-4" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-4" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-5" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="38" result="eod-noise-5" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-5" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-6" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="45" result="eod-noise-6" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-6" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-7" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="52" result="eod-noise-7" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-7" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-8" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="59" result="eod-noise-8" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-8" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-9" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="66" result="eod-noise-9" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-9" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-10" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="73" result="eod-noise-10" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-10" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="eod-glass-water-11" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="80" result="eod-noise-11" />
+        <feDisplacementMap in="SourceGraphic" in2="eod-noise-11" scale="0" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+    </defs>
+  </svg>
 
   <!-- Nav — single source of truth is chrome.js (EOD_CHROME.nav()),
        not this file. -->
@@ -39,7 +106,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
   <script src="test-navigation.js?v=12"></script>
   <script src="sanity-client.js?v=2"></script>
-  <script src="content.js?v=31"></script>
-  <script src="script.js?v=34"></script>
+  <script src="content.js?v=36"></script>
+  <script src="script.js?v=37"></script>
 </body>
 </html>
