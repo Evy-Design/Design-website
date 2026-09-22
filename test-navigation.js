@@ -171,14 +171,29 @@
 
     function getEffectiveBackground(el) {
       var current = el;
-      while (current && current !== document.documentElement) {
+      while (current) {
         var bg = getComputedStyle(current).backgroundColor;
         if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
           return bg;
         }
+        if (current === document.documentElement) break;
         current = current.parentElement;
       }
-      return null;
+      // Nothing anywhere in the chain (including <html> itself, which
+      // the loop above used to skip entirely) declares its own
+      // background-color — most of this site's sections don't (they
+      // just sit on the page's own default canvas), so this sample
+      // point used to contribute NOTHING to the light/dark vote at
+      // all. If BOTH sample points landed on undeclared background,
+      // totalWeight stayed 0 and isDark defaulted to false, leaving
+      // the nav in its default white text on a white page (Evy:
+      // "soms is het logo en navigation wit tot dat ik begin te
+      // scrollen, ookal zit ik op een witten achtergrond") — until
+      // scrolling reached a section that DOES declare a background
+      // (e.g. .eod-projects's explicit background: var(--eod-white)).
+      // The browser's own default canvas is white, so that's the
+      // correct assumption here, not "no signal".
+      return 'rgb(255, 255, 255)';
     }
 
     // A CSS background-color is invisible to photos/videos — a dark
