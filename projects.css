@@ -87,30 +87,36 @@
   overflow: hidden;
   border-radius: var(--eod-projects-radius);
 }
-/* A scrim behind the title's own corner, always on (also the touch-
-   device fallback, see the title's own comment below). Without this,
-   white text would sit directly on whatever the photo's own colour
-   happens to be there — fine on a dark photo, illegible on a bright
-   one (e.g. the neon-green cover elsewhere in this grid). Scoped to
-   the plain grid specifically (.eod-projects__grid), not
+/* A scrim behind the title's own corner — touch-device fallback only
+   (Evy: "er zit nog een shadow op de images van de work page" — on a
+   device that can genuinely hover, the title is hidden until :hover
+   anyway (see below), where the dedicated dark blur overlay already
+   handles contrast, so this permanent gradient was just an unwanted
+   shadow sitting on every image at rest for no reason there. Touch
+   devices have no :hover to reveal that overlay, so the title stays
+   always visible there and still needs this for legibility against a
+   bright photo, e.g. the neon-green cover elsewhere in this grid).
+   Scoped to the plain grid specifically (.eod-projects__grid), not
    .eod-projects__photo-wrap generally — .eod-project-slider__card
    reuses that same class for its OWN cards, which use the
    always-visible caption below the photo instead of an on-image
    title, so they have nothing here that needs a scrim behind it. */
-.eod-projects__grid .eod-projects__photo-wrap::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 45%;
-  background: linear-gradient(to top, rgba(6, 10, 14, 0.72), rgba(6, 10, 14, 0));
-  pointer-events: none;
-  /* A ::after paints after (on top of) its own element's real DOM
-     children by default, which would otherwise bury the title text
-     under this scrim instead of sitting behind it — explicit
-     stacking order below (this / the glass overlay / the title,
-     lowest to highest) makes the paint order match the visual intent
-     regardless of DOM position. */
-  z-index: 1;
+@media (hover: none) {
+  .eod-projects__grid .eod-projects__photo-wrap::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 45%;
+    background: linear-gradient(to top, rgba(6, 10, 14, 0.72), rgba(6, 10, 14, 0));
+    pointer-events: none;
+    /* A ::after paints after (on top of) its own element's real DOM
+       children by default, which would otherwise bury the title text
+       under this scrim instead of sitting behind it — explicit
+       stacking order below (this / the glass overlay / the title,
+       lowest to highest) makes the paint order match the visual
+       intent regardless of DOM position. */
+    z-index: 1;
+  }
 }
 /* Hover-only dark blurred glass over the whole photo (Evy: "de hover
    over mag best wel simpel zijn... gewoon een donker blure glas

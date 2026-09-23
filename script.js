@@ -97,6 +97,41 @@
       .join("");
   }
 
+  // Evy: "Er is een laad probleem met de fotos in safari. zorg dat
+  // alles op de homepage al geladen is wanneer je op de homepage
+  // terecht komt" — the tornado's 10 cards (some from a totally
+  // different, cross-origin host, figma.site's own asset CDN — see
+  // EOD_DATA above) used to just start downloading the moment
+  // buildCardMarkup() ran, with nothing hiding them meanwhile: each
+  // photo popped in individually, already mid-spin, whenever its own
+  // bytes happened to arrive — most visible/glitchy in Safari, which
+  // handles a still-decoding image inside a 3D-transformed ancestor
+  // differently than Chrome does. This preloads every unique URL
+  // (browsers dedupe by URL, so this doesn't double-fetch what the
+  // <img> tags already requested) and resolves once they've all
+  // either loaded or failed — one bad URL shouldn't hold up the rest
+  // forever, and neither should a slow connection: a hard timeout
+  // below guarantees the cards reveal eventually either way. See the
+  // .cards-tornado / .is-ready rule (style.css) for the actual
+  // fade-in this gates.
+  const TORNADO_PRELOAD_TIMEOUT_MS = 4000;
+  function preloadTornadoImages() {
+    const urls = [EOD_DATA.portrait, ...EOD_DATA.cards.map((card) => card.src)];
+    const perImage = urls.map(
+      (url) =>
+        new Promise((resolve) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = resolve;
+          img.src = url;
+        })
+    );
+    return Promise.race([
+      Promise.all(perImage),
+      new Promise((resolve) => setTimeout(resolve, TORNADO_PRELOAD_TIMEOUT_MS)),
+    ]);
+  }
+
   function initHero(hero) {
     // Figma Sites keeps every breakpoint variant of a page in the DOM at
     // once (just toggling visibility with CSS), so this embed can appear
@@ -119,6 +154,69 @@
     const list = tornado.querySelector("[data-3d-tornado-list]");
     const introRow = hero.querySelector(".eod-hero__intro");
     list.innerHTML = buildCardMarkup();
+    // Fires the actual fetches immediately (same tick the <img> tags
+    // above go into the DOM) — .eod-hero.is-ready (style.css) is what
+    // the cards stay invisible behind until this resolves.
+    preloadTornadoImages().then(() => hero.classList.add("is-ready"));
+
+    // shared.css's "@view-transition { navigation: auto; }" is scoped
+    // to every navigation site-wide (it has to be, to cover the
+    // projects-grid -> case-study flow it was actually built for —
+    // see that rule's own comment), including leaving THIS page. A
+    // cross-document view transition snapshots the outgoing page as a
+    // flat image right as you navigate away, and flattening ~10
+    // actively-spinning, nested-3D (transform-style: preserve-3d +
+    // backface-visibility: hidden) cards into one texture is exactly
+    // the kind of scene browsers get wrong — the snapshot can lose
+    // the backface culling entirely, painting every card's hidden
+    // .demo-card__face--back (Evy's own portrait) right on top of its
+    // front face (Evy: "als ik van pagina ga verwisselen springen
+    // alle card images naar de photo van mij"). This page has nothing
+    // that actually NEEDS a view transition on its way OUT (nothing
+    // here carries a view-transition-name into the next page), so
+    // skipping it here avoids the bad snapshot entirely without
+    // touching the transition other pages rely on. `pageswap` +
+    // skipTransition() is the standard, purpose-built API for opting
+    // one specific outgoing navigation out of an otherwise site-wide
+    // "navigation: auto" — support-checked so this silently no-ops on
+    // a browser that doesn't have it yet.
+    if (typeof PageSwapEvent !== "undefined") {
+      window.addEventListener("pageswap", (e) => {
+        if (e.viewTransition) e.viewTransition.skipTransition();
+      });
+    }
+    // `pageswap` is Chrome/Edge-only — Safari supports cross-document
+    // view transitions (the same "navigation: auto" this whole thing
+    // is about) but has no API to opt one page out of them, so the
+    // guard above alone still leaves Safari showing every card's
+    // portrait (confirmed: Evy's screenshot, after the pageswap fix
+    // above had already shipped, still showed it). This is the actual
+    // universal fix — the instant ANY same-page link is clicked
+    // (before the browser has begun navigating, let alone capturing a
+    // snapshot for a transition it may or may not support), hide
+    // every card's back face directly. A hidden element can't get
+    // painted into a bad snapshot regardless of which browser's
+    // engine is doing the capturing or whether backface-visibility
+    // survives that capture intact.
+    document.addEventListener(
+      "click",
+      (e) => {
+        const link = e.target.closest("a[href]");
+        if (!link) return;
+        let url;
+        try {
+          url = new URL(link.href, location.href);
+        } catch (err) {
+          return;
+        }
+        if (url.origin !== location.origin) return;
+        if (url.pathname === location.pathname && url.hash) return; // in-page anchor, no real navigation
+        hero.querySelectorAll(".demo-card__face--back").forEach((face) => {
+          face.style.visibility = "hidden";
+        });
+      },
+      true
+    );
 
     if (typeof gsap === "undefined" || typeof Observer === "undefined") {
       console.error(
@@ -221,8 +319,20 @@
       state.cards = Array.from(list.querySelectorAll("[data-3d-tornado-item]"));
     }
 
-    function getEdgeScale(y) {
-      const containerHalfHeight = tornado.offsetHeight * 0.5;
+    // containerHalfHeight takes a param rather than reading
+    // tornado.offsetHeight itself (Evy: "Op safari loopt die soms een
+    // beetje vast en haapert die soms, op chrome niet") — this used to
+    // read it fresh on every call, and render() calls this once per
+    // card, up to 70 times a frame. tornado's own height never changes
+    // mid-render(), but each card's gsap.set() right after this call
+    // writes transform/filter styles that invalidate layout — so the
+    // NEXT card's offsetHeight read had to force a real synchronous
+    // layout recalculation to answer, then invalidated it again for
+    // the card after that: classic read/write layout thrashing, up to
+    // 70 forced reflows a frame. Chrome's pipeline is forgiving enough
+    // that this mostly went unnoticed; Safari's isn't. Callers now
+    // measure it ONCE (outside their own loop) and pass it in.
+    function getEdgeScale(y, containerHalfHeight) {
       const edgeOffsetDistance = state.cardHeight * edgeOffset;
       const fadeDistance = state.cardHeight * edgeScale;
       const distanceFromCenter = Math.abs(y);
@@ -239,6 +349,7 @@
 
     function render() {
       const radius = orbitDepth * state.em;
+      const containerHalfHeight = tornado.offsetHeight * 0.5; // measured once, not per-card — see getEdgeScale's own comment
 
       state.cards.forEach((card) => {
         if (card === ejectedItem || card === returningItem) return; // scroll (or the glide back) owns this one right now
@@ -249,7 +360,7 @@
         const center = 1 - Math.min(Math.abs(index) / (state.amount * 0.5), 1);
         const y = index * state.cardGap;
         const baseScale = minScale + center * (1 - minScale);
-        const scale = baseScale * getEdgeScale(y);
+        const scale = baseScale * getEdgeScale(y, containerHalfHeight);
         const backAmount = clamp((1 - Math.cos(angleRad)) * 0.5, 0, 1);
         const brightness = 1 - backAmount * backDarkness;
         const blur = backAmount * backBlur;
@@ -592,9 +703,31 @@
 
     // Only the flip and the grow are still driven by hand — the actual
     // "moves down with the scroll, then stops" part is native CSS
-    // sticky behaviour on the card itself now, not JS. Both are linear
-    // in `progress`, so they run the whole time you're scrolling
-    // through the frame, in step with the scroll — no separate phases.
+    // sticky behaviour on the card itself now, not JS. Both run off
+    // an EASED reading of `progress` (see ejectEase below) the whole
+    // time you're scrolling through the frame, in step with the
+    // scroll — no separate phases, just a curved rather than flat
+    // mapping from how far you've scrolled to how flipped/grown the
+    // card is.
+    //
+    // Evy: "de card die er uit komt... gaat in het begin erg snel
+    // naar zijn plek dit mag veel langzamer en smoother de easing mag
+    // beter" — this used to map progress straight through (scale =
+    // lerp(1, landedScale, progress), rotateY = progress * EJECT_TURNS),
+    // so the very first pixel of scroll produced exactly as much
+    // visible flip/grow as any other — on a trackpad, where a single
+    // flick can cover a big chunk of `progress` in one input, that
+    // read as the card lurching almost fully into place immediately.
+    // power2.in starts near-flat (small scroll = barely any visible
+    // change) and accelerates into the rest of the gesture — same
+    // ease already used for this scroll frame's background colour
+    // crossfade just above, so this isn't a new curve to the codebase,
+    // just applied here too. f(0)=0 and f(1)=1 either way, so
+    // settle()/unsettle()/returnToOrbit()'s own progress<=0/>=1
+    // triggers and the identity/landed transforms they expect at
+    // those exact endpoints are untouched — only the shape in between
+    // changes.
+    const ejectEase = gsap.parseEase("power2.in");
     function updateEject(progress) {
       // beginEject() arms a one-time 600ms transition on `transform`
       // for the pop-in glide (old orbit position -> centred), then
@@ -612,10 +745,11 @@
       // land instantly, matching this function's own original intent
       // (see the comment on the transition line in beginEject).
       ejectedItem.style.transition = "none";
+      const eased = ejectEase(progress);
       const landedScale = 1.2;
-      const scale = lerp(1, landedScale, progress);
+      const scale = lerp(1, landedScale, eased);
       ejectedItem.style.transform = `translate(-50%, -50%) scale(${scale})`;
-      ejectedFace.style.transform = `rotateY(${progress * EJECT_TURNS}deg)`;
+      ejectedFace.style.transform = `rotateY(${eased * EJECT_TURNS}deg)`;
     }
 
     // Scrolling back to the very top drops the card back into the
@@ -667,7 +801,7 @@
       const center = 1 - Math.min(Math.abs(index) / (state.amount * 0.5), 1);
       const y = index * state.cardGap;
       const baseScale = minScale + center * (1 - minScale);
-      const targetScale = baseScale * getEdgeScale(y);
+      const targetScale = baseScale * getEdgeScale(y, tornado.offsetHeight * 0.5);
       const backAmount = clamp((1 - Math.cos(angleRad)) * 0.5, 0, 1);
       const brightness = 1 - backAmount * backDarkness;
       const blur = backAmount * backBlur;

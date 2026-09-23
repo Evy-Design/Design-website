@@ -1,9 +1,11 @@
 {
   "settings": {
-    "aboutHeroDetail1": "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.",
-    "aboutHeroDetail2": "I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.",
+    "homeHeroTitle": "Who is behind this work? \nHi, I’m Evy Olivia Diepenbroek",
+    "homeHeroBody": "I’m a Designer. always chasing what's next. I'm currently a nominated graphic designer with two degrees in the field and over 4 years of agency experience.",
     "aboutHeroHeading": "Hi, I’m Evy Olivia Diepenbroek. Nice to meet you!",
     "aboutHeroLede": "I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.",
+    "aboutHeroDetail1": "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.",
+    "aboutHeroDetail2": "I have several years of agency experience as a brand designer, creating and maintaining comprehensive visual identities from logo design and typography to UX design and motion graphics. I’ve collaborated with various creative professionals on projects for major companies like Microsoft and Shell, as well as startups and smaller businesses. Today, I work at a digital agency, where my focus is mainly on digital design.",
     "aboutPortrait": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
     "awards": [
       {
@@ -17,34 +19,6 @@
         "year": "2024"
       }
     ],
-    "contactIntro": "Don’t be a stranger, and let’s team up. You can find me on my",
-    "cta": {
-      "body": "Lets have a coffee and talk about what I can be for you, text here longer need",
-      "roles": [
-        {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/c3c3d6d2455811898b61d6b26c25708f5ace4eb8-500x700.jpg",
-          "word": "Motion"
-        },
-        {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/61edc350eee9ef7e12dc1d684d7c3d60c4583710-500x700.jpg",
-          "word": "Brand"
-        },
-        {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/146ea45a6af90588a57d3cf55b7f02196242fedd-500x700.jpg",
-          "word": "UI/UX"
-        },
-        {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/e55fdf6df9937c2d7f1c138a0f496a4f45a7dc6e-500x700.jpg",
-          "word": "Graphic"
-        }
-      ],
-      "suffix": "Design"
-    },
-    "email": "Evy@Diepenbroek.com",
-    "homeHeroBody": "I’m a Designer. always chasing what's next. I'm currently a nominated graphic designer with two degrees in the field and over 4 years of agency experience.",
-    "homeHeroTitle": "Who is behind this work? \nHi, I’m Evy Olivia Diepenbroek",
-    "instagramUrl": null,
-    "linkedinUrl": null,
     "timeline": [
       {
         "alt": "Evy's work at Kool Collective",
@@ -109,7 +83,34 @@
         "title": "Masterclass",
         "year": "2018"
       }
-    ]
+    ],
+    "contactIntro": "Don’t be a stranger, and let’s team up. You can find me on my",
+    "email": "Evy@Diepenbroek.com",
+    "instagramUrl": null,
+    "linkedinUrl": null,
+    "favicon": "https://cdn.sanity.io/images/16akn05z/production/e17793969880dc5ea12ba9e4d106ad5ad1e20729-512x512.jpg",
+    "cta": {
+      "body": "Lets have a coffee and talk about what I can be for you, text here longer need",
+      "roles": [
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/c3c3d6d2455811898b61d6b26c25708f5ace4eb8-500x700.jpg",
+          "word": "Motion"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/61edc350eee9ef7e12dc1d684d7c3d60c4583710-500x700.jpg",
+          "word": "Brand"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/146ea45a6af90588a57d3cf55b7f02196242fedd-500x700.jpg",
+          "word": "UI/UX"
+        },
+        {
+          "image": "https://cdn.sanity.io/images/16akn05z/production/e55fdf6df9937c2d7f1c138a0f496a4f45a7dc6e-500x700.jpg",
+          "word": "Graphic"
+        }
+      ],
+      "suffix": "Design"
+    }
   },
   "projects": [
     {
@@ -435,115 +436,6 @@
       "slug": "penguin-cover-design-award",
       "title": "The Penguin Cover Design Award",
       "websiteUrl": null
-    },
-    {
-      "alt": "Cense project_Made-at-NOSUCH",
-      "cover": "https://cdn.sanity.io/images/16akn05z/production/b4577fa04b2809e0b17f4af6a952a067921a087f-1536x674.jpg",
-      "deliverables": [
-        "Visual Identity"
-      ],
-      "description": null,
-      "gallery": [
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/acf568fb222fe9617c402b3b89fd56caa1bfbf55-1910x1181.jpg"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/65215712861a54a81af1beea2fef67fa7a8af9db-1920x1080.jpg"
-            },
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/c4584649a4bacb041ba9839425a83003ba11d264-1502x845.png"
-            }
-          ],
-          "type": "pair",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/3df2d6c26a235cc8c4dedb2ff5fd81f8357f1698-1672x941.png"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": null
-            },
-            {
-              "isVideo": false,
-              "url": null
-            }
-          ],
-          "type": "pair",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/53b81d8ccd2bb29e4c70fe9ad4b5255d1ba1c03f-3840x2160.png"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/659403d4e1a64c63b0ff47c066dd8a7ad23ad040-5906x2594.jpg"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": null,
-          "heading": null,
-          "src": null,
-          "type": "video",
-          "video": "https://cdn.sanity.io/files/16akn05z/production/6df6275979f852e2ab2d5567ed2cf84318011738.mp4"
-        }
-      ],
-      "hero": "https://cdn.sanity.io/images/16akn05z/production/b4577fa04b2809e0b17f4af6a952a067921a087f-1536x674.jpg",
-      "heroVideo": null,
-      "slug": "cense",
-      "title": "Cense",
-      "websiteUrl": "https://nosuch.nl/en/work/decoding-complexity/"
     },
     {
       "alt": null,

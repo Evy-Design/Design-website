@@ -12,19 +12,32 @@ const PROJECT_ID = "16akn05z";
 const DATASET = "production";
 const API_VERSION = "2026-08-26";
 
-const SITE_SETTINGS_QUERY = `*[_id == "siteSettings"][0]{
-  homeHeroTitle, homeHeroBody,
-  aboutHeroHeading, aboutHeroLede, aboutHeroDetail1, aboutHeroDetail2,
-  "aboutPortrait": aboutPortrait.asset->url,
-  contactIntro,
-  "cta": {
-    "roles": ctaRoles[]{word, "image": image.asset->url},
-    "suffix": ctaSuffix,
-    "body": ctaBody
+// Home/About/Contact/Footer/Site Settings are separate singleton
+// documents in the Studio (Evy: "Zorg dat in sanity de pages ook
+// apart staan net zoals projects. En ook een Footer en zulke sections
+// mogen hier ook los in staan") — one combined query here, but the
+// JS below still flattens the result into the SAME "settings" shape
+// content.js has always consumed (window.EOD_CONTENT.settings.email,
+// .awards, .timeline, ...), so none of the frontend rendering code
+// needed to change for the Studio-side split.
+const SITE_QUERY = `{
+  "home": *[_id == "homePage"][0]{heroTitle, heroBody},
+  "about": *[_id == "aboutPage"][0]{
+    heroHeading, heroLede, heroDetail1, heroDetail2,
+    "portrait": portrait.asset->url,
+    awards[]{year, title, body},
+    timeline[]{year, title, "image": image.asset->url, alt, body, ctaLabel, ctaHref}
   },
-  awards[]{year, title, body},
-  timeline[]{year, title, "image": image.asset->url, alt, body, ctaLabel, ctaHref},
-  email, instagramUrl, linkedinUrl
+  "contact": *[_id == "contactPage"][0]{intro},
+  "footer": *[_id == "footer"][0]{email, instagramUrl, linkedinUrl},
+  "general": *[_id == "siteSettings"][0]{
+    "favicon": favicon.asset->url,
+    "cta": {
+      "roles": ctaRoles[]{word, "image": image.asset->url},
+      "suffix": ctaSuffix,
+      "body": ctaBody
+    }
+  }
 }`;
 
 const PROJECTS_QUERY = `*[_type == "project"] | order(order asc){
@@ -50,10 +63,34 @@ async function runQuery(groq) {
   return result;
 }
 
-const [settings, projects] = await Promise.all([
-  runQuery(SITE_SETTINGS_QUERY),
+const [site, projects] = await Promise.all([
+  runQuery(SITE_QUERY),
   runQuery(PROJECTS_QUERY),
 ]);
+
+const home = site.home || {};
+const about = site.about || {};
+const contact = site.contact || {};
+const footer = site.footer || {};
+const general = site.general || {};
+
+const settings = {
+  homeHeroTitle: home.heroTitle,
+  homeHeroBody: home.heroBody,
+  aboutHeroHeading: about.heroHeading,
+  aboutHeroLede: about.heroLede,
+  aboutHeroDetail1: about.heroDetail1,
+  aboutHeroDetail2: about.heroDetail2,
+  aboutPortrait: about.portrait,
+  awards: about.awards,
+  timeline: about.timeline,
+  contactIntro: contact.intro,
+  email: footer.email,
+  instagramUrl: footer.instagramUrl,
+  linkedinUrl: footer.linkedinUrl,
+  favicon: general.favicon,
+  cta: general.cta,
+};
 
 const fs = await import("node:fs/promises");
 const path = await import("node:path");

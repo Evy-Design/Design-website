@@ -337,12 +337,11 @@
 
   .underlay-nav__logo {
     /* The wordmark's own aspect ratio (viewBox 1228 x 244, LOGO_SVG
-       in chrome.js) is ~5.03:1 — width: 201px is what makes it render
-       at an actual 40px tall (Evy: "logo van de navigatie mogen op
-       mobiel ook wat groter, die 40px hoog graag" — a real visual
-       size, not just an invisible bigger tap area like the first pass
-       at this used). */
-    width: 201px;
+       in chrome.js) is ~5.03:1. Was 201px (40px tall) from an earlier
+       "make it bigger" request — turned out too big in practice on
+       an actual phone (Evy: "Op mobile lijkt het logo veel te
+       groot"). 140px renders it at ~28px tall instead. */
+    width: 140px;
   }
 
   /* Evy: "de menu button... mag op mobiel ook wat groter, die 40px

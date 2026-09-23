@@ -433,6 +433,24 @@ window.EOD_CONTENT = (function () {
     socialLinks.forEach(function (el) { if (s.instagramUrl) el.setAttribute("href", s.instagramUrl); });
     const socialLinksLi = document.querySelectorAll("[data-eod-text='linkedinUrl-nav']");
     socialLinksLi.forEach(function (el) { if (s.linkedinUrl) el.setAttribute("href", s.linkedinUrl); });
+
+    // Favicon (Evy: "Ik kan nog steeds geen favorite icon of web icon
+    // toevoegen") — there's no <link rel="icon"> in any page's own
+    // <head> to begin with, since this site has no per-request
+    // server render to point one at a URL that doesn't exist until
+    // Sanity is fetched. Setting it here instead, same pattern as
+    // every other piece of Sanity-driven content on this site. Any
+    // existing <link rel="icon"> (none currently, but harmless if one
+    // gets added later) is reused rather than duplicated.
+    if (s.favicon) {
+      var iconLink = document.querySelector("link[rel='icon']");
+      if (!iconLink) {
+        iconLink = document.createElement("link");
+        iconLink.rel = "icon";
+        document.head.appendChild(iconLink);
+      }
+      iconLink.href = s.favicon;
+    }
   }
 
   renderStaticText();
