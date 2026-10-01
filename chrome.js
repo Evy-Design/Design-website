@@ -54,6 +54,33 @@
   if (!IS_PRODUCTION) return;
 
   var GA_MEASUREMENT_ID = "G-GFGR2QJJ6X";
+  var OPT_OUT_KEY = "eod-ga-opt-out";
+
+  // Evy: "can you make sure that my computer doesnt count" — a GA4
+  // "internal traffic" IP filter was the other option, but that
+  // breaks the moment she's on a different network (phone hotspot,
+  // another wifi), and has to be reconfigured in the GA4 UI itself,
+  // which I can't do for her anyway. A one-time, per-browser opt-out
+  // instead: visiting evydiepenbroek.nl/?no-track=1 once sets a
+  // localStorage flag that permanently skips loading gtag.js on that
+  // browser/device from then on (?no-track=0 reverses it, e.g. to
+  // test tracking herself later). google's own documented
+  // window["ga-disable-<ID>"] flag is set either way, belt-and-braces
+  // in case something upstream still references the measurement ID
+  // directly.
+  try {
+    var params = new URLSearchParams(location.search);
+    if (params.has("no-track")) {
+      if (params.get("no-track") === "0") localStorage.removeItem(OPT_OUT_KEY);
+      else localStorage.setItem(OPT_OUT_KEY, "1");
+    }
+  } catch (err) {}
+
+  var optedOut = false;
+  try { optedOut = localStorage.getItem(OPT_OUT_KEY) === "1"; } catch (err) {}
+  window["ga-disable-" + GA_MEASUREMENT_ID] = optedOut;
+  if (optedOut) return;
+
   var script = document.createElement("script");
   script.async = true;
   script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_MEASUREMENT_ID;
