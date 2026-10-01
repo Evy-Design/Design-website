@@ -29,6 +29,43 @@
    (there currently isn't one, but this keeps it from silently
    mismarking something if that ever changes).
    =========================================================== */
+
+/* ===========================================================
+   Google Analytics (GA4) — production only.
+
+   Evy got her own Measurement ID from a fresh GA4 property (not the
+   old one from her previous site) specifically so evydiepenbroek.nl
+   has clean numbers of its own. Loaded dynamically here rather than
+   the static <script> tag Google's own setup page gives you, pasted
+   into every page's <head> — this file is the ONE thing already
+   shared verbatim between staging and production (chrome.js loads in
+   <head>, before anything else), so gating it by hostname here means
+   the exact same file ships to both domains, GA only ever actually
+   loads/fires on the real domain, and it automatically survives the
+   next "sync staging to production" copy instead of needing to be
+   hand-reapplied to the production repo every time (same reasoning as
+   STORE_COMING_SOON below). Staging/localhost never even requests
+   gtag.js, let alone sends it a hit.
+   =========================================================== */
+(function () {
+  var IS_PRODUCTION =
+    typeof location !== "undefined" &&
+    /(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
+  if (!IS_PRODUCTION) return;
+
+  var GA_MEASUREMENT_ID = "G-GFGR2QJJ6X";
+  var script = document.createElement("script");
+  script.async = true;
+  script.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_MEASUREMENT_ID;
+  document.head.appendChild(script);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+  gtag("js", new Date());
+  gtag("config", GA_MEASUREMENT_ID);
+})();
+
 window.EOD_CHROME = (function () {
   var LOGO_SVG =
     '<svg class="underlay-nav__logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1228 244" fill="none">' +

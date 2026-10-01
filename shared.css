@@ -643,10 +643,17 @@ body.eod-is-scrolling .eod-btn {
      title share the same font-size formula (a proportional miss, not
      a one-off). The text can slightly overlap its own descender
      space, but the badge itself, a real visible shape, never should. */
-  height: 0.5em;
-  aspect-ratio: 200 / 156;
+  /* Evy: "dit plaatje voelt nog niet helemaal lekker, kan die iets
+     breeder en net wat hoger en een lagere corner radius" — wider
+     (aspect-ratio) + taller (height) + squarer corners (radius) than
+     the original. Nudged up from 0.5em deliberately carefully (see
+     the comment above this rule on why 0.5em was chosen in the first
+     place) — re-checked against .eod-cta__title's own line right
+     below it after this change, still clear. */
+  height: 0.62em;
+  aspect-ratio: 240 / 156;
   margin: 0 0.15em;
-  border-radius: 0.3em;
+  border-radius: 0.18em;
   overflow: hidden;
   vertical-align: middle;
   background: var(--eod-ink);
