@@ -133,3 +133,62 @@ const outPath = path.join(import.meta.dirname, "..", "content.json");
 await fs.writeFile(outPath, JSON.stringify({settings, projects, products, pages, nav}, null, 2));
 
 console.log(`Wrote ${outPath}`);
+
+// sitemap.xml — always points at the production domain regardless of
+// which domain actually serves this build (staging's own robots.txt
+// blocks every crawler anyway, so it never matters there). Store/
+// store-item are deliberately left out for now — Evy: "nog niet de
+// store" — add them back in once Store is live on production.
+// Project pages use ?slug=, so <loc> carries the query string; that's
+// unusual but correct for this site's own shared-template routing.
+const SITE_URL = "https://evydiepenbroek.nl";
+const STATIC_PAGES = ["", "about", "projects", "contact"];
+const today = new Date().toISOString().slice(0, 10);
+const urlEntries = [
+  ...STATIC_PAGES.map(
+    (p) => `  <url>\n    <loc>${SITE_URL}/${p}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`,
+  ),
+  ...projects.map(
+    (p) =>
+      `  <url>\n    <loc>${SITE_URL}/project?slug=${encodeURIComponent(p.slug)}</loc>\n    <lastmod>${today}</lastmod>\n  </url>`,
+  ),
+].join("\n");
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries}\n</urlset>\n`;
+const sitemapPath = path.join(import.meta.dirname, "..", "sitemap.xml");
+await fs.writeFile(sitemapPath, sitemap);
+console.log(`Wrote ${sitemapPath}`);
+
+// llms.txt — a plain-English summary for AI crawlers/agents that
+// don't execute JavaScript (this site's actual page content is
+// rendered client-side from Sanity, which those crawlers never see —
+// this file is the one place a non-JS crawler gets real, accurate
+// content regardless). Loosely follows the emerging llms.txt
+// convention (plain markdown, not guaranteed to be read by anything
+// in particular yet, but costs nothing and only helps).
+const llmsProjects = projects
+  .map((p) => `- [${p.title}](${SITE_URL}/project?slug=${encodeURIComponent(p.slug)})${p.description ? ": " + p.description.replace(/\s+/g, " ").slice(0, 200) : ""}`)
+  .join("\n");
+const llmsTxt = `# Evy Diepenbroek
+
+> ${settings.aboutHeroLede || "Graphic designer working across brand identity, UX/UI, editorial and motion design."}
+
+Most of Evy's client work was produced at design agencies and can't be shown publicly here (see /projects) — the personal/independent projects below are her own.
+
+## Pages
+
+- [Home](${SITE_URL}/)
+- [About](${SITE_URL}/about)
+- [Projects](${SITE_URL}/projects)
+- [Contact](${SITE_URL}/contact)
+
+## Projects
+
+${llmsProjects}
+
+## Contact
+
+${settings.email ? "Email: " + settings.email : ""}
+`;
+const llmsPath = path.join(import.meta.dirname, "..", "llms.txt");
+await fs.writeFile(llmsPath, llmsTxt);
+console.log(`Wrote ${llmsPath}`);

@@ -1,0 +1,10 @@
+# This is production (evydiepenbroek.nl) — open to every crawler.
+#
+# Repo-specific, same as CNAME: this file does NOT come from the
+# staging sync (staging's own web/robots.txt deliberately blocks
+# everything so it never competes with this domain as duplicate
+# content). Do not overwrite this with staging's copy.
+User-agent: *
+Allow: /
+
+Sitemap: https://evydiepenbroek.nl/sitemap.xml

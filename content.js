@@ -280,6 +280,34 @@ window.EOD_CONTENT = (function () {
   // centred/contained inside it, not cropped — for a
   // portrait/vertical recording that object-fit: cover would
   // otherwise crop awkwardly.
+  // Fills in the real per-project/per-product title/description/cover
+  // on top of the generic static defaults already in the HTML (see
+  // project.html/store-item.html's own <head> — those exist for
+  // crawlers that don't run JS; this is for the ones that do, Google
+  // and Bing included, so an individual project/product page gets its
+  // own real search-result snippet and link-preview image instead of
+  // every one sharing the same generic one). document.title is set by
+  // the caller already, not here.
+  function updatePageMeta(title, description, image, url) {
+    const desc = (description || "").replace(/\s+/g, " ").trim().slice(0, 160);
+    const descEl = document.querySelector('meta[name="description"]');
+    if (descEl && desc) descEl.setAttribute("content", desc);
+    const canonicalEl = document.querySelector('link[rel="canonical"]');
+    if (canonicalEl && url) canonicalEl.setAttribute("href", url);
+    [
+      ['meta[property="og:title"]', "content", title],
+      ['meta[property="og:description"]', "content", desc],
+      ['meta[property="og:url"]', "content", url],
+      ['meta[property="og:image"]', "content", image],
+      ['meta[name="twitter:title"]', "content", title],
+      ['meta[name="twitter:description"]', "content", desc],
+      ['meta[name="twitter:image"]', "content", image],
+    ].forEach(function (entry) {
+      const el = document.querySelector(entry[0]);
+      if (el && entry[2]) el.setAttribute(entry[1], entry[2]);
+    });
+  }
+
   function renderGalleryBlocks(blocks) {
     return (blocks || []).map(function (block) {
       if (block.type === "sectionText" || block.type === "introText") {
@@ -433,6 +461,12 @@ window.EOD_CONTENT = (function () {
     const titleEl = document.querySelector(".eod-project__title");
     if (titleEl) titleEl.textContent = item.title;
     document.title = "Evy Diepenbroek — " + item.title;
+    updatePageMeta(
+      "Evy Diepenbroek — " + item.title,
+      item.description,
+      item.cover,
+      "https://evydiepenbroek.nl/project?slug=" + item.slug
+    );
 
     const descEl = document.querySelector(".eod-project__description");
     if (descEl) descEl.textContent = item.description || "";
@@ -564,6 +598,12 @@ window.EOD_CONTENT = (function () {
     const titleEl = document.querySelector(".eod-store-item__title");
     if (titleEl) titleEl.textContent = item.title;
     document.title = "Evy Diepenbroek — " + item.title;
+    updatePageMeta(
+      "Evy Diepenbroek — " + item.title,
+      item.shortDescription,
+      item.cover,
+      "https://evydiepenbroek.nl/store-item?slug=" + item.slug
+    );
 
     const descEl = document.querySelector(".eod-store-item__description");
     if (descEl) descEl.textContent = item.shortDescription || "";

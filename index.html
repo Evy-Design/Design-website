@@ -3,7 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Evy Diepenbroek — Design</title>
+  <title>Evy Diepenbroek — Graphic & Brand Designer</title>
+  <!-- SEO/social meta — Evy: "make sure my website is good findable
+       on google and AI models". Static (not JS-injected) so a
+       crawler that doesn't execute JavaScript still sees it — most
+       of this page's actual BODY content is rendered client-side
+       from Sanity (see content.js), which those crawlers never run,
+       but these tags are real HTML from the first byte. -->
+  <meta name="description" content="Portfolio of Evy Diepenbroek, a graphic and brand designer working across identity, UX/UI, editorial and motion design." />
+  <link rel="canonical" href="https://evydiepenbroek.nl/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Evy Diepenbroek" />
+  <meta property="og:title" content="Evy Diepenbroek — Graphic & Brand Designer" />
+  <meta property="og:description" content="Portfolio of Evy Diepenbroek, a graphic and brand designer working across identity, UX/UI, editorial and motion design." />
+  <meta property="og:url" content="https://evydiepenbroek.nl/" />
+  <meta property="og:image" content="https://cdn.sanity.io/images/16akn05z/production/ebd158e7c5e1bd7a8f8cd151b669989889631725-1536x1024.png?w=1200&h=630&fit=crop" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evy Diepenbroek — Graphic & Brand Designer" />
+  <meta name="twitter:description" content="Portfolio of Evy Diepenbroek, a graphic and brand designer working across identity, UX/UI, editorial and motion design." />
+  <meta name="twitter:image" content="https://cdn.sanity.io/images/16akn05z/production/ebd158e7c5e1bd7a8f8cd151b669989889631725-1536x1024.png?w=1200&h=630&fit=crop" />
+  <!-- Structured data (Evy: "make sure my website is good findable
+       on google and AI models") — a static JSON-LD Person block, not
+       JS-injected, so it's readable without executing any
+       JavaScript. Instagram/LinkedIn aren't in here yet (sameAs) —
+       add them once they're filled in on Site Settings > Navigation
+       in Sanity; this file isn't generated from that data, it's
+       hand-written. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Evy Diepenbroek",
+  "url": "https://evydiepenbroek.nl",
+  "image": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
+  "jobTitle": "Graphic & Brand Designer",
+  "email": "mailto:Evy@Diepenbroek.com",
+  "description": "Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI, editorial and motion design."
+}
+  </script>
   <link rel="stylesheet" href="shared.css?v=25" />
   <link rel="stylesheet" href="test-navigation.css?v=14" />
   <link rel="stylesheet" href="style.css?v=43" />
@@ -93,7 +130,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
   <script src="test-navigation.js?v=14"></script>
   <script src="sanity-client.js?v=5"></script>
-  <script src="content.js?v=51"></script>
+  <script src="content.js?v=52"></script>
   <script src="script.js?v=48"></script>
   <script src="cart.js?v=3"></script>
 </body>

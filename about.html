@@ -4,6 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — About</title>
+  <!-- SEO/social meta — Evy: "make sure my website is good findable
+       on google and AI models". Static (not JS-injected) so a
+       crawler that doesn't execute JavaScript still sees it — most
+       of this page's actual BODY content is rendered client-side
+       from Sanity (see content.js), which those crawlers never run,
+       but these tags are real HTML from the first byte. -->
+  <meta name="description" content="Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI and motion design." />
+  <link rel="canonical" href="https://evydiepenbroek.nl/about" />
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Evy Diepenbroek" />
+  <meta property="og:title" content="Evy Diepenbroek — About" />
+  <meta property="og:description" content="Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI and motion design." />
+  <meta property="og:url" content="https://evydiepenbroek.nl/about" />
+  <meta property="og:image" content="https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg?w=1200&h=630&fit=crop" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Evy Diepenbroek — About" />
+  <meta name="twitter:description" content="Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI and motion design." />
+  <meta name="twitter:image" content="https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg?w=1200&h=630&fit=crop" />
+  <!-- Structured data (Evy: "make sure my website is good findable
+       on google and AI models") — a static JSON-LD Person block, not
+       JS-injected, so it's readable without executing any
+       JavaScript. Instagram/LinkedIn aren't in here yet (sameAs) —
+       add them once they're filled in on Site Settings > Navigation
+       in Sanity; this file isn't generated from that data, it's
+       hand-written. -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Evy Diepenbroek",
+  "url": "https://evydiepenbroek.nl",
+  "image": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
+  "jobTitle": "Graphic & Brand Designer",
+  "email": "mailto:Evy@Diepenbroek.com",
+  "description": "Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI, editorial and motion design."
+}
+  </script>
   <link rel="stylesheet" href="shared.css?v=25" />
   <link rel="stylesheet" href="test-navigation.css?v=14" />
   <link rel="stylesheet" href="about.css?v=41" />
@@ -14,6 +51,20 @@
   <script src="chrome.js?v=14"></script>
 </head>
 <body>
+
+  <!-- Only ever shown to a crawler/browser that doesn't run
+       JavaScript (Evy: "make sure my website is good findable on
+       google and AI models") — the real bio below comes from Sanity
+       via content.js, invisible to that kind of crawler entirely.
+       Google/Bing render JS and never see this; this is specifically
+       for the ones that don't. -->
+  <noscript>
+    <main style="max-width: 40em; margin: 4em auto; padding: 0 1.25em; font-family: sans-serif; line-height: 1.6;">
+      <h1>Evy Diepenbroek — Graphic &amp; Brand Designer</h1>
+      <p>I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI, editorial and motion design.</p>
+      <p>Most of my client work was produced at design agencies and can’t be shown publicly — see <a href="/projects">my independent projects</a> for work that’s my own. Get in touch via <a href="/contact">the contact page</a>.</p>
+    </main>
+  </noscript>
 
   <!-- Nav — single source of truth is chrome.js (EOD_CHROME.nav()),
        not this file. insertAdjacentHTML runs synchronously as the
@@ -151,7 +202,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
   <script src="test-navigation.js?v=14"></script>
   <script src="sanity-client.js?v=5"></script>
-  <script src="content.js?v=51"></script>
+  <script src="content.js?v=52"></script>
   <script src="script.js?v=48"></script>
   <script src="cart.js?v=3"></script>
   <script src="about.js?v=66"></script>
