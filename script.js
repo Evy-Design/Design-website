@@ -29,20 +29,32 @@
   // than once. A top-level `const` would throw "already declared" on the
   // second copy and abort the entire script — scoping it here means each
   // inclusion gets its own local copy instead of colliding.
+  //
+  // The cards/portrait themselves now come from Sanity (Evy: "Kan je er
+  // voor zorgen dat ik de tornado images ook in sanity kan aanpassen") —
+  // homePage.tornadoCards/tornadoPortrait, flattened into
+  // window.EOD_CONTENT.settings by content.js, which this file's own
+  // <script> tag loads AFTER (see index.html), so it's already populated
+  // by the time this IIFE runs. The original hardcoded list stays as a
+  // fallback only — if Sanity has nothing (e.g. a fetch failure), the
+  // tornado still has something to show instead of spinning empty.
+  const FALLBACK_PORTRAIT = "assets/tornado Images/back-card-image/evy-portrait.jpg";
+  const FALLBACK_CARDS = [
+    { src: "https://glass-music-01613391.figma.site/_assets/v11/f4607dfef1f252d36baff380cd218bfb7296de58.png", alt: "Architecture study" },
+    { src: "https://glass-music-01613391.figma.site/_assets/v11/2d8f6295f3054cb1971dfc6e7ce86f1ab150bc64.png?w=3584", alt: "Landscape sketch" },
+    { src: "assets/tornado Images/1.png", alt: "Plek UX Design - Website design" },
+    { src: "assets/tornado Images/2.jpg", alt: "Penguin shortlisted book cover" },
+    { src: "assets/tornado Images/3.jpg", alt: "Typografic Illustrations" },
+    { src: "assets/tornado Images/4.jpg", alt: "editorial design" },
+    { src: "assets/tornado Images/5.jpg", alt: "design, editorial design" },
+    { src: "assets/tornado Images/6.jpg", alt: "Illustration" },
+    { src: "assets/tornado Images/7.gif", alt: "Studio 3D material" },
+    { src: "assets/tornado Images/8-Cense.jpg", alt: "Cense website design" },
+  ];
+  const eodSettings = (window.EOD_CONTENT && window.EOD_CONTENT.settings) || {};
   const EOD_DATA = {
-    portrait: "assets/tornado Images/back-card-image/evy-portrait.jpg",
-    cards: [
-      { src: "https://glass-music-01613391.figma.site/_assets/v11/f4607dfef1f252d36baff380cd218bfb7296de58.png", alt: "Architecture study" },
-      { src: "https://glass-music-01613391.figma.site/_assets/v11/2d8f6295f3054cb1971dfc6e7ce86f1ab150bc64.png?w=3584", alt: "Landscape sketch" },
-      { src: "assets/tornado Images/1.png", alt: "Plek UX Design - Website design" },
-      { src: "assets/tornado Images/2.jpg", alt: "Penguin shortlisted book cover" },
-      { src: "assets/tornado Images/3.jpg", alt: "Typografic Illustrations" },
-      { src: "assets/tornado Images/4.jpg", alt: "editorial design" },
-      { src: "assets/tornado Images/5.jpg", alt: "design, editorial design" },
-      { src: "assets/tornado Images/6.jpg", alt: "Illustration" },
-      { src: "assets/tornado Images/7.gif", alt: "Studio 3D material" },
-      { src: "assets/tornado Images/8-Cense.jpg", alt: "Cense website design" },
-    ],
+    portrait: eodSettings.tornadoPortrait || FALLBACK_PORTRAIT,
+    cards: eodSettings.tornadoCards && eodSettings.tornadoCards.length ? eodSettings.tornadoCards : FALLBACK_CARDS,
   };
 
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
@@ -69,21 +81,13 @@
   // (Evy: "als je op een van de cards van de tornado klickt ga je
   // naar de my work... project overview page toe".)
   //
-  // Production only (same hostname check as chrome.js's own
-  // PROJECTS_COMING_SOON, kept independent here rather than shared
-  // since this file doesn't otherwise depend on chrome.js) — while
-  // the projects page is offline there, the card becomes a plain
-  // (unclickable) div instead of a link. Nothing else about the
-  // tornado changes: position: absolute + GSAP targeting by class,
-  // not tag, both already tolerate either element (see the comment
-  // above this function).
-  var PROJECTS_COMING_SOON =
-    typeof location !== "undefined" &&
-    /(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
-
+  // Projects is live on every domain now (production had its own
+  // "Coming soon" gate here, same hostname check as chrome.js's own,
+  // while the Sanity project pages were still being built — lifted
+  // now, see chrome.js's STORE_COMING_SOON for what replaced it).
   function buildCardMarkup() {
-    const tag = PROJECTS_COMING_SOON ? "div" : "a";
-    const linkAttrs = PROJECTS_COMING_SOON ? "" : 'href="projects" ';
+    const tag = "a";
+    const linkAttrs = 'href="projects" ';
     return EOD_DATA.cards
       .map(
         (card) => `
@@ -1134,12 +1138,24 @@
       if (delay) el.style.transitionDelay = delay * 0.09 + "s";
     });
 
+    // data-eod-reveal-repeat (Evy: "de footer blijft animeren elke
+    // keer als je na een tijdje weer naar beneden gaat") opts an
+    // element OUT of the usual fire-once behaviour: it re-plays every
+    // time it scrolls back into view instead of staying "revealed"
+    // forever after the first time, by removing is-inview on the way
+    // out too instead of unobserving. Off by default (every Award/
+    // Timeline/CTA item etc. keeps the normal one-time reveal) —
+    // currently only set on the footer's own two columns.
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-inview");
-          io.unobserve(entry.target);
+          const repeat = entry.target.hasAttribute("data-eod-reveal-repeat");
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-inview");
+            if (!repeat) io.unobserve(entry.target);
+          } else if (repeat) {
+            entry.target.classList.remove("is-inview");
+          }
         });
       },
       { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
@@ -1235,12 +1251,20 @@
 
     els.forEach(setupClipMasks);
 
+    // Same data-eod-reveal-repeat opt-out of fire-once as the plain
+    // reveal system above — set on the footer logo so the letters
+    // wipe back in every time you scroll down to the footer again,
+    // not just the first time on a given page load.
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-inview");
-          io.unobserve(entry.target);
+          const repeat = entry.target.hasAttribute("data-eod-reveal-repeat");
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-inview");
+            if (!repeat) io.unobserve(entry.target);
+          } else if (repeat) {
+            entry.target.classList.remove("is-inview");
+          }
         });
       },
       { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }

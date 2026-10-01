@@ -43,23 +43,47 @@ window.EOD_CHROME = (function () {
       '<path d="M1109.2 189V56.5H1135.2L1137.45 77C1146.95 61.75 1162.7 53 1181.45 53C1209.45 53 1227.7 71.5 1227.7 100.25V189H1198.45V105.75C1198.45 88 1189.2 77.75 1171.7 77.75C1151.95 77.75 1138.45 92.25 1138.45 115V189H1109.2Z" fill="currentColor"/>' +
     "</svg>";
 
-  var NAV_LINKS = [
+  var DEFAULT_NAV_LINKS = [
     { href: "index.html", label: "Home" },
     { href: "projects.html", label: "Projects" },
+    { href: "store.html", label: "Store" },
     { href: "about.html", label: "About" },
     { href: "contact.html", label: "Contact" },
   ];
 
-  // Production only, not staging (Evy: "voordat we weer aan de github
-  // staging websites gaan werken, kan je de project page offline
-  // zetten... en daar coming soon terug zetten") — checked by hostname
-  // rather than a hardcoded flag so this can't accidentally get
-  // reverted the next time staging's chrome.js is copied over to
-  // production wholesale; the same file behaves correctly on both
-  // domains without needing to remember to flip anything back.
-  // Restores the exact markup/copy the site used before the Sanity
-  // project pages existed (disabled label + badge, no real href).
-  var PROJECTS_COMING_SOON =
+  // Menu order/labels come from Sanity (Site Settings > Navigation —
+  // Evy: "een navigation tab. Waar je de volgorde van de pages kan
+  // veranderen"), via the same content.json content.js reads. chrome.js
+  // runs in <head> before any of that is loaded, so this is its own
+  // same-origin sync XHR (cached by the browser for the later read);
+  // if it fails or the list is empty the hardcoded order above is used.
+  var PAGE_LABELS = { "index.html": "Home", "projects.html": "Projects", "store.html": "Store", "about.html": "About", "contact.html": "Contact" };
+  var NAV_LINKS = (function () {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "content.json?t=" + Math.floor(Date.now() / 120000), false); // same cache-bust as sanity-client.js
+      xhr.send(null);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        var nav = (JSON.parse(xhr.responseText).nav || []).filter(function (n) { return n && PAGE_LABELS[n.page]; });
+        if (nav.length) {
+          return nav.map(function (n) { return { href: n.page, label: n.label || PAGE_LABELS[n.page] }; });
+        }
+      }
+    } catch (err) {}
+    return DEFAULT_NAV_LINKS;
+  })();
+
+  // Production only, not staging (Evy: "kan je hierna evydiepenbroek.nl
+  // updaten en de projecten ook toevoegen, dus nog niet de store") —
+  // checked by hostname rather than a hardcoded flag so this can't
+  // accidentally get reverted the next time staging's chrome.js is
+  // copied over to production wholesale; the same file behaves
+  // correctly on both domains without needing to remember to flip
+  // anything back. Projects itself used this same gate until now
+  // (production had its own "Coming soon" badge while the Sanity
+  // project pages were still being built) — that's lifted, Store
+  // takes its place as the one section still held back on production.
+  var STORE_COMING_SOON =
     typeof location !== "undefined" &&
     /(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
 
@@ -71,7 +95,7 @@ window.EOD_CHROME = (function () {
   // same thing.
   function nav() {
     var links = NAV_LINKS.map(function (link) {
-      if (PROJECTS_COMING_SOON && link.href === "projects.html") {
+      if (STORE_COMING_SOON && link.href === "store.html") {
         return (
           '<li data-reveal-l><span class="underlay-nav__link-large is--soon" aria-disabled="true"><span class="underlay-nav__link-label">' +
             link.label +
@@ -89,16 +113,35 @@ window.EOD_CHROME = (function () {
           '<div class="underlay-nav__bar">' +
             '<div class="underlay-nav__container">' +
               '<a href="index.html" class="underlay-nav__logo">' + LOGO_SVG + "</a>" +
-              '<button data-underlay-nav-toggle aria-expanded="false" aria-label="open menu" class="underlay-nav__toggle">' +
-                '<span class="underlay-nav__toggle-text">' +
-                  '<span class="underlay-nav__toggle-label">Menu</span>' +
-                  '<span class="underlay-nav__toggle-label">Close</span>' +
-                "</span>" +
-                '<span class="underlay-nav__toggle-icon">' +
-                  '<span class="underlay-nav__toggle-bar"></span>' +
-                  '<span class="underlay-nav__toggle-bar"></span>' +
-                "</span>" +
-              "</button>" +
+              // Grouped with the menu toggle so .underlay-nav__container's
+              // justify-content: space-between still only sees TWO
+              // items (logo / this group) — a bare 3rd flex child here
+              // would space itself out into the middle of the bar
+              // instead of sitting next to Menu.
+              '<div class="underlay-nav__actions">' +
+                // Hidden until cart.js's own render() sees at least
+                // one item in the cart (Evy: "only if you add
+                // something to your cart there will be a card icont
+                // at the right whit a one" — no permanent icon
+                // sitting there empty). [hidden] here is just the
+                // initial/no-JS state; cart.js checks the real cart
+                // on every page load, not just the moment something
+                // gets added.
+                '<button data-eod-cart-toggle aria-label="Open cart" class="eod-cart__toggle" hidden>' +
+                  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.5 2.5 19 24.5" fill="none" aria-hidden="true"><path d="M8 10H24L22.5 26H9.5L8 10Z" stroke-width="2" stroke-linejoin="round"/><path d="M12 10V8C12 5.79086 13.7909 4 16 4C18.2091 4 20 5.79086 20 8V10" stroke-width="2"/></svg>' +
+                  '<span class="eod-cart__count" data-eod-cart-count>0</span>' +
+                "</button>" +
+                '<button data-underlay-nav-toggle aria-expanded="false" aria-label="open menu" class="underlay-nav__toggle">' +
+                  '<span class="underlay-nav__toggle-text">' +
+                    '<span class="underlay-nav__toggle-label">Menu</span>' +
+                    '<span class="underlay-nav__toggle-label">Close</span>' +
+                  "</span>" +
+                  '<span class="underlay-nav__toggle-icon">' +
+                    '<span class="underlay-nav__toggle-bar"></span>' +
+                    '<span class="underlay-nav__toggle-bar"></span>' +
+                  "</span>" +
+                "</button>" +
+              "</div>" +
             "</div>" +
           "</div>" +
         "</header>" +
@@ -129,26 +172,65 @@ window.EOD_CHROME = (function () {
             "</div>" +
           "</div>" +
         "</div>" +
+        // Cart side panel — a floating card inset from every edge
+        // (Evy: "de layout graag willen zoals hier:
+        // osmo-product-hotspot-modal.webflow.io... met een padding
+        // tussen alle kanten"), no longer flush to the screen edge,
+        // so the nav menu's own border/corner accent frame (which
+        // only makes sense for a flush edge reveal) is gone — just a
+        // plain dark backdrop behind it now. Still opens with the
+        // nav's own "energy" GSAP ease (cart.js), just retargeted to
+        // this card's geometry. Checkout is a plain primary button
+        // now, not the circle-icon-swap .eod-btn--dark treatment
+        // (Evy: "deze gewoon een primary button mag zijn"). Markup/
+        // content itself (items, total) is filled in by cart.js, not
+        // here.
+        '<div data-eod-cart-panel class="eod-cart__panel" aria-hidden="true">' +
+          '<div class="eod-cart__panel-inner">' +
+            '<div class="eod-cart__panel-header">' +
+              '<span class="eod-cart__panel-title">Cart</span>' +
+              '<button data-eod-cart-close aria-label="Close cart" class="eod-cart__close">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M8 8L24 24M24 8L8 24" stroke-width="2" stroke-linecap="round"/></svg>' +
+              "</button>" +
+            "</div>" +
+            '<ul data-eod-cart-items class="eod-cart__items"></ul>' +
+            '<p data-eod-cart-empty class="eod-cart__empty" hidden>Your cart is empty.</p>' +
+            '<div class="eod-cart__footer">' +
+              '<div class="eod-cart__total">' +
+                '<span>Total</span>' +
+                '<span data-eod-cart-total>€0</span>' +
+              "</div>" +
+              '<a data-eod-cart-checkout href="#" class="eod-cart__checkout">Check out</a>' +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div data-eod-cart-overlay class="eod-cart__overlay"></div>' +
       "</div>"
     );
   }
 
   function footer() {
+    // data-eod-reveal-repeat (script.js) — Evy: "de footer blijft
+    // animeren elke keer als je na een tijdje weer naar beneden
+    // gaat": unlike every other [data-eod-reveal]/
+    // [data-eod-letters-reveal] on the site (which reveal once and
+    // stay revealed), the footer's own columns + wordmark replay
+    // every time they scroll back into view.
     return (
-      '<div class="eod-footer-wrap" data-eod-footer-parallax>' +
+      '<div class="eod-footer-wrap" data-eod-footer-parallax data-eod-block="footer">' +
         '<footer class="eod-footer" data-eod-footer-parallax-inner>' +
           '<div class="eod-footer__top">' +
-            '<div class="eod-footer__col" data-eod-reveal>' +
+            '<div class="eod-footer__col" data-eod-reveal data-eod-reveal-repeat>' +
               '<span class="eod-footer__label">CONTACT</span>' +
               '<a href="mailto:Evy@Diepenbroek.com" class="eod-footer__link eod-hidden" data-eod-text="email">Evy@Diepenbroek.com</a>' +
             "</div>" +
-            '<div class="eod-footer__col eod-footer__col--right" data-eod-reveal data-eod-reveal-delay="1">' +
+            '<div class="eod-footer__col eod-footer__col--right" data-eod-reveal data-eod-reveal-delay="1" data-eod-reveal-repeat>' +
               '<span class="eod-footer__label">SOCIAL</span>' +
               '<a href="#" class="eod-footer__link" data-eod-text="instagramUrl-nav">Instagram</a>' +
               '<a href="#" class="eod-footer__link" data-eod-text="linkedinUrl-nav">LinkedIn</a>' +
             "</div>" +
           "</div>" +
-          '<svg class="eod-footer__logo" data-eod-letters-reveal xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1228 244">' +
+          '<svg class="eod-footer__logo" data-eod-letters-reveal data-eod-reveal-repeat xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1228 244">' +
             '<path style="--i:0" d="M0 189V14H123.5V40H30.25V86H114.25V111.5H30.25V163H125.75V189H0Z" fill="currentColor"/>' +
             '<path style="--i:1" d="M182.92 189L129.17 56.5H160.42L197.67 158.5L234.92 56.5H266.17L212.42 189H182.92Z" fill="currentColor"/>' +
             '<path style="--i:2" d="M282.469 241.5V218H302.969C313.469 218 316.969 214.5 319.969 206.25L323.719 195.75L267.969 56.5H299.719L338.219 162.75L374.719 56.5H406.719L345.719 215C338.219 234.25 329.469 241.5 307.219 241.5H282.469Z" fill="currentColor"/>' +

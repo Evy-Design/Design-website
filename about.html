@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — About</title>
-  <link rel="stylesheet" href="shared.css?v=22" />
-  <link rel="stylesheet" href="test-navigation.css?v=12" />
+  <link rel="stylesheet" href="shared.css?v=24" />
+  <link rel="stylesheet" href="test-navigation.css?v=14" />
   <link rel="stylesheet" href="about.css?v=41" />
+  <link rel="stylesheet" href="cart.css?v=6" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
        call window.EOD_CHROME synchronously as the HTML is parsed. -->
-  <script src="chrome.js?v=4"></script>
+  <script src="chrome.js?v=12"></script>
 </head>
 <body>
 
@@ -39,7 +40,7 @@
          starts as Evy's portrait and flips (not fades) into the first
          milestone's own photo right as that milestone arrives, then
          cross-fades normally between the rest. -->
-    <div class="eod-journey">
+    <div class="eod-journey" data-eod-block="aboutHeroBlock timelineBlock">
       <div class="eod-journey__grid">
         <div class="eod-journey__stack">
           <section class="eod-about-hero">
@@ -89,7 +90,7 @@
     <!-- Awards list is rendered by content.js from window.EOD_CONTENT.awards
          (see content.js below) — identical to the Home page section,
          edit the text there and it updates on both pages at once. -->
-    <section class="eod-awards" id="awards">
+    <section class="eod-awards" id="awards" data-eod-block="awardsBlock">
       <div class="eod-awards__row">
         <h2 class="eod-awards__title" data-eod-reveal>Awards</h2>
         <ul class="eod-awards__list"></ul>
@@ -98,7 +99,7 @@
 
     <!-- Logo tile grid — static layout for now, the interaction/animation
          pass on this section is a deferred follow-up. -->
-    <section class="eod-logos">
+    <section class="eod-logos" data-eod-block="logosBlock">
       <ul class="eod-logos__grid">
         <li class="eod-logos__tile" data-eod-reveal><img src="assets/logo tile section/EvyDesign-BAM.svg" alt="BAM" /></li>
         <li class="eod-logos__tile" data-eod-reveal data-eod-reveal-delay="1"><img src="assets/logo tile section/EvyDesign-Berkman.svg" alt="Berkman" /></li>
@@ -114,7 +115,7 @@
     <!-- Cycling word/badge, suffix and body copy are rendered by
          content.js from window.EOD_CONTENT.cta — identical to the
          Home page section, edit the text there to update both. -->
-    <section class="eod-cta">
+    <section class="eod-cta" data-eod-block="ctaBlock">
       <div class="eod-cta__group">
         <div class="eod-cta__lede" data-eod-reveal="left">
           I am a
@@ -148,10 +149,11 @@
        paragraphs into per-line spans that can each get their own
        staggered push timing, same cascade the old build had. -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/SplitText.min.js"></script>
-  <script src="test-navigation.js?v=13"></script>
-  <script src="sanity-client.js?v=2"></script>
-  <script src="content.js?v=40"></script>
-  <script src="script.js?v=45"></script>
+  <script src="test-navigation.js?v=14"></script>
+  <script src="sanity-client.js?v=5"></script>
+  <script src="content.js?v=51"></script>
+  <script src="script.js?v=48"></script>
+  <script src="cart.js?v=3"></script>
   <script src="about.js?v=66"></script>
 </body>
 </html>

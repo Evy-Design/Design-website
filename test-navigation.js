@@ -137,6 +137,17 @@
         var rect = points[i];
         var x = rect.left + rect.width / 2;
         var y = rect.top + rect.height / 2;
+        // The header auto-hides via translateY(-100%) (see
+        // initAutoHideNav) and slides back in over 0.35s — a check
+        // that fires mid-slide (or right as you scroll up to the top)
+        // used to sample a point ABOVE the viewport, where
+        // elementFromPoint returns null, contributed no vote, and
+        // fell through to "not dark" = white logo on a white page
+        // (Evy: "Als ik helemaal naar boven scrol wordt het logo
+        // altijd wit"). Clamp into the viewport so it samples what
+        // the nav is about to sit over.
+        x = Math.min(window.innerWidth - 1, Math.max(1, x));
+        y = Math.min(window.innerHeight - 1, Math.max(1, y));
 
         header.style.pointerEvents = 'none';
         header.style.visibility = 'hidden';
@@ -160,7 +171,10 @@
         }
       }
 
-      var isDark = totalWeight > 0 && lightWeight / totalWeight > 0.5;
+      // No signal at all: keep whatever it was rather than flipping
+      // to the white default.
+      if (totalWeight === 0) return;
+      var isDark = lightWeight / totalWeight > 0.5;
 
       if (isDark) {
         header.classList.add('is--dark');

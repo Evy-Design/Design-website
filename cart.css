@@ -1,0 +1,311 @@
+/* ===========================================================
+   Evy Diepenbroek — Store cart (icon + side panel)
+   Loaded site-wide (chrome.js injects the icon/panel markup on every
+   page) — cart.js drives the actual open/close/add/remove logic, see
+   that file's own header for the "why" behind the design choices
+   here.
+   =========================================================== */
+
+/* ---- Icon (nav bar) ---- */
+.eod-cart__toggle {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit; /* same white/dark-on-scroll switching as the rest of the nav (test-navigation.js) */
+  cursor: pointer;
+  /* Evy: "Dit mag een tas icon of een cart icon worden waar de height
+     net zo hoog is als de menu" — a <button> defaults to 13.33px
+     text — the "Menu" toggle is a <button> too, so 1.5em here is the
+     exact same height as .underlay-nav__toggle-text (1.75em on
+     mobile, below, like Menu). Explicit content-box so the padding
+     tap area never eats the icon (the nav lives outside .eod-page). */
+  box-sizing: content-box;
+  width: 1.5em;
+  height: 1.5em;
+  margin: -1em;
+  padding: 1em;
+  font-family: inherit;
+}
+/* Same real bug as .eod-project__website-btn[hidden] (projects.css):
+   this class's own `display: flex` and the browser default
+   `[hidden] { display: none }` are equal specificity, and an author
+   rule always beats a user-agent one at a tie regardless of source
+   order — so without this, the icon stayed visible (with a "0" badge)
+   even while cart.js had actually set [hidden] on it. Confirmed live:
+   hidden was true, computed display was still "flex". */
+.eod-cart__toggle[hidden] {
+  display: none;
+}
+.eod-cart__toggle svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+}
+.eod-cart__count {
+  position: absolute;
+  /* count's own em is 0.65 of the toggle's; the toggle has 1em of
+     padding around the icon, so ~1.1em here lands the badge on the
+     icon's top-right corner instead of floating out in the padding. */
+  top: 0.9em;
+  right: 0.9em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Always a true 1:1 circle (Evy: "Het blauwe bolletje mag altijd een
+     ratio hebben van 1:1") — fixed equal width/height, not a min-width
+     that stretched into an oval with padding as the digit count grew. */
+  box-sizing: border-box;
+  width: 1.5em;
+  height: 1.5em;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--eod-accent);
+  color: var(--eod-white);
+  font-size: 0.65em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* ---- Overlay — plain dark backdrop behind the floating card below.
+   Opacity/visibility here are just the pre-JS fallback state —
+   cart.js's GSAP timeline (same custom "energy" ease the nav
+   registers) drives the real fade. ---- */
+.eod-cart__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(10, 10, 10, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---- Panel — a floating card inset from every edge of the viewport
+   (Evy: "de layout graag willen zoals hier:
+   osmo-product-hotspot-modal.webflow.io... met een padding tussen
+   alle kanten"), not a flush edge-to-edge drawer like before — hence
+   rounded on all four corners now (--eod-radius, same token every
+   other rounded element on the site uses) instead of just sliding
+   off the raw screen edge. transform below is just the pre-JS
+   fallback closed position — cart.js's GSAP timeline drives the real
+   slide (same "energy" ease as the nav menu). ---- */
+/* This panel/overlay subtree lives OUTSIDE .eod-page (chrome.js
+   injects it as a sibling of <main>, not inside it), so it misses
+   shared.css's ".eod-page * { box-sizing: border-box }" reset — found
+   the hard way: .eod-cart__panel-inner's height: 100% + padding: 2em
+   was adding that padding ON TOP of 100%, overflowing the panel's own
+   height by exactly the padding amount and clipping the footer/
+   checkout button below the fold. */
+.eod-cart__panel,
+.eod-cart__panel * {
+  box-sizing: border-box;
+}
+/* No fixed `bottom` — this card sizes to its own content (Evy: "zorg
+   dat er geen scrol balk in zit, als het niet past gaat de tekst naar
+   de volgende regels"), it doesn't stretch to fill the viewport like
+   before. max-height + overflow-y are only a safety net for a cart
+   with enough items to exceed the screen — in ordinary use (a
+   handful of digital products) no scrollbar ever appears. */
+.eod-cart__panel {
+  position: fixed;
+  top: 1.5em;
+  right: 1.5em;
+  z-index: 10001;
+  width: var(--menu-width);
+  max-width: calc(100vw - 3em);
+  max-height: calc(100vh - 3em);
+  background: var(--eod-white);
+  color: var(--eod-ink);
+  border-radius: var(--eod-radius);
+  box-shadow: 0 1.5em 3em rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transform: translateX(calc(100% + 3em));
+}
+.eod-cart__panel-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 2em;
+}
+.eod-cart__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2em;
+}
+.eod-cart__panel-title {
+  font-size: 1.4em;
+  font-weight: 500;
+}
+/* width/padding sized so the content box is never zero under
+   box-sizing: border-box (see the .eod-cart__panel * rule above) —
+   this used to be 1.5em/0.75em, which under border-box makes the
+   content box exactly 1.5em - 1.5em = 0, collapsing the svg inside
+   to nothing. Same fix as .eod-cart__item-remove below. */
+.eod-cart__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  margin: -0.5em;
+  padding: 0.5em;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  outline: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.eod-cart__close:hover {
+  background: var(--eod-border);
+}
+.eod-cart__close svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+}
+
+/* ---- Items — the card sizes to fit this list naturally (see
+   .eod-cart__panel above), no separate inner scroll region anymore.
+   A long title just wraps to another line (min-width: 0 on
+   .eod-cart__item-info below is what lets that flex child shrink
+   enough to wrap instead of forcing the row wider). ---- */
+.eod-cart__items {
+  list-style: none;
+  margin: 0 0 1.5em;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+.eod-cart__item {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.eod-cart__item-image {
+  width: 4em;
+  height: 4em;
+  object-fit: cover;
+  border-radius: calc(var(--eod-radius) * 0.5);
+  flex: none;
+}
+.eod-cart__item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  flex: 1;
+  min-width: 0;
+}
+.eod-cart__item-title {
+  font-size: 0.95em;
+  font-weight: 500;
+}
+.eod-cart__item-price {
+  font-size: 0.85em;
+  color: var(--eod-muted);
+}
+/* Evy: "hier wil ik dat je items ook kan verwijderen met een simple
+   kruisje aan de rechter kant" — a real circular tap target (2em, was
+   1.1em) with its own hover state, not a bare 16px icon squeezed
+   against the card's edge — that's what made it easy to miss/hard to
+   hit before. */
+.eod-cart__item-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  padding: 0.55em;
+  margin: -0.5em -0.5em -0.5em 0;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--eod-muted);
+  cursor: pointer;
+  flex: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.eod-cart__item-remove svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+}
+.eod-cart__item-remove:hover {
+  color: var(--eod-ink);
+  background: var(--eod-border);
+}
+
+.eod-cart__empty {
+  color: var(--eod-muted);
+  font-size: 0.95em;
+}
+
+/* ---- Footer (total + checkout) ---- */
+.eod-cart__footer {
+  border-top: 1px solid var(--eod-border);
+  padding-top: 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+.eod-cart__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* Evy: "deze gewoon een primary button mag zijn" — a plain solid
+   button, not the site's usual circle-icon-swap .eod-btn--dark
+   treatment (that's built for nav-style CTAs, overkill here). */
+.eod-cart__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1em 1.5em;
+  background: var(--eod-ink);
+  color: var(--eod-white);
+  border: none;
+  border-radius: var(--eod-radius);
+  font-family: inherit;
+  font-size: 1em;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.eod-cart__checkout:hover {
+  opacity: 0.85;
+}
+.eod-cart__checkout[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+@media (max-width: 767px) {
+  .eod-cart__toggle {
+    width: 1.75em;
+    height: 1.75em;
+  }
+  .eod-cart__panel {
+    top: 1em;
+    right: 1em;
+    max-height: calc(100vh - 2em);
+    width: calc(100vw - 2em);
+  }
+  .eod-cart__panel-inner {
+    padding: 1.5em 1.25em;
+  }
+}

@@ -1,0 +1,268 @@
+/* ===========================================================
+   Evy Diepenbroek — Store (grid + product detail)
+   Everything shared with Home/About/Contact/Projects (fonts, colours,
+   spacing tokens, .eod-page, .eod-btn, [data-eod-reveal], CTA,
+   Footer, --eod-projects-radius) lives in shared.css/projects.css,
+   both loaded before this file. store-item.html reuses
+   projects.css's own .eod-project__hero / .eod-project__body /
+   .eod-project__gallery* wholesale for the product page (Evy: "use
+   the same layout block that i use in the cases... so if i change
+   this layout somewhere it changes everywhere") — this file only
+   covers what's actually store-specific: the grid itself (reference:
+   the-brandidentity.com/store — image, then title/price plainly
+   below it, no hover reveal), the category filter row, and the
+   price/buy area on the product page.
+   =========================================================== */
+
+/* ---- Grid (store.html) ---- */
+.eod-store {
+  background: var(--eod-white);
+  padding-top: 8em;
+  padding-bottom: 8em;
+}
+.eod-store__inner {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+}
+.eod-store__heading {
+  margin: 0 0 1em;
+  font-size: clamp(2.5em, 4vw, 4em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+/* Plain text filter row (reference: the-brandidentity.com/store) —
+   no "Favourites" (Evy: "You dont have to add the favorite thing,
+   because at the moment I don't have much, only Mockups and
+   Motion"), so just the two real categories plus "All". Filtering
+   itself is a client-side show/hide in script.js — every card is
+   already in the DOM, this just toggles [hidden] on the ones that
+   don't match, no re-fetching or re-rendering. */
+.eod-store__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.5em;
+  margin-bottom: 2.5em;
+}
+.eod-store__filter {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 1.1em;
+  color: var(--eod-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.eod-store__filter.is-active,
+.eod-store__filter:hover {
+  color: var(--eod-ink);
+}
+
+.eod-store__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5em;
+}
+.eod-store__card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+/* Reuses .eod-projects__photo-wrap/.eod-projects__photo's own image-
+   framing rules (projects.css) via that literal class name — same
+   corner radius / aspect ratio as every other photo frame on the
+   site, no separate declaration needed here. */
+.eod-store__info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  margin-top: 1em;
+}
+.eod-store__title {
+  font-size: 1.05em;
+  font-weight: 500;
+}
+.eod-store__category {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.85em;
+  color: var(--eod-muted);
+}
+.eod-store__price {
+  flex: none;
+  font-size: 1.05em;
+  color: var(--eod-muted);
+}
+
+@media (max-width: 767px) {
+  .eod-store__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Product detail (store-item.html) — own two-column hero
+   (image left, buy panel right), matching benditomockup.com's product
+   page (Evy: "De layout van wanneer je op een item heb geklikt mag
+   zijn zoals https://benditomockup.com/store/..."). Below this,
+   store-item.html goes back to reusing projects.css's own
+   .eod-project__nav wholesale — only this hero is store-specific.
+
+   Left column is now the cover photo PLUS every gallery photo,
+   stacked one after another at this same width, so the whole thing
+   reads as one continuous scrolling photo column — the right panel
+   is sticky (below) and stays in view the whole time you scroll
+   through it (Evy: "het is eigenlijk links een gallery of fotos 1
+   voor 1 wanneer je scrolt en rechts blijft de tekst op zijn plek").
+   Gallery photos are still rendered by the SAME renderGalleryBlocks()
+   function/markup a project's own "view more" gallery uses
+   (content.js) — the overrides below just re-lay those same
+   .eod-project__gallery-row/-img classes into one column at this
+   narrower width instead of the full-bleed layout project.html gives
+   them, rather than duplicating that markup. */
+.eod-store-item__hero {
+  padding: 8em 2em 0;
+}
+.eod-store-item__hero-inner {
+  max-width: var(--eod-content-max);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 4em;
+  align-items: start;
+}
+/* Each photo gets its OWN rounded corners now (matching
+   .eod-project__gallery-img's per-image radius) — .eod-store-item__media
+   itself is just a plain column wrapper, not a single image frame
+   around the whole stack like it was for the one-photo version. */
+/* Landing state for the grid -> product page morph (see
+   renderStoreDetail): card-sized first, grown to full height on the
+   first scroll. Both endpoints are real lengths (column width x 3/4
+   vs 100svh) so the height can actually transition. Desktop only —
+   below 901px the layout is single-column / a slider. */
+@media (min-width: 901px) {
+  .eod-store-item__image.is--compact {
+    height: calc((min(100vw - 4em, var(--eod-content-max)) - 4em) * 1.2 / 2.2 * 0.75);
+  }
+  .eod-store-item__image.is--expanding {
+    transition: height 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+}
+/* Each photo fills the full viewport height, not a fixed aspect
+   ratio — Evy: "one image can be the total height of the section and
+   then when you scroll the other image will come", i.e. one photo
+   dominates the screen at a time as you scroll through the column. */
+.eod-store-item__image {
+  display: block;
+  width: 100%;
+  height: 100svh;
+  object-fit: cover;
+  border-radius: var(--eod-projects-radius);
+  background: var(--eod-surface, #f4f4f2);
+}
+.eod-store-item__gallery {
+  margin-top: 1.5em;
+}
+.eod-store-item__gallery .eod-project__gallery {
+  max-width: none;
+  margin: 0;
+}
+/* Force every row to one column at this width — project.html's own
+   "pair" (2-up) and text-split rows would be too cramped in a column
+   this narrow, and Evy specifically wants every photo here at the
+   same width as the cover photo, not half-width. */
+.eod-store-item__gallery .eod-project__gallery-row--pair,
+.eod-store-item__gallery .eod-project__gallery-row--text,
+.eod-store-item__gallery .eod-project__gallery-row--intro-text {
+  grid-template-columns: 1fr;
+  gap: 1em;
+}
+.eod-store-item__gallery .eod-mockup3d {
+  height: 70svh;
+}
+/* height: 70svh (projects.css) was tuned for a full-bleed gallery —
+   every photo here matches the cover photo's own full-viewport
+   height instead (see .eod-store-item__image above), so each one
+   fills the screen as you scroll to it. */
+.eod-store-item__gallery .eod-project__gallery-img {
+  height: 100svh;
+}
+.eod-store-item__panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25em;
+  padding-top: 0.5em;
+  position: sticky;
+  top: 8em;
+}
+.eod-store-item__title {
+  margin: 0;
+  font-size: clamp(1.8em, 2.4vw, 2.4em);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+.eod-store-item__price {
+  font-size: 1.3em;
+  font-weight: 500;
+  color: var(--eod-muted);
+}
+.eod-store-item__description {
+  margin: 0;
+  color: var(--eod-muted);
+  line-height: 1.5;
+}
+.eod-store-item__add {
+  margin-top: 0.75em;
+}
+
+@media (max-width: 900px) {
+  .eod-store-item__hero-inner {
+    grid-template-columns: 1fr;
+    gap: 2em;
+  }
+  .eod-store-item__panel {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .eod-store-item__hero {
+    padding: 6em 1.25em 0;
+  }
+  /* Evy: "Op mobile mag dit gewoon een horizontalen slider zijn" —
+     a plain swipeable carousel instead of the desktop's tall
+     one-photo-per-screen vertical stack. Native scroll-snap (no JS
+     needed for a simple swipe-through): .eod-store-item__gallery and
+     .eod-project__gallery (its own child, from renderGalleryBlocks)
+     both go display: contents so every individual gallery ROW
+     becomes a direct flex child here, sitting as its own slide
+     alongside the cover photo — not the whole gallery wrapper
+     collapsed into a single slide. */
+  .eod-store-item__media {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .eod-store-item__gallery,
+  .eod-store-item__gallery .eod-project__gallery {
+    display: contents;
+  }
+  .eod-store-item__image,
+  .eod-store-item__gallery .eod-project__gallery-row {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+  }
+  .eod-store-item__image,
+  .eod-store-item__gallery .eod-project__gallery-img {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}

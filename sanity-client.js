@@ -25,7 +25,16 @@ window.EOD_SANITY = (function () {
   function load() {
     if (cache) return cache;
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'content.json', false); // same-origin, sync — see file header
+    // GitHub Pages' CDN caches content.json for 10 minutes (Cache-
+    // Control: max-age=600, no way to override that on GH Pages) — a
+    // plain "content.json" URL can keep serving what was live BEFORE
+    // an edit for up to 10 minutes after it, both at the CDN and in
+    // the visitor's own browser cache (Evy: "Ik zie het niet staan"
+    // right after publishing in Sanity). Busting the URL with a
+    // coarse (2-minute) time bucket forces a fresh fetch periodically
+    // without defeating caching entirely on every single page load.
+    var cacheBust = Math.floor(Date.now() / 120000);
+    xhr.open('GET', 'content.json?t=' + cacheBust, false); // same-origin, sync — see file header
     xhr.send(null);
     if (xhr.status < 200 || xhr.status >= 300) {
       throw new Error('Failed to load content.json (' + xhr.status + ')');
@@ -40,6 +49,15 @@ window.EOD_SANITY = (function () {
     },
     getProjects: function () {
       return load().projects || [];
+    },
+    getProducts: function () {
+      return load().products || [];
+    },
+    getPages: function () {
+      return load().pages || {};
+    },
+    getNav: function () {
+      return load().nav || [];
     },
   };
 })();

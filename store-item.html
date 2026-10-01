@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Evy Diepenbroek — Product</title>
+  <link rel="stylesheet" href="shared.css?v=24" />
+  <link rel="stylesheet" href="test-navigation.css?v=14" />
+  <link rel="stylesheet" href="projects.css?v=62" />
+  <link rel="stylesheet" href="store.css?v=9" />
+  <link rel="stylesheet" href="cart.css?v=6" />
+  <style>body { margin: 0; }</style>
+  <!-- Must load before the nav/footer injector scripts below, which
+       call window.EOD_CHROME synchronously as the HTML is parsed. -->
+  <script src="chrome.js?v=12"></script>
+  <!-- three.js for the 3D device mockup block (mockup3d.js) — bare
+       "three" imports inside its addons need this import map. -->
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+
+  <!-- Nav — single source of truth is chrome.js (EOD_CHROME.nav()),
+       not this file. -->
+  <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.nav());</script>
+
+  <main class="eod-page" data-eod-store-item-detail>
+    <!-- Everything below is rendered by content.js's renderStoreDetail()
+         from window.EOD_CONTENT.products, picking the entry via ?slug=
+         in the URL — one shared template for every product, same
+         pattern as project.html for a case study.
+
+         Hero is its OWN two-column layout — left column scrolls
+         through the cover photo + every gallery photo stacked at the
+         same width, right column (buy panel) stays sticky the whole
+         time (Evy: "het is eigenlijk links een gallery of fotos 1
+         voor 1 wanneer je scrolt en rechts blijft de tekst op zijn
+         plek", matching benditomockup.com's product page). The
+         gallery photos are still rendered by content.js's
+         renderGalleryBlocks() — the SAME function/markup a project's
+         own "view more" gallery uses (Evy: "use the same layout
+         block that i use in the cases as a view more... so if i
+         change this layout somewhere it changes everywhere") — just
+         re-laid into one column here by store.css instead of
+         project.html's full-bleed layout. -->
+    <section class="eod-store-item__hero">
+      <!-- Same placement/markup as a case study's own "Go back"
+           (project.html's .eod-project__hero-top/.eod-project__back)
+           — Evy: "here you see this placement of the go back button,
+           this is exactly what i also want in the store" — plain
+           text in normal flow above everything, not overlaid on the
+           photo like a first attempt at this had it. Reusing those
+           exact classes instead of new store-specific ones so this
+           really is the same component in both places. -->
+      <div class="eod-project__hero-top" data-eod-reveal>
+        <a href="store" class="eod-btn eod-btn--secondary eod-btn--icon-lead eod-project__back">
+          <span class="eod-btn__secondary-viewport">
+            <span class="eod-btn__secondary-track">
+              <span class="eod-btn__arrow-slot eod-btn__arrow-slot--front" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+              <span class="eod-btn__label">Go back</span>
+              <span class="eod-btn__arrow-slot eod-btn__arrow-slot--back" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+            </span>
+          </span>
+        </a>
+      </div>
+      <div class="eod-store-item__hero-inner">
+        <div class="eod-store-item__media">
+          <img class="eod-store-item__image" alt="" />
+          <!-- Rest of the gallery photos stack right after the cover
+               photo, same column/width, so the whole thing reads as
+               one continuous scrolling photo column (Evy: "links een
+               gallery of fotos 1 voor 1 wanneer je scrolt") — filled
+               by content.js's renderStoreDetail() via
+               renderGalleryBlocks(), same function/markup as a
+               project's own "view more" gallery (store.css re-lays
+               those same classes into one column here instead of
+               redeclaring them). -->
+          <div class="eod-store-item__gallery"></div>
+        </div>
+        <!-- Sticky (store.css) — stays in view while the photo column
+             beside it scrolls (Evy: "rechts blijft de text op zijn
+             plek"). -->
+        <div class="eod-store-item__panel" data-eod-reveal data-eod-reveal-delay="1">
+          <h1 class="eod-store-item__title"></h1>
+          <span class="eod-store-item__price"></span>
+          <p class="eod-store-item__description"></p>
+          <button data-eod-add-to-cart data-slug="" data-title="" data-price="" data-image="" class="eod-btn eod-btn--dark eod-store-item__add">
+            <span class="eod-btn__label">Add to cart</span>
+            <span class="eod-btn__circle eod-btn__circle--accent" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+            <span class="eod-btn__circle eod-btn__circle--white" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- "See more items" — the exact same draggable 3D spatial
+         carousel as project.html's "Look at other projects"
+         (project-slider.js), generalized there to read from
+         window.EOD_CONTENT.products and link to store-item?slug=...
+         when it detects [data-eod-store-item-detail] on the page (see
+         that file). Evy: "en dan aan het einden de zelfde section als
+         de de cases 'see more work' Maar dan see more items". -->
+    <section class="eod-project__nav">
+      <div class="eod-project__nav-inner">
+        <h2 class="eod-project__nav-label">See more items:</h2>
+      </div>
+      <div data-spatial-slider-init data-spatial-slider-drag-status="grab" class="eod-project-slider">
+        <div data-spatial-slider-collection class="eod-project-slider__collection">
+          <div data-spatial-slider-list class="eod-project-slider__list"></div>
+        </div>
+        <div class="eod-project-slider__controls">
+          <a href="store" class="eod-btn eod-btn--secondary eod-btn--icon-lead eod-project-slider__cta">
+            <span class="eod-btn__secondary-viewport">
+              <span class="eod-btn__secondary-track">
+                <span class="eod-btn__arrow-slot eod-btn__arrow-slot--front" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+                <span class="eod-btn__label">Go to store</span>
+                <span class="eod-btn__arrow-slot eod-btn__arrow-slot--back" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg></span>
+              </span>
+            </span>
+          </a>
+          <div class="eod-project-slider__arrows">
+            <button data-spatial-slider-control="prev" class="eod-project-slider__control-btn" aria-label="Previous item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M26 16H6M6 16L14 8M6 16L14 24" stroke-width="2" stroke-miterlimit="10"/></svg>
+            </button>
+            <button data-spatial-slider-control="next" class="eod-project-slider__control-btn is--next" aria-label="Next item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M6 16H26M26 16L18 8M26 16L18 24" stroke-width="2" stroke-miterlimit="10"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- Footer — single source of truth is chrome.js (EOD_CHROME.footer()). -->
+  <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.footer());</script>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <!-- Draggable + InertiaPlugin: only needed here, for the "See more
+       items" spatial carousel (project-slider.js), same as
+       project.html's own "Look at other projects". -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Draggable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/InertiaPlugin.min.js"></script>
+  <script src="test-navigation.js?v=14"></script>
+  <script src="sanity-client.js?v=5"></script>
+  <script src="content.js?v=51"></script>
+  <script src="script.js?v=48"></script>
+  <script src="cart.js?v=3"></script>
+  <script src="mockup3d.js?v=2"></script>
+  <script src="project-slider.js?v=5"></script>
+</body>
+</html>

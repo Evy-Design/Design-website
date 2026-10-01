@@ -139,11 +139,27 @@ body.eod-is-scrolling .eod-btn {
   display: inline-block;
   isolation: isolate;
   font-size: 0.95em;
+  font-family: inherit;
+  color: inherit;
   text-decoration: none;
+  /* This component was only ever an <a> until the store's "Add to
+     cart" button — a real <button> element pulls in the browser's
+     own default chrome (grey background, outset border, its own
+     padding) unless reset explicitly, which .eod-btn__label's own
+     pill was never meant to sit inside of. Confirmed live: computed
+     style showed "border: 2px outset", "background: rgb(239,239,239)"
+     around the pill — this is that fix. */
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
   /* Reserves room for the white circle beyond the label's own
      content width — without this, the container's auto-width would
      just be the label's width and the right:0 circle below would
-     have nowhere of its own to sit. */
+     have nowhere of its own to sit. padding: 0 first zeroes every
+     side (undoing a <button>'s own default padding), then
+     padding-right below re-adds just this one. */
+  padding: 0;
   padding-right: var(--eod-btn-circle);
 }
 .eod-btn__circle {
@@ -285,14 +301,13 @@ body.eod-is-scrolling .eod-btn {
   height: 100%;
   stroke: currentColor;
 }
-/* Same fixed 45° rotation .eod-btn__circle--accent's own icon carries
-   (permanently — nothing animates the rotation itself, only the
-   track's position) so revealing this one on hover echoes the primary
-   button's accent/white icon pairing instead of just showing the same
-   glyph twice. */
-.eod-btn--secondary .eod-btn__arrow-slot--lead svg {
-  transform: rotate(45deg);
-}
+/* No rotation here (there used to be a fixed 45deg one, back when
+   lead/trail always shared one diagonal glyph and rotating one of
+   them was the only way to tell them apart) — the hover-revealed lead
+   icon is always the plain straight arrow now regardless of what the
+   resting trail icon is (Evy: "de arrow die tevoorschijn komt als je
+   er overheen hovert mag altijd horizontaal recht zijn"), so the
+   markup itself already supplies the right glyph. */
 .eod-btn--secondary:hover .eod-btn__secondary-track {
   transform: translateX(calc(0.9em + 0.6em));
 }

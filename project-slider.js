@@ -26,17 +26,24 @@
     const list = document.querySelector("[data-spatial-slider-list]");
     if (!list) return false;
 
+    // Same slider on two pages: "Look at other projects" on
+    // project.html, "See more items" on store-item.html — reads
+    // whichever data source matches which page's root marker is
+    // present, points its links at the matching detail page. Every
+    // line below this stays page-agnostic on purpose.
+    const isStore = !!document.querySelector("[data-eod-store-item-detail]");
     const slug = new URLSearchParams(window.location.search).get("slug");
-    const all = (window.EOD_CONTENT && window.EOD_CONTENT.projects) || [];
+    const all = (window.EOD_CONTENT && (isStore ? window.EOD_CONTENT.products : window.EOD_CONTENT.projects)) || [];
     const others = all.filter(function (p) { return p.slug !== slug; });
     if (!others.length) return false;
 
+    const detailHref = isStore ? "store-item?slug=" : "project?slug=";
     const arrowSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg>';
 
     list.innerHTML = others.map(function (p, i) {
       return (
         '<div data-spatial-slider-item-status="' + (i === 0 ? "active" : "inview") + '" data-spatial-slider-item class="eod-project-slider__item">' +
-          '<a href="project?slug=' + p.slug + '" class="eod-projects__card eod-project-slider__card">' +
+          '<a href="' + detailHref + p.slug + '" class="eod-projects__card eod-project-slider__card">' +
             '<span class="eod-projects__photo-wrap">' +
               '<img class="eod-projects__photo" src="' + p.cover + '" alt="' + (p.alt || "") + '" />' +
             "</span>" +

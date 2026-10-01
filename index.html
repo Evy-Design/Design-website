@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Evy Diepenbroek — Design</title>
-  <link rel="stylesheet" href="shared.css?v=22" />
-  <link rel="stylesheet" href="test-navigation.css?v=12" />
+  <link rel="stylesheet" href="shared.css?v=24" />
+  <link rel="stylesheet" href="test-navigation.css?v=14" />
   <link rel="stylesheet" href="style.css?v=43" />
+  <link rel="stylesheet" href="cart.css?v=6" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
        call window.EOD_CHROME synchronously as the HTML is parsed. -->
-  <script src="chrome.js?v=4"></script>
+  <script src="chrome.js?v=12"></script>
 </head>
 <body>
 
@@ -19,7 +20,7 @@
   <script>document.currentScript.insertAdjacentHTML("beforebegin", EOD_CHROME.nav());</script>
 
   <main class="eod-page">
-    <section class="eod-hero">
+    <section class="eod-hero" data-eod-block="homeHeroBlock">
       <div class="eod-hero__stage">
         <div class="eod-backdrop"></div>
         <div class="cards-tornado" data-3d-tornado-init>
@@ -51,7 +52,7 @@
     <!-- Awards list is rendered by content.js from window.EOD_CONTENT.awards
          (see content.js below) — identical to the Home page section,
          edit the text there and it updates on both pages at once. -->
-    <section class="eod-awards" id="awards">
+    <section class="eod-awards" id="awards" data-eod-block="awardsBlock">
       <div class="eod-awards__row">
         <h2 class="eod-awards__title" data-eod-reveal>Awards</h2>
         <ul class="eod-awards__list"></ul>
@@ -61,7 +62,7 @@
     <!-- Cycling word/badge, suffix and body copy are rendered by
          content.js from window.EOD_CONTENT.cta — edit the text there,
          not here, so the About page's identical CTA stays in sync. -->
-    <section class="eod-cta">
+    <section class="eod-cta" data-eod-block="ctaBlock">
       <div class="eod-cta__group">
         <div class="eod-cta__lede" data-eod-reveal="left">
           I am a
@@ -90,9 +91,10 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
-  <script src="test-navigation.js?v=13"></script>
-  <script src="sanity-client.js?v=2"></script>
-  <script src="content.js?v=40"></script>
-  <script src="script.js?v=45"></script>
+  <script src="test-navigation.js?v=14"></script>
+  <script src="sanity-client.js?v=5"></script>
+  <script src="content.js?v=51"></script>
+  <script src="script.js?v=48"></script>
+  <script src="cart.js?v=3"></script>
 </body>
 </html>

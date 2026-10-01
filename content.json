@@ -2,6 +2,49 @@
   "settings": {
     "homeHeroTitle": "Who is behind this work? \nHi, I’m Evy Olivia Diepenbroek",
     "homeHeroBody": "I’m a Designer. always chasing what's next. I'm currently a nominated graphic designer with two degrees in the field and over 4 years of agency experience.",
+    "tornadoPortrait": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
+    "tornadoCards": [
+      {
+        "alt": "Architecture study",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/c60dac9324f1cedb102ebeeca7e30325d9a4e081-3413x2276.png"
+      },
+      {
+        "alt": "Landscape sketch",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/61204b19de74cbf013974e677b906d65eac705c2-3584x2373.jpg"
+      },
+      {
+        "alt": "Plek UX Design - Website design",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/78ca5f1cc87419a28da27c85d35858cde67a2c04-1622x1216.png"
+      },
+      {
+        "alt": "Penguin shortlisted book cover",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/d87fd99a478c166308c3e7612998bbedd5cb07f4-2114x1500.jpg"
+      },
+      {
+        "alt": "Typografic Illustrations",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/f4c00690a493e4d2c8d7092ca2916e8fce59d537-1501x1500.jpg"
+      },
+      {
+        "alt": "editorial design",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/55822fd266c45b0d426fa7dc6f222fa831820d2e-1900x1427.jpg"
+      },
+      {
+        "alt": "design, editorial design",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/4852741da84edeb6cb6b63c4d3a5aa56ad3d8943-800x622.jpg"
+      },
+      {
+        "alt": "Illustration",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/428e40abb4d0de1b75ac0e1b461704b4b890fcf9-2673x2673.jpg"
+      },
+      {
+        "alt": "Studio 3D material",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/3f2fc319eb775382ce92d6239009e09536fbb164-600x600.gif"
+      },
+      {
+        "alt": "Cense website design",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/659403d4e1a64c63b0ff47c066dd8a7ad23ad040-5906x2594.jpg"
+      }
+    ],
     "aboutHeroHeading": "Hi, I’m Evy Olivia Diepenbroek. Nice to meet you!",
     "aboutHeroLede": "I’m a Graphic Designer, always chasing what’s next. I’m driven by new challenges and staying ahead of trends, and I’m currently a nominated graphic designer with two degrees in the field and over 5 years of agency experience.",
     "aboutHeroDetail1": "I am a creative with two degrees in Graphic and Communication Design. I began my design journey at Grafisch Lyceum Rotterdam in the Netherlands, where I studied Corporate Design and was selected for the Masterclass as one of the top students in my first year. I then earned a Bachelor’s in Graphic Communication from The University of Northampton in the UK. I concluded my studies with a nomination for The Penguin Book Cover Design Award 2022.",
@@ -84,7 +127,42 @@
         "year": "2018"
       }
     ],
+    "logos": [
+      {
+        "alt": "BAM",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/54fab5a047b5434d5abccffa19a4856029ba6ac0-500x142.svg"
+      },
+      {
+        "alt": "Berkman",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/1019a6787d81e1dda5559c3192642485b87abee6-704x656.svg"
+      },
+      {
+        "alt": "Cense",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/aac54faf4b17cde2f2921ab6a538f7bf45b91542-603x202.svg"
+      },
+      {
+        "alt": "Kool Collective",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/eecccc7fc556eb877636db84061ef8365ad91187-741x343.svg"
+      },
+      {
+        "alt": "Microsoft",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/26d29da11e80a55330aeb98dee595e089b2c62b6-1280x640.svg"
+      },
+      {
+        "alt": "NoSuch",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/94072e86090dcc285ea6cb1304cffb509041dc4c-150x26.svg"
+      },
+      {
+        "alt": "Shell",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/53b573822b15a89f5cde0594706cbe2d83f6cc59-2500x2500.svg"
+      },
+      {
+        "alt": "Weavr",
+        "src": "https://cdn.sanity.io/images/16akn05z/production/1d764c176677abbdd89bbd5e97b8f1bfdb2bd48c-1896x431.svg"
+      }
+    ],
     "contactIntro": "Don’t be a stranger, and let’s team up. You can find me on my",
+    "projectsIntro": "I've spent most of my career working at agencies, which means a large part of what I've designed and worked on unfortunately isn't mine to show here. That said, I'd love to tell you all about it in person.",
     "email": "Evy@Diepenbroek.com",
     "instagramUrl": null,
     "linkedinUrl": null,
@@ -93,19 +171,19 @@
       "body": "Lets have a coffee and talk about what I can be for you, text here longer need",
       "roles": [
         {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/c3c3d6d2455811898b61d6b26c25708f5ace4eb8-500x700.jpg",
+          "image": "https://cdn.sanity.io/images/16akn05z/production/81bbe084b1bad0a36b31f108862e51f1efa402ce-1912x1074.png",
           "word": "Motion"
         },
         {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/61edc350eee9ef7e12dc1d684d7c3d60c4583710-500x700.jpg",
+          "image": "https://cdn.sanity.io/images/16akn05z/production/acf568fb222fe9617c402b3b89fd56caa1bfbf55-1910x1181.jpg",
           "word": "Brand"
         },
         {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/146ea45a6af90588a57d3cf55b7f02196242fedd-500x700.jpg",
+          "image": "https://cdn.sanity.io/images/16akn05z/production/135a172b66e8e1d4785167a4dbf14448fdb02ba0-7538x4240.jpg",
           "word": "UI/UX"
         },
         {
-          "image": "https://cdn.sanity.io/images/16akn05z/production/e55fdf6df9937c2d7f1c138a0f496a4f45a7dc6e-500x700.jpg",
+          "image": "https://cdn.sanity.io/images/16akn05z/production/a7cc0e684df8428b4627f9696eabfbdfa4a522cf-1806x2536.jpg",
           "word": "Graphic"
         }
       ],
@@ -126,6 +204,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -139,6 +218,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -156,6 +236,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -169,6 +250,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -184,16 +266,18 @@
           "video": null
         },
         {
-          "badgeLabel": null,
+          "badgeLabel": "The process",
           "body": null,
+          "device": "iphone",
           "heading": null,
           "src": null,
-          "type": "video",
+          "type": "mockup3d",
           "video": "https://cdn.sanity.io/files/16akn05z/production/827726d5c342e8f6d58b699426497290f7507918.mp4"
         },
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": null,
           "heading": "It is a lot of information, and after a while reading, that can get too much. That's why after a block of information, you can scan the book and it will come to life.",
           "src": null,
           "type": "sectionText",
@@ -202,6 +286,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -219,6 +304,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -232,6 +318,7 @@
         {
           "badgeLabel": "The process",
           "body": "Throughout the process, I was involved every step of the way. That’s why you’ll see my face multiple times in this magazine ;) All the connections, illustrations, and everything else you see were created by me myself.",
+          "device": null,
           "heading": "I handled everything from developing the idea and concept to conducting research, writing, collecting content, and designing the visuals.",
           "src": null,
           "type": "process",
@@ -253,6 +340,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -270,6 +358,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -283,6 +372,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -305,18 +395,39 @@
       "websiteUrl": null
     },
     {
-      "alt": null,
-      "cover": "https://cdn.sanity.io/images/16akn05z/production/7167eea7a4d3db67084cf1aa6f9b8654ce3c2dde-1920x1198.jpg",
+      "alt": "Weavr-hero-image",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/135a172b66e8e1d4785167a4dbf14448fdb02ba0-7538x4240.jpg",
       "deliverables": [
         "Visual Identity",
         "UI/UX design",
-        "Development"
+        "Development",
+        "Office Templates",
+        "Social Templates"
       ],
-      "description": null,
+      "description": "Weavr is a B2B growth marketing agency. Its belief is simple: growth only lasts when everything in an organisation is connected, from strategy and people to processes and culture. Weavr helps companies grow from the inside out by bringing insight, structure and direction together in one holistic approach.\n\nI created the full visual identity for Weavr, built around that core idea of connection. The name says it already: weaving separate threads into one strong whole. That thinking runs through the brand, from the logo and visual language to the way every touchpoint fits together.\n\nBeyond the identity, I designed and built the website and a complete set of templates, including PowerPoint and Word templates for daily use and social media templates for consistent communication. The result is a brand that feels as strategic and connected as the work Weavr does for its clients.\n\nSlim verbonden. Gericht op groei.",
       "gallery": [
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": null,
+          "type": "video",
+          "video": "https://cdn.sanity.io/files/16akn05z/production/65e981dc2230a7873305b4143e510e1844206c3c.mp4"
+        },
+        {
+          "badgeLabel": "The process",
+          "body": "Het logo van Weavr draait voornamelijk om de W, een krachtig symbool waarin meerdere betekenissen samenkomen. De W is opgebouwd als een trapje: een opstap naar groei. In de animatie verschijnt de vorm trede voor trede, als metafoor voor de beweging die Weavr in organisaties creëert, gestructureerd, doelgericht, duurzaam en omhoog. \n\nDe trap begint niet helemaal onderaan, maar al een stukje hoger. Dat kleine verschil vertelt iets groots. Bij Weavr begin je niet vanaf nul, maar bouw je verder op wat er al is.\n\nDe vorm is strak en eenvoudig, maar heeft zachte, afgeronde hoeken die vriendelijkheid en toegankelijkheid toevoegen. Zo ontstaat een logo dat helder en professioneel is, zonder afstandelijk te worden.\n\nEn nog een leuk extra detail: de W kan ook gelezen worden als een omgekeerde M, een knipoog naar oprichter Martijn van Leeuwen.",
+          "device": "imac",
+          "heading": "Het samen weven van alle draden tot een sterk geheel. Alles met elkaar verbonden. ",
+          "src": null,
+          "type": "introText",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -330,6 +441,7 @@
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -343,11 +455,12 @@
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
               "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/f27cebcf719218a084b225294513b383ce7cfd20-1920x1080.jpg"
+              "url": "https://cdn.sanity.io/images/16akn05z/production/92a72cdb8f16f35ab7dc100307e844dc70764965-1920x1080.jpg"
             }
           ],
           "type": "full",
@@ -356,6 +469,7 @@
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -373,6 +487,21 @@
         {
           "badgeLabel": "The process",
           "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/4aebfde48b25af24db4fea95cb1ac3c8beac5cc0-1920x808.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -391,65 +520,6 @@
       "websiteUrl": "https://weavr.nl"
     },
     {
-      "alt": "The Girl, Woman, Other Penguin book cover design",
-      "cover": "https://cdn.sanity.io/images/16akn05z/production/23c589b96b196d30e25746d630b338f150c6d2a5-1536x864.jpg",
-      "deliverables": null,
-      "description": "My book design cover was shortlisted for the 2022 Fiction category, Girl, Woman, Other by Bernardine Evaristo with Penguin Random House UK. Everything was incredible. I've learned a lot and met some amazing and inspirational people. I'm grateful and honoured to have been selected for this.",
-      "gallery": [
-        {
-          "badgeLabel": null,
-          "body": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/60533c46378b913db23995703ffe2c74fbb017c5-500x455.png"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": "The process",
-          "body": "I find it difficult to illustrate something that reflects all these subjects at once. So, I took a break from my sketchbook and started reading the first chapter. When I started reading the book, it began with a scene where they mentioned the theatre. I did some theatre myself, and I remembered there were always saying “ don’t forget the red thread of the story”, so the thought of doing something with thread was already in my mind. \n\nI tried to stop illustrating the situations too literally and was focusing more on what it made the characters feel. The several topics made me feel stuck. And then the red thread comes in handy. I tried many things like making the letters stuck or one person, but I feel like it didn’t bring out all the stories of the book. I remember that I both thread to take photos for the book cover, and I was playing with the thread in my hand when I realized you can express so much with hands. We do things with our hands. Then everything was falling together fast. Subjects I have linked with hands and rope. All these hands visualize a topic; some are pulling, some are stuck, some are being played and some pick up the paces. I like that it doesn’t immediately give away what it is about but does connect well with the subjects.",
-          "heading": "I first let loose on paper and sketches and visual illustrations dealing with women, class, race, and sexuality.",
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/ce93b34d561006c72097ea8f7158168452c79bd7-1600x579.png"
-            },
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/c1a83ab474b7a0624857692fae67d1e5f6ab9b00-1536x621.jpg"
-            },
-            {
-              "isVideo": false,
-              "url": null
-            }
-          ],
-          "type": "process",
-          "video": null
-        }
-      ],
-      "hero": "https://cdn.sanity.io/images/16akn05z/production/23c589b96b196d30e25746d630b338f150c6d2a5-1536x864.jpg",
-      "heroVideo": null,
-      "slug": "penguin-cover-design-award",
-      "title": "The Penguin Cover Design Award",
-      "websiteUrl": null
-    },
-    {
-      "alt": null,
-      "cover": "https://cdn.sanity.io/images/16akn05z/production/164cba6a597ca7ebc9197c4fdfed696ee0770809-2000x1500.jpg",
-      "deliverables": null,
-      "description": null,
-      "gallery": null,
-      "hero": "https://cdn.sanity.io/images/16akn05z/production/7e799ecf2c2138f266d18322d49621d33d5eb828-2250x2250.gif",
-      "heroVideo": null,
-      "slug": "beyond-the-page",
-      "title": "Editorial Beyond The Page: When 1+1=3",
-      "websiteUrl": null
-    },
-    {
       "alt": null,
       "cover": "https://cdn.sanity.io/images/16akn05z/production/5eaad511f1cc4b722ee6a3ee76857095aeb3802e-2299x1500.jpg",
       "deliverables": null,
@@ -458,6 +528,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -471,6 +542,7 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
@@ -488,22 +560,165 @@
         {
           "badgeLabel": null,
           "body": null,
+          "device": null,
           "heading": null,
           "src": [
             {
               "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/e036e664c319f5a4372760192d5f2f9f132f364c-2000x2000.jpg"
+              "url": "https://cdn.sanity.io/images/16akn05z/production/bb67caf271611ef0e787ee67525beca3970bbd4b-1920x1079.png"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/21d1880d105a1e66bd3d17f4fb97e6d583d00c5b-3550x1503.jpg"
             }
           ],
           "type": "full",
           "video": null
         }
       ],
-      "hero": "https://cdn.sanity.io/images/16akn05z/production/d9498277b7812314bafb8157eb148da734f9fbf3-2000x1485.jpg",
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/5eaad511f1cc4b722ee6a3ee76857095aeb3802e-2299x1500.jpg",
       "heroVideo": null,
       "slug": "narrow-vision-of-design",
       "title": "Dissertation: Narrow Vision of Design",
       "websiteUrl": null
+    },
+    {
+      "alt": null,
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/164cba6a597ca7ebc9197c4fdfed696ee0770809-2000x1500.jpg",
+      "deliverables": [
+        "Editorial Design"
+      ],
+      "description": "I made 2 video’s for this interactive article. You can scan this with your phone and the Artivive app to bring the page to life.\n\nThe article talks about the overprint setting in indesign. In this they mention this techniek a lot with the 50’s - 60’s that’s why I justed a font that is inspired my the 50/60’s but is also very modern. My target audience (graphic designers) and everyone that’s interested in overprinting, color and design are going to read it. This are usually people that have knowledge about design that is why I put a style on number one and really want to add something with the interactive motions. These literally show what overprint is. Because even though graphic designers like text so much, seeing a visual explanation works better with a creative brain.",
+      "gallery": [
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": [
+            {
+              "isVideo": true,
+              "url": "https://cdn.sanity.io/files/16akn05z/production/fe09ed164f5422a858de9f2a8220a4cf43cc6117.mp4"
+            },
+            {
+              "isVideo": true,
+              "url": "https://cdn.sanity.io/files/16akn05z/production/e2eda0fed18106e9242a885b1f8050db182a1752.mp4"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/2b708a56e4e0b57edfc583fc26ac370683fe33d0-5000x2812.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/164cba6a597ca7ebc9197c4fdfed696ee0770809-2000x1500.jpg",
+      "heroVideo": null,
+      "slug": "beyond-the-page",
+      "title": "Editorial Beyond The Page: When 1+1=3",
+      "websiteUrl": null
+    }
+  ],
+  "products": [
+    {
+      "alt": "Motion Design Styles for Adobe After Effects",
+      "buyUrl": null,
+      "category": "Motion",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/85adf16ff3966b434d72c5f75e361fd1359b2e58-1672x941.png",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "device": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/61204b19de74cbf013974e677b906d65eac705c2-3584x2373.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        }
+      ],
+      "price": 16,
+      "shortDescription": "A simple design system for After Effects.\n\nMotion Design Styles lets you create, manage, and apply consistent visual styles directly inside After Effects.\nDefine your Colors, Type, and Variables once, then apply them across your compositions. When you update a style, every layer connected to it updates automatically.\nBuild your system\nCreate a central style guide for your project with reusable design tokens.\nStay consistent\nKeep typography, colors, corner radii, line weights, and spacing consistent across every composition.\nChange once. Update everywhere.\nStyles are linked to your layers, so changes to the source style automatically flow through your entire project.",
+      "slug": "motion-design-styles",
+      "title": "Motion Design Styles"
+    },
+    {
+      "alt": "Test motion placeholder",
+      "buyUrl": null,
+      "category": "Motion",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/61204b19de74cbf013974e677b906d65eac705c2-3584x2373.jpg",
+      "gallery": [],
+      "price": 24,
+      "shortDescription": "Placeholder product — replace with a real motion template in Sanity.",
+      "slug": "test-motion-template",
+      "title": "Test Motion Template"
+    }
+  ],
+  "pages": {
+    "about": [
+      "aboutHeroBlock",
+      "timelineBlock",
+      "awardsBlock",
+      "logosBlock",
+      "ctaBlock",
+      "footer"
+    ],
+    "contact": [
+      "contactBlock",
+      "footer"
+    ],
+    "home": [
+      "homeHeroBlock",
+      "awardsBlock",
+      "ctaBlock",
+      "footer"
+    ]
+  },
+  "nav": [
+    {
+      "label": "Home",
+      "page": "index.html"
+    },
+    {
+      "label": "Projects",
+      "page": "projects.html"
+    },
+    {
+      "label": "About",
+      "page": "about.html"
+    },
+    {
+      "label": "Contact",
+      "page": "contact.html"
+    },
+    {
+      "label": "Store",
+      "page": "store.html"
     }
   ]
 }

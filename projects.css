@@ -40,11 +40,40 @@
   max-width: var(--eod-content-max);
   margin: 0 auto;
 }
+/* Heading (left) / intro disclaimer (right) — same side-by-side ->
+   stacked pattern as .eod-project__body-inner (title/description on
+   a case-study page). */
+.eod-projects__top {
+  max-width: var(--eod-content-max);
+  margin: 0 auto 3em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3em;
+  align-items: start;
+}
 .eod-projects__heading {
-  margin: 0 0 1.5em;
+  margin: 0;
+  /* Grid's align-items: start already lines up both columns' BOXES
+     at the same pixel — this tight line-height is what brings the
+     actual glyph (cap-height) up to match, since a 48px heading's
+     default line-height leaves much more leading above the letters
+     than the 16px intro text's does (Evy: "het mag beiden aan de
+     bovenkant uitlijnen"). */
+  line-height: 1;
   font-size: clamp(2.5em, 4vw, 4em);
   font-weight: 400;
   letter-spacing: -0.02em;
+}
+/* Sits between the heading and the grid — width capped so a long
+   disclaimer doesn't stretch full-bleed at wide viewports, same
+   spirit as the about page's own lede column. */
+.eod-projects__intro {
+  min-width: 0;
+}
+.eod-projects__intro-text {
+  margin: 0 0 1.5em;
+  color: var(--eod-muted);
+  line-height: 1.6;
 }
 .eod-projects__grid {
   list-style: none;
@@ -263,7 +292,16 @@
   .eod-projects__grid {
     grid-template-columns: 1fr;
   }
-
+  /* Side-by-side -> stacked, and a tighter gap than the desktop 3em
+     specifically between the heading and the intro text here (Evy:
+     "mag de padding tussen de header en de tekst nog wat kleiner",
+     stacked-on-mobile only — the grid gap doubles as that spacing
+     once there's just 1 column). */
+  .eod-projects__top {
+    grid-template-columns: 1fr;
+    gap: 0.75em;
+    margin-bottom: 2em;
+  }
 }
 
 /* ---- Detail (project.html, one shared template per case study) ----
@@ -584,6 +622,32 @@
    chop off a portrait recording, so this sizes down via max-width/
    max-height instead and lets the black frame show as letterboxing
    on whichever axis doesn't fill. */
+.eod-project__gallery-row--mockup3d {
+  grid-template-columns: 1fr;
+}
+/* 3D device mockup (mockup3d.js) — a soft grey stage with the device
+   floating on it, same radius as every other gallery row. */
+.eod-mockup3d {
+  position: relative;
+  width: 100%;
+  height: 80svh;
+  min-height: 24em;
+  border-radius: var(--eod-projects-radius);
+  background: #efefed;
+  overflow: hidden;
+}
+.eod-mockup3d__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.eod-mockup3d.is-ready .eod-mockup3d__canvas {
+  opacity: 1;
+}
 .eod-project__gallery-row--video {
   grid-template-columns: 1fr;
 }
@@ -591,14 +655,17 @@
   height: 70svh;
   background: var(--eod-black);
   border-radius: var(--eod-projects-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
+/* Fills the whole frame now (Evy: "video altijd het hele vlak
+   vullen") — was max-width/max-height: 100% (contain, letterboxed)
+   specifically to avoid cropping a portrait recording; cover crops
+   instead, same trade-off every photo in this gallery already
+   makes. */
 .eod-project__gallery-video video {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 /* "Process" — the bordered card from Evy's new Figma layout (node

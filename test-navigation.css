@@ -80,6 +80,15 @@
   text-decoration: none;
 }
 
+/* Groups the cart icon + menu toggle so .underlay-nav__container's
+   space-between still only spans TWO items (logo / this group) — see
+   its own comment in chrome.js. */
+.underlay-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+}
+
 .underlay-nav__logo-svg {
   width: 100%;
 }
@@ -342,6 +351,24 @@
        an actual phone (Evy: "Op mobile lijkt het logo veel te
        groot"). 140px renders it at ~28px tall instead. */
     width: 140px;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Evy: "Op mobile valt het logo niet binnen de kaders. Dus deze mag
+     gewoon blijven staan en onder de overlay zitten als de navigation
+     uit klapt" — the logo sits inside .underlay-nav__header, which is
+     z-index 10000 (above the menu's own overlay/panel, so the toggle
+     button stays clickable/visible to close the menu) — a child can't
+     selectively drop below a sibling stacking context by itself, so
+     rather than restructure that shared header just to carve the logo
+     out into its own stacking context, this gets the same end result
+     (logo effectively "under" the open menu) the simple way: fade it
+     out for as long as the menu is open. data-menu-status is the same
+     attribute test-navigation.js already toggles for the open/closed
+     state, nothing new to wire up. */
+  body[data-menu-status="open"] .underlay-nav__logo {
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* Evy: "de menu button... mag op mobiel ook wat groter, die 40px
