@@ -172,6 +172,8 @@ const llmsTxt = `# Evy Diepenbroek
 
 > ${settings.aboutHeroLede || "Graphic designer working across brand identity, UX/UI, editorial and motion design."}
 
+Evy is based in Rotterdam and Breda (the Netherlands) and works with clients across the Netherlands, including Amsterdam.
+
 Most of Evy's client work was produced at design agencies and can't be shown publicly here (see /projects) — the personal/independent projects below are her own.
 
 ## Pages

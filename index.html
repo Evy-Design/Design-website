@@ -10,17 +10,17 @@
        of this page's actual BODY content is rendered client-side
        from Sanity (see content.js), which those crawlers never run,
        but these tags are real HTML from the first byte. -->
-  <meta name="description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer working across brand identity, UX/UI, editorial and motion design." />
+  <meta name="description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer based in Rotterdam and Breda, working with clients across the Netherlands, including Amsterdam." />
   <link rel="canonical" href="https://evydiepenbroek.nl/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Evy Design" />
   <meta property="og:title" content="Evy Design — Evy Diepenbroek, Graphic Designer" />
-  <meta property="og:description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer working across brand identity, UX/UI, editorial and motion design." />
+  <meta property="og:description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer based in Rotterdam and Breda, working with clients across the Netherlands, including Amsterdam." />
   <meta property="og:url" content="https://evydiepenbroek.nl/" />
   <meta property="og:image" content="https://cdn.sanity.io/images/16akn05z/production/ebd158e7c5e1bd7a8f8cd151b669989889631725-1536x1024.png?w=1200&h=630&fit=crop" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Evy Design — Evy Diepenbroek, Graphic Designer" />
-  <meta name="twitter:description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer working across brand identity, UX/UI, editorial and motion design." />
+  <meta name="twitter:description" content="Evy Design is the portfolio of Evy Diepenbroek, a graphic designer based in Rotterdam and Breda, working with clients across the Netherlands, including Amsterdam." />
   <meta name="twitter:image" content="https://cdn.sanity.io/images/16akn05z/production/ebd158e7c5e1bd7a8f8cd151b669989889631725-1536x1024.png?w=1200&h=630&fit=crop" />
   <!-- Structured data (Evy: "make sure my website is good findable
        on google and AI models") — a static JSON-LD Person block, not
@@ -49,9 +49,28 @@
       "url": "https://evydiepenbroek.nl/",
       "image": "https://cdn.sanity.io/images/16akn05z/production/ff4d5ffbde4e60f790b2be7d36f55b005f1e27fc-831x900.jpg",
       "jobTitle": "Graphic Designer",
+      "homeLocation": [{"@type": "City", "name": "Rotterdam"}, {"@type": "City", "name": "Breda"}],
       "knowsAbout": ["Graphic design", "Brand identity", "UX/UI design", "Editorial design", "Motion design"],
       "email": "mailto:Evy@Diepenbroek.com",
       "description": "Graphic designer with two degrees in the field and over 5 years of agency experience, working across brand identity, UX/UI, editorial and motion design."
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://evydiepenbroek.nl/#service",
+      "name": "Evy Design",
+      "url": "https://evydiepenbroek.nl/",
+      "description": "Graphic design studio of Evy Diepenbroek: brand identity, UX/UI, editorial and motion design.",
+      "founder": {"@id": "https://evydiepenbroek.nl/#person"},
+      "address": [
+        {"@type": "PostalAddress", "addressLocality": "Rotterdam", "addressCountry": "NL"},
+        {"@type": "PostalAddress", "addressLocality": "Breda", "addressCountry": "NL"}
+      ],
+      "areaServed": [
+        {"@type": "City", "name": "Rotterdam"},
+        {"@type": "City", "name": "Breda"},
+        {"@type": "City", "name": "Amsterdam"},
+        {"@type": "Country", "name": "Netherlands"}
+      ]
     }
   ]
 }
