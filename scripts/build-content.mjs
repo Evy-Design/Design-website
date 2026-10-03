@@ -52,7 +52,7 @@ const SITE_QUERY = `{
   }
 }`;
 
-const PROJECTS_QUERY = `*[_type == "project"] | order(order asc){
+const PROJECTS_QUERY = `*[_type == "project"] | order(orderRank asc){
   "slug": slug.current, title,
   "cover": cover.asset->url,
   "hero": coalesce(hero.asset->url, cover.asset->url),
