@@ -246,7 +246,7 @@ window.EOD_CONTENT = (function () {
     const m = mediaSrc(item);
     const cls = className ? ' class="' + className + '"' : "";
     return m.isVideo
-      ? '<video' + cls + ' src="' + m.url + '" autoplay muted loop playsinline></video>'
+      ? '<video' + cls + ' src="' + m.url + '" autoplay muted loop playsinline data-eod-gallery-video></video>'
       : '<img' + cls + ' src="' + m.url + '" alt="" />';
   }
 
@@ -349,7 +349,7 @@ window.EOD_CONTENT = (function () {
         let media = "";
         let mediaModifier = "";
         if (block.video) {
-          media = '<video src="' + block.video + '" autoplay muted loop playsinline></video>';
+          media = '<video src="' + block.video + '" autoplay muted loop playsinline data-eod-gallery-video></video>';
         } else if (images.length > 1) {
           // More than 1 photo: stack them instead of showing just
           // the first, and the text column goes sticky (CSS) so it
@@ -738,7 +738,7 @@ window.EOD_CONTENT = (function () {
   // bandwidth for nothing visible. Plain play()/pause(), not
   // mockup3d.js's heavier machinery (no three.js/canvas here).
   function initGalleryVideoPlay() {
-    const videos = document.querySelectorAll("[data-eod-gallery-video]");
+    const videos = document.querySelectorAll("[data-eod-gallery-video], .eod-project__hero-video");
     if (!videos.length) return;
     // Safari ignores the muted *attribute* on innerHTML-created videos
     // for autoplay purposes; the property has to be set in JS.

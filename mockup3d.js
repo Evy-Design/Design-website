@@ -26,6 +26,13 @@
 (function () {
   var IMAC_GLB = "assets/3d/imac-mockup.glb";
   var NON_SCREEN = ["Frame_n3d", "Stand_n3d", "Monitor_n3d"];
+  // Space grey: recolour the model's own materials (keeps their gloss
+  // and clearcoat, only the base colour changes).
+  var IMAC_COLORS = {
+    Frame_n3d: { color: 0x2c2d30, metalness: 0.5, roughness: 0.3 },
+    Stand_n3d: { color: 0x74757a, metalness: 0.45, roughness: 0.4 },
+    Monitor_n3d: { color: 0x66676c, metalness: 0.45, roughness: 0.4 },
+  };
   var threeP = null;
 
   function loadThree() {
@@ -94,7 +101,7 @@
     var screenGeo = new THREE.ShapeGeometry(roundedRect(THREE, sw, sh, R - bezel), 24);
     var pos = screenGeo.attributes.position, uv = screenGeo.attributes.uv;
     for (var i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) + sw / 2) / sw, (pos.getY(i) + sh / 2) / sh);
-    var screen = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: videoTexture }));
+    var screen = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: videoTexture, toneMapped: false }));
     screen.position.z = D / 2 + 0.005;
     g.add(screen);
 
@@ -243,6 +250,13 @@
             var display = gltf.scene;
             var screenAspect = 16 / 9;
             display.traverse(function (o) {
+              if (o.isMesh && IMAC_COLORS[o.name] !== undefined) {
+                o.material = o.material.clone();
+                var c = IMAC_COLORS[o.name];
+                o.material.color.setHex(c.color);
+                o.material.metalness = c.metalness;
+                o.material.roughness = c.roughness;
+              }
               if (o.isMesh && NON_SCREEN.indexOf(o.name) === -1) {
                 // The model's own UVs don't span the full 0..1 range, so
                 // rebuild them from the screen's outline (front-facing
@@ -257,7 +271,9 @@
                 }
                 o.geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
                 if (s.y) screenAspect = s.x / s.y;
-                o.material = new THREE.MeshBasicMaterial({ map: tex });
+                // toneMapped:false — the scene's ACES tone mapping would otherwise
+                // crush the video's contrast/saturation.
+                o.material = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
               }
             });
             ready(display, screenAspect);
