@@ -332,69 +332,6 @@
       "websiteUrl": null
     },
     {
-      "alt": "Illuminated typography installation in an alley",
-      "cover": "https://cdn.sanity.io/images/16akn05z/production/098d1cb951d0898d7251635b5e24dedd328b4b47-1625x914.png",
-      "deliverables": null,
-      "description": "This alley is mainly known as the pissing alley, but also as a scary alley where you don’t want to be in the evening. I have highlighted this with all kinds of colourful typography that also refer to the text that is there. With all kinds of jokes about peeing, it is already a nice place for an Instagram story. But when I looked at my target group I saw that most young people who come here find the most important thing in the evening to show where they have been out on social media. I could use this to make this alley safer as well because no one wants to appear naked or peeing on Instagram. Therefore, by having large luminous letters stuck between the walls I made it a perfect place to take pictures for. Plus it lights up the alley too.",
-      "gallery": [
-        {
-          "badgeLabel": null,
-          "body": null,
-          "device": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/26f7901661400b5a17904973f884e1501f524ad4-1536x1516.jpg"
-            },
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/4c0b8c263cb556caccff67e2f49bc6a5e7ff3d15-1290x1258.jpg"
-            }
-          ],
-          "type": "pair",
-          "video": null
-        },
-        {
-          "badgeLabel": null,
-          "body": null,
-          "device": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg"
-            }
-          ],
-          "type": "full",
-          "video": null
-        },
-        {
-          "badgeLabel": null,
-          "body": null,
-          "device": null,
-          "heading": null,
-          "src": [
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/d27ae6f7c54a24f0f355131babd05ce504445860-1536x1513.jpg"
-            },
-            {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/96eb719d0a861d39022d3e56706cb1bd56eaa4c1-1536x1512.jpg"
-            }
-          ],
-          "type": "pair",
-          "video": null
-        }
-      ],
-      "hero": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg",
-      "heroVideo": null,
-      "slug": "my-type-of-place",
-      "title": "My Type Of Place",
-      "websiteUrl": null
-    },
-    {
       "alt": "Weavr-hero-image",
       "cover": "https://cdn.sanity.io/images/16akn05z/production/135a172b66e8e1d4785167a4dbf14448fdb02ba0-7538x4240.jpg",
       "deliverables": [
@@ -469,16 +406,16 @@
         {
           "badgeLabel": "The process",
           "body": null,
-          "device": null,
+          "device": "imac",
           "heading": null,
           "src": [
             {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/9f47d40f43dce4133295f2b246d6c6faab170aef-1920x1080.png"
+              "isVideo": true,
+              "url": "https://cdn.sanity.io/files/16akn05z/production/ae8f89d7f33c59ced95d95b5268ea4bab9897ad6.mp4"
             },
             {
-              "isVideo": false,
-              "url": "https://cdn.sanity.io/images/16akn05z/production/b322e3277fc7b48afc74b6b528a88d4ee43f941f-1920x1080.jpg"
+              "isVideo": true,
+              "url": "https://cdn.sanity.io/files/16akn05z/production/25ace6d598acc01486808742df3ed17004b5eec4.mp4"
             }
           ],
           "type": "pair",
@@ -511,6 +448,15 @@
           ],
           "type": "full",
           "video": null
+        },
+        {
+          "badgeLabel": "The process",
+          "body": null,
+          "device": "imac",
+          "heading": null,
+          "src": null,
+          "type": "mockup3d",
+          "video": "https://cdn.sanity.io/files/16akn05z/production/6bc6e446224d4767abd83cf261e528dfd9c4e375.mp4"
         }
       ],
       "hero": "https://cdn.sanity.io/images/16akn05z/production/7167eea7a4d3db67084cf1aa6f9b8654ce3c2dde-1920x1198.jpg",
@@ -518,6 +464,69 @@
       "slug": "Weavr",
       "title": "Weavr",
       "websiteUrl": "https://weavr.nl"
+    },
+    {
+      "alt": "Illuminated typography installation in an alley",
+      "cover": "https://cdn.sanity.io/images/16akn05z/production/098d1cb951d0898d7251635b5e24dedd328b4b47-1625x914.png",
+      "deliverables": null,
+      "description": "This alley is mainly known as the pissing alley, but also as a scary alley where you don’t want to be in the evening. I have highlighted this with all kinds of colourful typography that also refer to the text that is there. With all kinds of jokes about peeing, it is already a nice place for an Instagram story. But when I looked at my target group I saw that most young people who come here find the most important thing in the evening to show where they have been out on social media. I could use this to make this alley safer as well because no one wants to appear naked or peeing on Instagram. Therefore, by having large luminous letters stuck between the walls I made it a perfect place to take pictures for. Plus it lights up the alley too.",
+      "gallery": [
+        {
+          "badgeLabel": null,
+          "body": null,
+          "device": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/26f7901661400b5a17904973f884e1501f524ad4-1536x1516.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/4c0b8c263cb556caccff67e2f49bc6a5e7ff3d15-1290x1258.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "device": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg"
+            }
+          ],
+          "type": "full",
+          "video": null
+        },
+        {
+          "badgeLabel": null,
+          "body": null,
+          "device": null,
+          "heading": null,
+          "src": [
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/d27ae6f7c54a24f0f355131babd05ce504445860-1536x1513.jpg"
+            },
+            {
+              "isVideo": false,
+              "url": "https://cdn.sanity.io/images/16akn05z/production/96eb719d0a861d39022d3e56706cb1bd56eaa4c1-1536x1512.jpg"
+            }
+          ],
+          "type": "pair",
+          "video": null
+        }
+      ],
+      "hero": "https://cdn.sanity.io/images/16akn05z/production/3a98183a14ad71bdd7403016fd10a86fdb80c9fd-1536x864.jpg",
+      "heroVideo": null,
+      "slug": "my-type-of-place",
+      "title": "My Type Of Place",
+      "websiteUrl": null
     },
     {
       "alt": null,

@@ -334,7 +334,7 @@ window.EOD_CONTENT = (function () {
         // further down only actually plays it while it's on screen.
         return '<div class="eod-project__gallery-row eod-project__gallery-row--video">' +
           '<div class="eod-project__gallery-video">' +
-            '<video src="' + block.video + '" muted loop playsinline data-eod-gallery-video></video>' +
+            '<video src="' + block.video + '" muted autoplay loop playsinline data-eod-gallery-video></video>' +
           "</div>" +
         "</div>";
       }
@@ -740,13 +740,39 @@ window.EOD_CONTENT = (function () {
   function initGalleryVideoPlay() {
     const videos = document.querySelectorAll("[data-eod-gallery-video]");
     if (!videos.length) return;
+    // Safari ignores the muted *attribute* on innerHTML-created videos
+    // for autoplay purposes; the property has to be set in JS.
+    function tryPlay(v) {
+      v.muted = true;
+      const p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+    videos.forEach(function (v) {
+      v.muted = true;
+      v.defaultMuted = true;
+      v.playsInline = true;
+      v.preload = "auto";
+      v.addEventListener("canplay", function () {
+        if (v._inView && v.paused) tryPlay(v);
+      });
+    });
     const io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) entry.target.play().catch(function () {});
-        else entry.target.pause();
+        const v = entry.target;
+        v._inView = entry.isIntersecting;
+        if (entry.isIntersecting) tryPlay(v);
+        else v.pause();
       });
     }, { rootMargin: "200px 0px" });
     videos.forEach(function (v) { io.observe(v); });
+    // Low Power Mode / strict autoplay settings: first tap or click
+    // counts as a gesture and starts whatever is in view.
+    function onGesture() {
+      videos.forEach(function (v) { if (v._inView && v.paused) tryPlay(v); });
+    }
+    ["touchend", "click", "keydown"].forEach(function (ev) {
+      document.addEventListener(ev, onGesture, { passive: true });
+    });
   }
 
   applyBlockOrder();
