@@ -197,7 +197,7 @@ window.EOD_CONTENT = (function () {
 
     grid.innerHTML = items.map(function (item, i) {
       return (
-        '<a href="project?slug=' + item.slug + '" class="eod-projects__card" aria-label="' + item.title + '" data-eod-reveal data-eod-reveal-delay="' + (i % 4) + '">' +
+        '<a href="project?slug=' + item.slug + '" class="eod-projects__card" aria-label="' + item.title + '">' +
           '<span class="eod-projects__photo-wrap">' +
             // view-transition-name ties this photo to the matching
             // one in .eod-project__hero-img on the destination page
@@ -506,7 +506,7 @@ window.EOD_CONTENT = (function () {
     grid.innerHTML = items.map(function (item, i) {
       return (
         '<li>' +
-          '<a href="store-item?slug=' + item.slug + '" class="eod-store__card" data-eod-store-category="' + item.category + '" data-eod-reveal data-eod-reveal-delay="' + (i % 4) + '">' +
+          '<a href="store-item?slug=' + item.slug + '" class="eod-store__card" data-eod-store-category="' + item.category + '">' +
             '<span class="eod-projects__photo-wrap">' +
               '<img class="eod-projects__photo" src="' + item.cover + '" alt="' + (item.alt || "") + '" style="view-transition-name: eod-hero-' + item.slug + '" />' +
             "</span>" +
@@ -542,6 +542,7 @@ window.EOD_CONTENT = (function () {
         const show = filter === "all" || card.getAttribute("data-eod-store-category") === filter;
         if (li) li.hidden = !show;
       });
+      if (window.ScrollTrigger) window.ScrollTrigger.refresh();
     });
   }
 
