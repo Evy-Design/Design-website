@@ -157,7 +157,33 @@ window.EOD_CHROME = (function () {
   // this markup lands in the DOM), so hardcoding it per-page here
   // would just be a second, redundant source of truth for the exact
   // same thing.
+  var ARROW_STRAIGHT = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M6 16H26M26 16L18 8M26 16L18 24" stroke-width="2" stroke-miterlimit="10"/></svg>';
+  var ARROW_DIAGONAL = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><path d="M24 20L24 6.66667L10.6667 6.66667M24 6.66667L6.66667 24" stroke-width="2" stroke-miterlimit="10"/></svg>';
+
+  // Secondary link button for links to other sites: resting ↗, the
+  // hover-revealed arrow is the straight →, same as everywhere else.
+  // `attrs` is the raw attribute string (href, data-*, hidden, ...).
+  function externalButton(label, attrs) {
+    return (
+      '<a ' + attrs + ' class="eod-btn eod-btn--secondary">' +
+        '<span class="eod-btn__secondary-viewport"><span class="eod-btn__secondary-track">' +
+          '<span class="eod-btn__arrow-slot eod-btn__arrow-slot--lead" aria-hidden="true">' + ARROW_STRAIGHT + "</span>" +
+          '<span class="eod-btn__label">' + label + "</span>" +
+          '<span class="eod-btn__arrow-slot eod-btn__arrow-slot--trail" aria-hidden="true">' + ARROW_DIAGONAL + "</span>" +
+        "</span></span>" +
+      "</a>"
+    );
+  }
+
+  // Client portal link, bottom right of the menu. Staging only for now —
+  // same hostname gate as STORE_COMING_SOON, so a staging -> production
+  // sync can't expose it before the portal is ready.
+  var PORTAL_LIVE = !/(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
+
   function nav() {
+    var portalLink = PORTAL_LIVE
+      ? '<div class="underlay-nav__portal" data-reveal-s>' + externalButton("Go to Client portal", 'href="client-portal.html"') + "</div>"
+      : "";
     var links = NAV_LINKS.map(function (link) {
       if (STORE_COMING_SOON && link.href === "store.html") {
         return (
@@ -216,10 +242,11 @@ window.EOD_CHROME = (function () {
               '<div class="underlay-nav__bottom-col">' +
                 '<div data-reveal-s><span class="underlay-nav__link-small is--faded">Socials</span></div>' +
                 '<ul class="underlay-nav__list is--small">' +
-                  '<li data-reveal-s><a href="#" class="underlay-nav__link-small" data-eod-text="instagramUrl-nav">Instagram</a></li>' +
-                  '<li data-reveal-s><a href="#" class="underlay-nav__link-small" data-eod-text="linkedinUrl-nav">LinkedIn</a></li>' +
+                  '<li data-reveal-s>' + externalButton("Instagram", 'href="#" data-eod-text="instagramUrl-nav"') + "</li>" +
+                  '<li data-reveal-s>' + externalButton("LinkedIn", 'href="#" data-eod-text="linkedinUrl-nav"') + "</li>" +
                 "</ul>" +
               "</div>" +
+              portalLink +
             "</div>" +
           "</div>" +
         "</nav>" +
@@ -290,8 +317,8 @@ window.EOD_CHROME = (function () {
             "</div>" +
             '<div class="eod-footer__col eod-footer__col--right" data-eod-reveal data-eod-reveal-delay="1" data-eod-reveal-repeat>' +
               '<span class="eod-footer__label">SOCIAL</span>' +
-              '<a href="#" class="eod-footer__link" data-eod-text="instagramUrl-nav">Instagram</a>' +
-              '<a href="#" class="eod-footer__link" data-eod-text="linkedinUrl-nav">LinkedIn</a>' +
+              externalButton("Instagram", 'href="#" data-eod-text="instagramUrl-nav"') +
+              externalButton("LinkedIn", 'href="#" data-eod-text="linkedinUrl-nav"') +
             "</div>" +
           "</div>" +
           '<svg class="eod-footer__logo" data-eod-letters-reveal data-eod-reveal-repeat xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1228 244">' +

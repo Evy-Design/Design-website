@@ -674,7 +674,7 @@
       "price": 16,
       "shortDescription": "A simple design system for After Effects.\n\nMotion Design Styles lets you create, manage, and apply consistent visual styles directly inside After Effects.\nDefine your Colors, Type, and Variables once, then apply them across your compositions. When you update a style, every layer connected to it updates automatically.\nBuild your system\nCreate a central style guide for your project with reusable design tokens.\nStay consistent\nKeep typography, colors, corner radii, line weights, and spacing consistent across every composition.\nChange once. Update everywhere.\nStyles are linked to your layers, so changes to the source style automatically flow through your entire project.",
       "slug": "motion-design-styles",
-      "title": "Motion Design Styles"
+      "title": "Motion Design Styles Guide"
     },
     {
       "alt": "Test motion placeholder",

@@ -146,6 +146,16 @@
 }
 
 /* Menu panel */
+/* The widths/heights in this menu (100% + padding) assume border-box.
+   With the browser default (content-box) the inner layer ended up
+   152px taller and 32-64px wider than the menu itself, pushing the
+   bottom row (Socials, Client portal) off the screen and the links
+   past the right edge on phones. */
+.underlay-nav__menu,
+.underlay-nav__menu * {
+  box-sizing: border-box;
+}
+
 .underlay-nav__menu {
   z-index: 1;
   width: var(--menu-width);
@@ -239,8 +249,10 @@
 }
 
 .underlay-nav__bottom {
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5em;
   width: 100%;
   padding-top: 1.5em;
   display: flex;
@@ -266,6 +278,12 @@
 
 .underlay-nav__link-small.is--faded {
   opacity: .5;
+}
+
+/* Client portal link: pinned to the bottom-right corner of the menu. */
+.underlay-nav__portal {
+  margin-left: auto;
+  font-size: 1em;
 }
 
 .underlay-nav__bottom-border {
@@ -396,7 +414,11 @@
     grid-column-gap: 2em;
     grid-row-gap: 2em;
     flex-flow: column;
+    align-items: stretch;
     padding-left: 1em;
     padding-right: 1em;
+  }
+  .underlay-nav__portal {
+    align-self: flex-end;
   }
 }

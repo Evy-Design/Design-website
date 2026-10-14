@@ -35,13 +35,14 @@ const SITE_QUERY = `{
   "logos": *[_id == "logosBlock"][0].logos[]{alt, "src": image.asset->url},
   "contact": *[_id == "contactBlock"][0]{intro},
   "projectsIntro": *[_id == "projectsPage"][0].intro,
-  "footer": *[_id == "footer"][0]{email, instagramUrl, linkedinUrl},
+  "footer": *[_id == "footer"][0]{email},
   "cta": *[_id == "ctaBlock"][0]{
     "roles": ctaRoles[]{word, "image": image.asset->url},
     "suffix": ctaSuffix,
     "body": ctaBody
   },
   "general": *[_id == "siteSettings"][0]{
+    instagramUrl, linkedinUrl,
     "favicon": favicon.asset->url,
     "nav": navigation[]{page, label}
   },
@@ -115,8 +116,8 @@ const settings = {
   contactIntro: contact.intro,
   projectsIntro: site.projectsIntro,
   email: footer.email,
-  instagramUrl: footer.instagramUrl,
-  linkedinUrl: footer.linkedinUrl,
+  instagramUrl: general.instagramUrl,
+  linkedinUrl: general.linkedinUrl,
   favicon: general.favicon,
   cta: site.cta,
 };
