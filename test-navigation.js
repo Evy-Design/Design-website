@@ -11,6 +11,7 @@
         child.tagName !== 'SCRIPT' &&
         child.tagName !== 'STYLE' &&
         child.tagName !== 'LINK' &&
+        child.tagName !== 'NOSCRIPT' &&
         !child.classList.contains('underlay-nav')) {
         mainEl = child;
         break;
