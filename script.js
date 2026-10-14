@@ -1446,7 +1446,12 @@
         // real safety net if it isn't.
         requestAnimationFrame(syncWordWidths);
         let wordWidthResizeTimer = null;
+        let lastWidth = window.innerWidth;
         window.addEventListener("resize", () => {
+          // Mobile address-bar collapse fires resize with only the height
+          // changing; the word widths can't have changed, so skip it.
+          if (window.innerWidth === lastWidth) return;
+          lastWidth = window.innerWidth;
           clearTimeout(wordWidthResizeTimer);
           wordWidthResizeTimer = setTimeout(syncWordWidths, 150);
         });
@@ -1495,16 +1500,12 @@
    unintended movement and asked the row be pinned to "Design"
    itself, matching its position and width exactly.
 
-   --eod-cta-row-width-mobile (used by style.css's mobile media
-   query): still the TITLE's own full rendered width, i.e. the old
-   desktop behavior before the above change — mobile keeps its
-   original shared --eod-cta-indent left-anchor and was never part
-   of this request.
+   Mobile has no JS-synced width: its row is plain width:auto inside
+   the group, whose width is pinned to the widest word (see the
+   cyclers above), so the row stays put on every word swap.
 
-   Both ResizeObservers re-measure automatically whenever their
-   element's width changes for any reason — a real window resize, or
-   (title only) the word cycler swapping to a differently-sized
-   word — so neither needs to know about the cycler's own timing.
+   The ResizeObserver re-measures automatically whenever "Design"'s
+   width changes for any reason, e.g. a real window resize.
    =========================================================== */
 (function () {
   function initCtaRowWidthSync() {
@@ -1517,19 +1518,13 @@
     function syncDesktop() {
       cta.style.setProperty("--eod-cta-row-width", suffix.getBoundingClientRect().width + "px");
     }
-    function syncMobile() {
-      cta.style.setProperty("--eod-cta-row-width-mobile", title.getBoundingClientRect().width + "px");
-    }
 
     if (typeof ResizeObserver !== "undefined") {
       new ResizeObserver(syncDesktop).observe(suffix);
-      new ResizeObserver(syncMobile).observe(title);
     } else {
       window.addEventListener("resize", syncDesktop);
-      window.addEventListener("resize", syncMobile);
     }
     syncDesktop();
-    syncMobile();
   }
 
   if (document.readyState === "loading") {

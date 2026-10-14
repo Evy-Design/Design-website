@@ -853,14 +853,13 @@ body.eod-is-scrolling .eod-btn {
      under-"Design" treatment above (margin-left: auto, margin-right:
      0) is also scoped to desktop — Evy's follow-up request to pin
      the row to .eod-cta__suffix was itself desktop-only too
-     ("Op mobile blijft het zoals die eerst was"). Width falls back
-     to --eod-cta-row-width-mobile (script.js — .eod-cta__title's own
-     rendered width, the pre-change desktop behavior) instead of the
-     desktop var above (.eod-cta__suffix's width alone, far too
-     narrow for this row on mobile). */
+     ("Op mobile blijft het zoals die eerst was"). */
   .eod-cta__row {
     margin-right: auto;
-    width: var(--eod-cta-row-width-mobile, auto);
+    /* auto = the group's own pinned width minus the indent. It used to
+       track the title's live width, which changes with every cycling
+       word, so the body text and button resized on every swap. */
+    width: auto;
   }
   /* .eod-cta__lede's data-eod-reveal="left" (base rule, applies at
      every width) slides it in from the left on entry — on mobile
@@ -873,6 +872,12 @@ body.eod-is-scrolling .eod-btn {
      unaffected here since it isn't .eod-cta__lede. */
   .eod-cta__lede[data-eod-reveal="left"] {
     transform: translateX(3em);
+  }
+  /* The rule above has the same specificity as the shared
+     [data-eod-reveal].is-inview and comes later, so it kept winning
+     after the reveal and left the lede permanently shifted right. */
+  .eod-cta__lede[data-eod-reveal="left"].is-inview {
+    transform: translate(0);
   }
 }
 .eod-cta__body {
