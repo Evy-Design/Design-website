@@ -731,7 +731,10 @@
     // triggers and the identity/landed transforms they expect at
     // those exact endpoints are untouched — only the shape in between
     // changes.
-    const ejectEase = gsap.parseEase("power2.in");
+    // Soft start AND soft landing (Evy: "de flow en easing waarmee de
+    // kaart er uit en in gaat"). power2.in ended at full speed, so the
+    // card hit its landed pose with a thud; sine.inOut eases both ends.
+    const ejectEase = gsap.parseEase("sine.inOut");
     function updateEject(progress) {
       // beginEject() arms a one-time 600ms transition on `transform`
       // for the pop-in glide (old orbit position -> centred), then
@@ -755,6 +758,42 @@
       ejectedItem.style.transform = `translate(-50%, -50%) scale(${scale})`;
       ejectedFace.style.transform = `rotateY(${eased * EJECT_TURNS}deg)`;
     }
+
+    // The card follows the scroll position through a damped chase
+    // instead of 1:1. A wheel notch or trackpad flick moves the raw
+    // scroll position in steps; written straight to the card that
+    // reads as stutter. Chasing it with an exponential smoothing
+    // (frame-rate independent) turns those steps into one continuous
+    // glide, in both directions. settle() and returnToOrbit() wait for
+    // the chase to actually arrive so the hand-offs never jump.
+    const SMOOTH_TAU_S = 0.14;
+    let targetProgress = 0;
+    let smoothP = 0;
+    gsap.ticker.add((time, deltaTime) => {
+      if (!ejectedItem) return;
+      if (!isLanded) {
+        const dt = Math.min(deltaTime, 50) / 1000;
+        smoothP += (targetProgress - smoothP) * (1 - Math.exp(-dt / SMOOTH_TAU_S));
+        if (Math.abs(targetProgress - smoothP) < 0.0005) smoothP = targetProgress;
+        if (isGliding) {
+          // The item's own transform is mid-transition (the pop-in
+          // glide), so only the flip — on the inner face, which has
+          // no transition — follows the scroll meanwhile.
+          ejectedFace.style.transform = `rotateY(${ejectEase(smoothP) * EJECT_TURNS}deg)`;
+        } else {
+          updateEject(smoothP);
+        }
+      }
+      if (!isLanded && targetProgress >= 1 && smoothP >= 0.995) {
+        smoothP = 1;
+        updateEject(1);
+        settle();
+      }
+      if (targetProgress <= 0 && smoothP <= 0.003 && !isGliding && !isLanded) {
+        smoothP = 0;
+        returnToOrbit();
+      }
+    });
 
     // Scrolling back to the very top drops the card back into the
     // orbit. By the time this fires (progress back down to 0) the flip
@@ -1026,8 +1065,11 @@
       hero.style.backgroundColor = mixedColor;
       backdrop.style.backgroundColor = mixedColor;
 
-      if (progress > 0 && !ejectedItem) beginEject();
-      if (progress <= 0 && ejectedItem) returnToOrbit();
+      targetProgress = progress;
+      if (progress > 0 && !ejectedItem) {
+        smoothP = 0;
+        beginEject();
+      }
       // Math.min() inside updateEject already makes this safe to call
       // unconditionally, at any progress, in either scroll direction.
       // Skipped once landed — the card is position:absolute by then
@@ -1044,8 +1086,6 @@
       // instead of gliding (Evy: "hij springt er best abrupt uit").
       // Skipping updateEject for the glide's own short window lets it
       // actually play before scroll-linked scale/rotation take over.
-      if (ejectedItem && !isLanded && !isGliding) updateEject(progress);
-      if (ejectedItem && progress >= 1) settle();
       if (ejectedItem && progress < 1) unsettle();
       // Re-arms the idle-debounced hug-resize (see scheduleHugHeight)
       // on every tick while landed — covers a slow/discrete scroll
