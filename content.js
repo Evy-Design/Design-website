@@ -53,9 +53,9 @@ window.EOD_CONTENT = (function () {
     const list = document.querySelector(".eod-awards__list");
     if (!list) return;
     const awards = window.EOD_CONTENT.settings.awards || [];
-    list.innerHTML = awards.map(function (award, i) {
+    list.innerHTML = awards.map(function (award) {
       return (
-        '<li class="eod-awards__item" data-eod-reveal data-eod-reveal-delay="' + (i + 1) + '">' +
+        '<li class="eod-awards__item">' +
           '<button class="eod-awards__item-header" data-eod-award-toggle aria-expanded="false">' +
             '<span class="eod-awards__item-title">' + award.title + "</span>" +
             '<span class="eod-awards__item-year">' + award.year + "</span>" +
