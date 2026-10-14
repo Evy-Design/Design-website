@@ -1457,7 +1457,19 @@
         });
       }
 
+      // Only swap while the cycler is actually on screen and the tab is
+      // visible — otherwise it keeps animating (and re-flowing the
+      // width) for nobody, and comes back mid-transition.
+      let cyclerInView = true;
+      if (typeof IntersectionObserver !== "undefined") {
+        const cyclerIO = new IntersectionObserver((entries) => {
+          cyclerInView = entries.some((e) => e.isIntersecting);
+        });
+        wraps.forEach((w) => cyclerIO.observe(w));
+      }
+
       setInterval(() => {
+        if (!cyclerInView || document.hidden) return;
         const next = (current + 1) % count;
         itemSets.forEach((items) => {
           const currentEl = items[current];
@@ -1465,14 +1477,14 @@
           currentEl.classList.remove("is-active");
           currentEl.classList.add("is-exit");
           nextEl.classList.add("is-active");
-          setTimeout(() => currentEl.classList.remove("is-exit"), 500);
+          setTimeout(() => currentEl.classList.remove("is-exit"), 700);
         });
         widthTrackedWraps.forEach((wrap) => {
           const widths = wordWidths.get(wrap);
           if (widths) wrap.style.setProperty("--eod-cta-word-width", widths[next] + "px");
         });
         current = next;
-      }, 2600);
+      }, 3000);
     });
   }
 

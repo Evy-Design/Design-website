@@ -657,6 +657,10 @@ body.eod-is-scrolling .eod-btn {
   overflow: hidden;
   vertical-align: middle;
   background: var(--eod-ink);
+  /* Safari lets transformed children escape a rounded overflow:hidden
+     clip (the sliding badge image) unless this is its own stacking
+     context. */
+  isolation: isolate;
 }
 .eod-cta__badge-item {
   grid-area: 1 / 1;
@@ -665,7 +669,8 @@ body.eod-is-scrolling .eod-btn {
   object-fit: cover;
   opacity: 0;
   transform: translateY(100%);
-  transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1), transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform, opacity;
 }
 .eod-cta__badge-item.is-active {
   opacity: 1;
@@ -760,17 +765,26 @@ body.eod-is-scrolling .eod-btn {
   display: inline-grid;
   flex: none;
   width: var(--eod-cta-word-width, max-content);
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Same duration + curve as the word/badge swap below, so the box
+     resizes in step with the text instead of finishing early. */
+  transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
   vertical-align: bottom;
   overflow: hidden;
+  /* overflow:hidden clips at the 1em line box, which cut the bottom of
+     the "p" in "Graphic" (descender runs ~0.06em past it). Padding
+     enlarges the clip area; the negative margin gives the space back
+     so the layout and the centring against "Design" don't change. */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
 }
 .eod-cta__word-item {
   grid-area: 1 / 1;
   text-align: left;
   opacity: 0;
   transform: translateY(100%);
-  transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1), transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1), transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
   white-space: nowrap;
+  will-change: transform, opacity;
 }
 .eod-cta__word-item.is-active {
   opacity: 1;
@@ -822,6 +836,10 @@ body.eod-is-scrolling .eod-btn {
   margin-left: auto;
   margin-right: 0;
   width: var(--eod-cta-row-width, auto);
+  /* Pinned to "Design"'s width on desktop, which is far too narrow for
+     the body copy + button on a tablet (cramped text, button spilling
+     out of the row). It grows to the left, under the title. */
+  min-width: min(16rem, 100%);
   max-width: 100%;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -838,7 +856,7 @@ body.eod-is-scrolling .eod-btn {
      same way the desktop value already does.  */
   .eod-cta__title,
   .eod-cta__row {
-    margin-left: 1.25rem;
+    margin-left: 0;
   }
   /* Restores the pre-reversal left-anchor + spacing on mobile: the
      desktop-only "Design stays still" treatment above right-anchors
@@ -1156,4 +1174,12 @@ body.eod-is-scrolling .eod-btn {
 ::view-transition-new(*) {
   animation-duration: 0.6s;
   animation-delay: 0.85s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eod-cta__word,
+  .eod-cta__word-item,
+  .eod-cta__badge-item {
+    transition: none;
+  }
 }
