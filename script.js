@@ -766,32 +766,23 @@
     // (frame-rate independent) turns those steps into one continuous
     // glide, in both directions. settle() and returnToOrbit() wait for
     // the chase to actually arrive so the hand-offs never jump.
-    const SMOOTH_TAU_S = 0.14;
+    // Touch scrolling already has the OS's own momentum easing, so a
+    // long chase on top of it just reads as floaty lag there.
+    const SMOOTH_TAU_S = window.matchMedia && window.matchMedia("(pointer: coarse)").matches ? 0.08 : 0.14;
     let targetProgress = 0;
     let smoothP = 0;
     gsap.ticker.add((time, deltaTime) => {
-      if (!ejectedItem) return;
-      if (!isLanded) {
-        const dt = Math.min(deltaTime, 50) / 1000;
-        smoothP += (targetProgress - smoothP) * (1 - Math.exp(-dt / SMOOTH_TAU_S));
-        if (Math.abs(targetProgress - smoothP) < 0.0005) smoothP = targetProgress;
-        if (isGliding) {
-          // The item's own transform is mid-transition (the pop-in
-          // glide), so only the flip — on the inner face, which has
-          // no transition — follows the scroll meanwhile.
-          ejectedFace.style.transform = `rotateY(${ejectEase(smoothP) * EJECT_TURNS}deg)`;
-        } else {
-          updateEject(smoothP);
-        }
-      }
-      if (!isLanded && targetProgress >= 1 && smoothP >= 0.995) {
-        smoothP = 1;
-        updateEject(1);
-        settle();
-      }
-      if (targetProgress <= 0 && smoothP <= 0.003 && !isGliding && !isLanded) {
-        smoothP = 0;
-        returnToOrbit();
+      if (!ejectedItem || isLanded) return;
+      const dt = Math.min(deltaTime, 50) / 1000;
+      smoothP += (targetProgress - smoothP) * (1 - Math.exp(-dt / SMOOTH_TAU_S));
+      if (Math.abs(targetProgress - smoothP) < 0.0005) smoothP = targetProgress;
+      if (isGliding) {
+        // The item's own transform is mid-transition (the pop-in
+        // glide), so only the flip — on the inner face, which has
+        // no transition — follows the scroll meanwhile.
+        ejectedFace.style.transform = `rotateY(${ejectEase(smoothP) * EJECT_TURNS}deg)`;
+      } else {
+        updateEject(smoothP);
       }
     });
 
@@ -1044,6 +1035,7 @@
     }
 
     let scrollTicking = false;
+    let lastMixedColor = "";
     function updateScroll() {
       scrollTicking = false;
       const rect = hero.getBoundingClientRect();
@@ -1062,13 +1054,29 @@
       const colorProgress = clamp((progress - 0.65) / 0.35, 0, 1);
       const easedColor = gsap.parseEase("power2.in")(colorProgress);
       const mixedColor = mixColor("#0a0a0a", "#fafafa", easedColor);
-      hero.style.backgroundColor = mixedColor;
-      backdrop.style.backgroundColor = mixedColor;
+      if (mixedColor !== lastMixedColor) {
+        lastMixedColor = mixedColor;
+        hero.style.backgroundColor = mixedColor;
+        backdrop.style.backgroundColor = mixedColor;
+      }
 
       targetProgress = progress;
       if (progress > 0 && !ejectedItem) {
         smoothP = 0;
         beginEject();
+      }
+      if (progress <= 0 && ejectedItem) {
+        // A jump straight from "landed" to the very top (tapping the
+        // iOS status bar, a fast flick) skips every progress<1 tick, so
+        // undo the landed state (hug height, .is-landed) explicitly.
+        if (isLanded) unsettle();
+        smoothP = 0;
+        returnToOrbit();
+      }
+      if (ejectedItem && progress >= 1 && !isLanded) {
+        smoothP = 1;
+        updateEject(1);
+        settle();
       }
       // Math.min() inside updateEject already makes this safe to call
       // unconditionally, at any progress, in either scroll direction.
