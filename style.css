@@ -47,25 +47,31 @@
      JS-side breakpoint check. Dead center on desktop, where title/body
      flank the card left-right; overridden lower on mobile, where they
      stack above/below it instead (see that media query for why). */
-  --eod-eject-anchor-y: 50vh;
+  --eod-eject-anchor-y: 50svh;
 }
-/* script.js measures the landed intro text and resizes .eod-hero
-   (via .style.height) to hug it — once scrolling has gone idle after
-   landing, never while actively scrolling. This transition is what
-   makes that idle-time resize read as a smooth settle instead of a
-   snap. Scoped to .is-landed only, so it never fights the
-   scroll-scrubbed fall/flip/grow phase before that (which has no
-   reason to animate — it's already tracking the scroll position 1:1
-   every frame).
-   A flat height for mobile was tried here instead (script.js's own
-   measurement kept tripping over timing edge cases) and reverted —
-   a forced real landing measured the card settling 300px+ lower than
-   any single hand-picked constant accounted for, because the card's
-   landing position isn't a fixed offset from .eod-hero's own top; it
-   scales with viewport height via the 220svh scroll-track. Only a
-   live measurement (script.js) adapts to that correctly. */
-.eod-hero.is-landed {
-  transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+/* script.js sets .eod-hero's final height up front (never while you
+   scroll) by briefly putting the hero in its landed state and
+   measuring it. This class switches every transition off for that one
+   synchronous measurement so nothing visibly animates. */
+/* Lane the ejected card rides in (script.js: `fall`). Its own perspective
+   (same 75em / origin as the hero's old 220svh box) gives the flip its
+   3D; z-index keeps the card above the overlay text like before. */
+.eod-hero__fall {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  perspective: 75em;
+  perspective-origin: 50% 110svh;
+  pointer-events: none;
+}
+.eod-hero__fall > .cards-tornado__item {
+  pointer-events: auto;
+}
+.eod-hero.eod-measuring,
+.eod-hero.eod-measuring * {
+  transition: none !important;
 }
 .eod-hero__stage {
   position: relative; /* NOT sticky — scrolls away normally with the page */
@@ -147,7 +153,7 @@
   left: 50%;
   width: calc(100% - 5em);
   max-width: var(--eod-content-max);
-  top: 50vh;
+  top: 50svh;
   transform: translate(-50%, -50%);
   z-index: 5; /* above the stage, below the landed card (9999) */
   display: flex;
@@ -212,7 +218,7 @@
      measured out to still leave the title fully on-screen (~35px of
      margin above it in testing) without reintroducing that cutoff. */
   .eod-hero {
-    --eod-eject-anchor-y: 44vh;
+    --eod-eject-anchor-y: 44svh;
   }
   /* Desktop lays "Have a look" / "at all my work" side by side,
      bookending the card stack. On mobile it crowded the cards for
@@ -399,7 +405,7 @@
    re-parented directly under .eod-hero (escaping the clipped/3D
    orbit context) and given an explicit pixel size inline — make
    its inner demo-card fill that box. */
-.eod-hero > .cards-tornado__item .demo-card { width: 100%; height: 100%; }
+.eod-hero__fall > .cards-tornado__item .demo-card { width: 100%; height: 100%; }
 
 .cover-image {
   object-fit: cover;

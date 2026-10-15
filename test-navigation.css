@@ -178,7 +178,12 @@
   height: 100%;
   padding: 7.5em 2em 2em;
   display: flex;
-  overflow: auto;
+  /* overflow-x hidden: the links slide in from the right (xPercent) while
+     the menu opens, which briefly overflows sideways and, with classic
+     scrollbars, flashed a horizontal one that pushed the bottom row up
+     15px and dropped it back when the animation ended. */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .underlay-nav__list {

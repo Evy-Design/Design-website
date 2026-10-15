@@ -266,7 +266,51 @@
     // stuck in the wrong spot on phones. This only gets refreshed once
     // things are idle (see the debounced resize handler below), so one
     // scroll gesture always measures against one stable number.
-    let stableViewportHeight = window.innerHeight;
+    // Read from a 100svh probe rather than window.innerHeight: on iOS
+    // Safari innerHeight follows the collapsing toolbar (and so differs
+    // from the 220svh/100svh the layout is built on), svh never does.
+    const svhProbe = document.createElement("div");
+    svhProbe.style.cssText = "position:fixed;left:0;top:0;width:0;height:100svh;visibility:hidden;pointer-events:none";
+    document.body.appendChild(svhProbe);
+    const getSmallViewportHeight = () => svhProbe.offsetHeight || window.innerHeight;
+    let stableViewportHeight = getSmallViewportHeight();
+    let lastViewportWidth = window.innerWidth;
+
+    // Reserve a bit of scroll distance AFTER the fall/flip/grow finishes —
+    // otherwise, since position:sticky can only ever release right at
+    // .eod-hero's very last pixel (its release point is geometrically
+    // tied to the container's own bottom, not to when the card is done
+    // animating), the card would stay glued to screen-centre for the
+    // entire remaining scroll and only pop free at the last possible
+    // moment, leaving no breathing room before whatever comes next.
+    // This is literally empty scroll distance (blank .eod-hero
+    // background) between the card landing and Awards starting, so too
+    // much reads as dead space — but too little meant the intro text
+    // scrolled straight past before you'd even finished reading it
+    // (Evy: "dat je misschien net wat langer op dit moment stil staat
+    // zodat je niet meteen de tekst uit het frame scrolt"). Raised from
+    // 8 to 14, a middle ground between those two.
+    const TAIL_BUFFER_VH = 14;
+
+    const HERO_BASE_SVH = 2.2; // keep in sync with .eod-hero { height: 220svh } (style.css)
+    const LANDED_SCALE = 1.2; // the ejected card's final scale (updateEject)
+    const anchorProbe = document.createElement("div");
+    anchorProbe.style.cssText = "position:absolute;left:0;top:0;width:0;visibility:hidden;pointer-events:none;height:var(--eod-eject-anchor-y, 50svh)";
+    hero.appendChild(anchorProbe);
+    // The ejected card lives in its own "fall lane" while it's out: an
+    // absolutely positioned box whose bottom edge is exactly where the
+    // card should land. position:sticky releases the card at the end of
+    // that box, so it always lands at the same spot no matter how far
+    // past the landing point you scrolled (a fast flick on a phone can be
+    // 100+px per frame), instead of being swapped to a spot measured at
+    // that moment.
+    const fall = document.createElement("div");
+    fall.className = "eod-hero__fall";
+    hero.appendChild(fall);
+    function setFallHeight(cardPx) {
+      fall.style.height = fallScrollable() + anchorProbe.offsetHeight + cardPx + "px";
+    }
+
 
     const state = {
       amount: 0,
@@ -417,6 +461,7 @@
     function rebuild(reason) {
       buildCards(reason);
       render();
+      applyHeroHeight();
     }
 
     // Three separate reasons this needs to actually verify readiness
@@ -559,6 +604,8 @@
       if (w > 0 && h > 0) {
         ejectedItem.style.width = w + "px";
         ejectedItem.style.height = h + "px";
+        setFallHeight(h);
+        if (introRow) introRow.style.setProperty("--eod-card-h", h * LANDED_SCALE + "px");
       }
     }
 
@@ -569,6 +616,12 @@
         hasStarted, ejected: !!ejectedItem, heroScrollProgress,
         innerWidth: window.innerWidth, innerHeight: window.innerHeight,
       });
+      // The toolbar collapsing/expanding on a phone fires resize with
+      // neither the width nor the (small) viewport height actually
+      // changed — nothing to re-measure, and rebuilding the tornado
+      // there is what shook the hero in Safari.
+      if (window.innerWidth === lastViewportWidth && getSmallViewportHeight() === stableViewportHeight) return;
+      lastViewportWidth = window.innerWidth;
       // Not started yet (still hidden on this breakpoint, or the
       // bootObserver/eager check haven't caught up) — bootObserver will
       // call ensureStarted() itself once this copy actually becomes
@@ -591,7 +644,7 @@
       // progress — so a mobile address-bar flicker mid-scroll never
       // gets picked up as the new "stable" number; only a real,
       // settled resize (rotation, actual window resize) does.
-      stableViewportHeight = window.innerHeight;
+      stableViewportHeight = getSmallViewportHeight();
       resizeTimer = setTimeout(() => waitForStableLayout(60, () => rebuild("resize")), 150);
     });
 
@@ -651,7 +704,9 @@
 
       ejectedItem = card;
       ejectedFace = card.querySelector(".demo-card");
-      hero.appendChild(card); // escape the tornado's clipped/3D stacking context
+      setFallHeight(cardHeight);
+      if (introRow) introRow.style.setProperty("--eod-card-h", cardHeight * LANDED_SCALE + "px");
+      fall.appendChild(card); // escape the tornado's clipped/3D stacking context
 
       // position:sticky does the actual work here: `top: <anchor>` (a
       // VIEWPORT unit, not a % of the container) means "stick once
@@ -665,7 +720,7 @@
       // the landing point lower, off dead-center, without this needing
       // its own breakpoint check.
       card.style.position = "sticky";
-      card.style.top = "var(--eod-eject-anchor-y, 50vh)";
+      card.style.top = "var(--eod-eject-anchor-y, 50svh)";
       card.style.left = "50%";
       card.style.width = cardWidth + "px";
       card.style.height = cardHeight + "px";
@@ -753,7 +808,7 @@
       // (see the comment on the transition line in beginEject).
       ejectedItem.style.transition = "none";
       const eased = ejectEase(progress);
-      const landedScale = 1.2;
+      const landedScale = LANDED_SCALE;
       const scale = lerp(1, landedScale, eased);
       ejectedItem.style.transform = `translate(-50%, -50%) scale(${scale})`;
       ejectedFace.style.transform = `rotateY(${eased * EJECT_TURNS}deg)`;
@@ -874,21 +929,6 @@
       }, GLIDE_MS);
     }
 
-    // Reserve a bit of scroll distance AFTER the fall/flip/grow finishes —
-    // otherwise, since position:sticky can only ever release right at
-    // .eod-hero's very last pixel (its release point is geometrically
-    // tied to the container's own bottom, not to when the card is done
-    // animating), the card would stay glued to screen-centre for the
-    // entire remaining scroll and only pop free at the last possible
-    // moment, leaving no breathing room before whatever comes next.
-    // This is literally empty scroll distance (blank .eod-hero
-    // background) between the card landing and Awards starting, so too
-    // much reads as dead space — but too little meant the intro text
-    // scrolled straight past before you'd even finished reading it
-    // (Evy: "dat je misschien net wat langer op dit moment stil staat
-    // zodat je niet meteen de tekst uit het frame scrolt"). Raised from
-    // 8 to 14, a middle ground between those two.
-    const TAIL_BUFFER_VH = 14;
 
     // Once landed, stop tracking the viewport (position:sticky) and pin
     // the card to the exact document spot it's already sitting at — it
@@ -897,141 +937,57 @@
     // Captured with getBoundingClientRect() at the exact instant of the
     // swap, so this never causes a jump (see the eject/return-to-orbit
     // glides above for the same measure-before-you-mutate approach).
-    // .eod-hero's fixed 220svh is sized for the desktop composition;
-    // on mobile the stacked, more compact intro ends far above that
-    // edge, leaving a large dead gap before Awards (reads as "the
-    // section isn't hugging its content"). Shrinking .eod-hero to hug
-    // its real content fixes that — but doing it the instant the card
-    // lands means mutating the document's height WHILE the user's
-    // finger/momentum-scroll is still actively moving through it,
-    // which snaps everything below (Awards onward) up underneath
-    // them — that's the glitch/shake reported on mobile. Deferred
-    // instead until scrolling has actually gone idle (same debounce
-    // idea as the .eod-is-scrolling hover guard elsewhere in this
-    // file), and animated via .eod-hero.is-landed's own CSS
-    // transition (see style.css) rather than snapping, so even that
-    // idle-time resize reads as a settle, not a cut.
-    let hugResizeTimer = null;
-    let hugRefreshTimer = null;
-    function applyHugHeight() {
-      if (!isLanded || !ejectedItem) return;
-      // NOT skipped on mobile (a flat CSS height was tried here and
-      // reverted): the card doesn't land at a fixed offset from
-      // .eod-hero's own top — it lands wherever the scroll position
-      // happens to be once the fall/flip/grow animation finishes,
-      // which is itself derived from the 220svh scroll-track and so
-      // scales with viewport HEIGHT. A hand-picked flat number was
-      // measured (via a forced real landing) to undershoot by 300px+
-      // — no single constant is correct across phone heights here.
-      // Measuring live and subtracting heroRect.top (below) is what
-      // actually makes this adapt correctly regardless of where
-      // landing happens to occur.
-      const title = hero.querySelector(".eod-hero__intro-title");
-      const body = hero.querySelector(".eod-hero__intro-body");
-      const heroRect = hero.getBoundingClientRect();
-      const contentBottom = Math.max(
-        ...[ejectedItem, title, body].filter(Boolean).map((el) => el.getBoundingClientRect().bottom)
-      );
+    // .eod-hero's height is fixed up front (never changed while you
+    // scroll): the scroll track the card falls along, plus the card's
+    // landed position, plus the intro text under/next to it, plus the
+    // tail buffer. It used to be 220svh and then shrink (or grow, on
+    // mobile) to hug its content once the card landed — which moved
+    // everything below it (Awards onward) up or down underneath you
+    // mid-scroll. The landed layout is measured here instead, in one
+    // synchronous dry run, before anything is painted.
+    function fallScrollable() {
       const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
-      hero.style.height = contentBottom - heroRect.top + bufferPx + "px";
-      // ScrollTrigger (the footer parallax, see initFooterParallax
-      // below) caches each trigger's start/end pixel positions at
-      // setup time and has no way to know this height change just
-      // moved everything below it — without a refresh, its reveal
-      // could get stuck partway even at genuine max scroll. Delayed
-      // to match .eod-hero.is-landed's own CSS transition (style.css)
-      // finishing, so ScrollTrigger measures the settled layout, not
-      // a mid-transition frame.
-      if (typeof ScrollTrigger !== "undefined") {
-        clearTimeout(hugRefreshTimer);
-        hugRefreshTimer = setTimeout(() => ScrollTrigger.refresh(), 480);
-      }
-    }
-    function scheduleHugHeight() {
-      clearTimeout(hugResizeTimer);
-      // Fallback only — see settle()'s transitionend listener for the
-      // real trigger. A fixed delay here was an earlier attempt at
-      // this same problem (guessing "long enough" to clear
-      // .eod-hero__intro-title/-body's own 0.7s reveal transition
-      // before measuring where they landed) but kept coming up short
-      // in practice — main-thread contention from the landing
-      // animation itself can push the transition's actual start back
-      // by a frame or more, so no fixed guess is reliably safe. Kept
-      // here, generously long, purely as a safety net in case
-      // transitionend never fires for some reason (it always should).
-      hugResizeTimer = setTimeout(() => {
-        requestAnimationFrame(() => requestAnimationFrame(applyHugHeight));
-      }, 1500);
+      return Math.max(HERO_BASE_SVH * stableViewportHeight - stableViewportHeight - bufferPx, 1);
     }
 
-    // Once landed, stop tracking the viewport (position:sticky) and pin
-    // the card to the exact document spot it's already sitting at — it
-    // then scrolls away normally like any other element, which is what
-    // actually creates visible room below it as you keep scrolling.
-    // Captured with getBoundingClientRect() at the exact instant of the
-    // swap, so this never causes a jump (see the eject/return-to-orbit
-    // glides above for the same measure-before-you-mutate approach).
+    function applyHeroHeight() {
+      if (ejectedItem || !introRow || !state.cardHeight || tornado.offsetHeight <= 0) return;
+      const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
+      const centreY = fallScrollable() + anchorProbe.offsetHeight; // landed card centre, hero coordinates
+      const landedH = state.cardHeight * LANDED_SCALE;
+
+      // Dry run of the landed state with transitions off, read, then put
+      // everything back before the browser can paint (the extra reads in
+      // between make sure no transition starts when the state is restored).
+      hero.classList.add("eod-measuring", "is-landed");
+      introRow.style.top = centreY + "px";
+      introRow.style.setProperty("--eod-card-h", landedH + "px");
+      const heroTop = hero.getBoundingClientRect().top;
+      const bottoms = [centreY + landedH / 2];
+      hero.querySelectorAll(".eod-hero__intro-title, .eod-hero__intro-body").forEach((el) => {
+        bottoms.push(el.getBoundingClientRect().bottom - heroTop);
+      });
+      hero.classList.remove("is-landed");
+      void hero.offsetHeight;
+      hero.classList.remove("eod-measuring");
+
+      hero.style.height = Math.ceil(Math.max(...bottoms) + bufferPx) + "px";
+    }
+
+    // Landing needs no repositioning: the card is already in its fall
+    // lane and simply stops being sticky at the lane's end (see `fall`
+    // above). This only reveals the intro text, which sits at the same
+    // fixed spot (applyHeroHeight).
     function settle() {
       if (isLanded || !ejectedItem) return;
       isLanded = true;
-      const card = ejectedItem;
-      const cardRect = card.getBoundingClientRect();
-      const heroRect = hero.getBoundingClientRect();
-      card.style.position = "absolute";
-      card.style.left = cardRect.left + cardRect.width / 2 - heroRect.left + "px";
-      card.style.top = cardRect.top + cardRect.height / 2 - heroRect.top + "px";
-      // Flank the card with the intro text, anchored at the exact
-      // same vertical point as the card itself (see .eod-hero__intro
-      // in style.css — top + translateY(-50%) mirrors how the card
-      // centres itself on its own left/top). --eod-card-h lets the
-      // mobile layout (title above / body below, stacked) reserve
-      // exactly the card's own height between them.
-      if (introRow) {
-        introRow.style.top = card.style.top;
-        introRow.style.setProperty("--eod-card-h", cardRect.height + "px");
-      }
       hero.classList.add("is-landed");
-      // Precise trigger for the hug-height measurement: wait for
-      // .eod-hero__intro-body's own reveal transition (opacity +
-      // transform, 0.7s — see style.css) to ACTUALLY finish before
-      // measuring where it landed, rather than guessing a fixed delay
-      // is "long enough" (kept coming up short in practice — see
-      // scheduleHugHeight's own comment). transitionend fires once
-      // per transitioned property, so this can fire twice in a row;
-      // {once:true} means only the first one (whichever property
-      // happens to finish first — they share the same duration, so
-      // effectively simultaneous) actually triggers the measurement.
-      const introBody = hero.querySelector(".eod-hero__intro-body");
-      if (introBody) {
-        introBody.addEventListener(
-          "transitionend",
-          () => requestAnimationFrame(() => requestAnimationFrame(applyHugHeight)),
-          { once: true }
-        );
-      }
-      scheduleHugHeight();
     }
 
-    // Scrolling back up past the point where it landed hands the card
-    // back to position:sticky so it re-joins the viewport-centred glide.
     function unsettle() {
       if (!isLanded || !ejectedItem) return;
       isLanded = false;
-      const card = ejectedItem;
-      card.style.position = "sticky";
-      card.style.top = "var(--eod-eject-anchor-y, 50vh)";
-      card.style.left = "50%";
       hero.classList.remove("is-landed");
-      clearTimeout(hugResizeTimer);
-      clearTimeout(hugRefreshTimer);
-      // Undo settle()'s height stretch, if any — back to the normal
-      // CSS-driven 220svh now that the intro text is hidden again.
-      hero.style.height = "";
-      // Same reasoning as applyHugHeight's own refresh — this height
-      // change needs to invalidate ScrollTrigger's cached positions
-      // too. No transition to wait out here (unsettle isn't inside
-      // .is-landed by the time this runs), so no delay needed.
-      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
     }
 
     let scrollTicking = false;
@@ -1039,10 +995,7 @@
     function updateScroll() {
       scrollTicking = false;
       const rect = hero.getBoundingClientRect();
-      const scrollable = rect.height - stableViewportHeight;
-      const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
-      const fallScrollable = Math.max(scrollable - bufferPx, 1);
-      const progress = clamp(-rect.top / fallScrollable, 0, 1);
+      const progress = clamp(-rect.top / fallScrollable(), 0, 1);
       heroScrollProgress = progress;
 
       // Stays black through most of the scroll, only turning white once
@@ -1095,11 +1048,6 @@
       // Skipping updateEject for the glide's own short window lets it
       // actually play before scroll-linked scale/rotation take over.
       if (ejectedItem && progress < 1) unsettle();
-      // Re-arms the idle-debounced hug-resize (see scheduleHugHeight)
-      // on every tick while landed — covers a slow/discrete scroll
-      // (e.g. a trackpad or button-press scroll) that could otherwise
-      // stop scrolling in the exact same tick settle() itself fires.
-      if (isLanded) scheduleHugHeight();
     }
     function onScroll() {
       if (!scrollTicking) {
@@ -1110,6 +1058,8 @@
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     updateScroll();
+    // Text wraps differently once the webfont is in; re-measure then.
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(applyHeroHeight);
   }
 
   function init() {
@@ -1563,6 +1513,8 @@
   function initFooterParallax() {
     if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") return;
     gsap.registerPlugin(ScrollTrigger);
+    // Don't re-measure every trigger each time a phone's toolbar collapses.
+    ScrollTrigger.config({ ignoreMobileResize: true });
 
     document.querySelectorAll("[data-eod-footer-parallax]").forEach((wrap) => {
       if (wrap.dataset.eodFooterParallaxInit) return;
