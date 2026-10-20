@@ -347,7 +347,7 @@
      the cards just fade in once already fully loaded instead of
      popping in individually mid-spin. */
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.9s ease, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .eod-hero.is-ready .cards-tornado {
   opacity: 1;
@@ -415,4 +415,118 @@
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* ===========================================================
+   Loading intro (intro.js) — "Hi, I'm Evy, Nice to meet you." then
+   "Have a look at all my work", which splits in two and glides to the
+   hero heading's spots, then the tornado fades in.
+   index.html's head script sets html[data-intro="pending"] before the
+   first paint; intro.js switches it to "reveal" (heading text takes
+   over, scroll unlocked, nav + tornado come in) and then removes it.
+   =========================================================== */
+.eod-intro {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  z-index: 12;
+  align-items: center;
+  justify-content: center;
+  color: var(--eod-white);
+  text-align: center;
+  pointer-events: none;
+}
+html[data-intro] .eod-intro { display: flex; }
+
+.eod-intro {
+  /* One size for the greeting and the phrase: the hero heading's own. */
+  --eod-intro-fs: clamp(1.8em, 5vw, 3.5em);
+}
+.eod-intro__hello {
+  /* Hidden until intro.js has put the lines in their start position. */
+  visibility: hidden;
+  margin: 0;
+  padding: 0 1.25em;
+  font-size: var(--eod-intro-fs);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+/* One mask per line: the text slides up out of its own line box. The
+   bottom padding (given back with a negative margin) keeps descenders
+   from being clipped. */
+.eod-intro__line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+.eod-intro__line > span {
+  display: block;
+  will-change: transform;
+}
+
+/* The phrase that splits. Same font-size as .eod-hero__heading so the
+   hand-over to the real heading is invisible. */
+.eod-intro__work {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 0.3em;
+  font-size: var(--eod-intro-fs);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  visibility: hidden;
+}
+.eod-intro__part {
+  display: block;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+@media (max-width: 767px) {
+  /* The heading isn't shown on phones, so there is nothing to land on:
+     the two halves stack and drift apart instead. */
+  .eod-intro__work {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15em;
+  }
+  .eod-intro {
+    --eod-intro-fs: clamp(2.2em, 9vw, 3.5em);
+  }
+}
+
+/* While the intro plays */
+html[data-intro="pending"],
+html[data-intro="pending"] body {
+  overflow: hidden;
+}
+/* Keep the scrollbar's space while scroll is locked, so nothing shifts
+   sideways when it unlocks (classic scrollbars). */
+html[data-intro="pending"] {
+  scrollbar-gutter: stable;
+}
+html[data-intro] .eod-hero__heading > span {
+  visibility: hidden;
+}
+html[data-intro="pending"] .eod-hero.is-ready .cards-tornado {
+  opacity: 0;
+  transform: scale(0.95);
+}
+html[data-intro="pending"] .underlay-nav__header {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eod-intro { display: none !important; }
 }

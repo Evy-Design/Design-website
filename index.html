@@ -75,9 +75,28 @@
   ]
 }
   </script>
+  <!-- Loading intro: decide BEFORE first paint whether it plays, so the
+       hero never flashes. Plays once per browser session (add ?intro to
+       the URL to see it again), not with reduced motion, not when the
+       page is already scrolled. The timer is a failsafe: whatever goes
+       wrong, the page is released after 12s. -->
+  <script>
+    (function () {
+      try {
+        var root = document.documentElement;
+        var force = /[?&]intro\b/.test(location.search);
+        var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var seen = sessionStorage.getItem("eod-intro-seen");
+        if ((force || !seen) && !reduce && (window.scrollY || 0) === 0) {
+          root.setAttribute("data-intro", "pending");
+          setTimeout(function () { root.removeAttribute("data-intro"); }, 12000);
+        }
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="shared.css?v=29" />
-  <link rel="stylesheet" href="test-navigation.css?v=18" />
-  <link rel="stylesheet" href="style.css?v=46" />
+  <link rel="stylesheet" href="test-navigation.css?v=19" />
+  <link rel="stylesheet" href="style.css?v=51" />
   <link rel="stylesheet" href="cart.css?v=6" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
@@ -99,6 +118,16 @@
             <div class="cards-tornado__list" data-3d-tornado-list></div>
           </div>
         </div>
+      </div>
+      <div class="eod-intro" aria-hidden="true">
+        <p class="eod-intro__hello">
+          <span class="eod-intro__line"><span>Hi, I&rsquo;m Evy,</span></span>
+          <span class="eod-intro__line"><span>Nice to meet you.</span></span>
+        </p>
+        <p class="eod-intro__work">
+          <span class="eod-intro__part">Have a look</span>
+          <span class="eod-intro__part">at all my work</span>
+        </p>
       </div>
       <div class="eod-hero__overlay">
         <div class="eod-hero__heading">
@@ -166,6 +195,7 @@
   <script src="sanity-client.js?v=5"></script>
   <script src="content.js?v=58"></script>
   <script src="script.js?v=56"></script>
+  <script src="intro.js?v=4"></script>
   <script src="queued-reveal.js?v=1"></script>
   <script src="cart.js?v=3"></script>
 </body>
