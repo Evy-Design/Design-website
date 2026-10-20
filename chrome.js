@@ -93,6 +93,31 @@
   gtag("config", GA_MEASUREMENT_ID);
 })();
 
+// Choosing a page from the open menu keeps the menu open across the page
+// load (test-navigation.js sets the flag on click): the new page starts in
+// the open state, the screen on the left crossfades from the old page to the
+// new one (a view transition, identical menu on both sides), and then the
+// menu closes. Read here, in the head, so the very first paint is already
+// in that state. window.EOD_NAV_READY resolves once the crossfade is over.
+(function () {
+  try {
+    if (sessionStorage.getItem("eod-nav-resume") !== "1") return;
+    sessionStorage.removeItem("eod-nav-resume");
+    var root = document.documentElement;
+    root.classList.add("eod-nav-resume", "eod-nav-vt", "eod-nav-busy");
+    var done;
+    window.EOD_NAV_READY = new Promise(function (resolve) { done = resolve; });
+    var vtOver = function () { root.classList.remove("eod-nav-vt"); done(); };
+    window.addEventListener("pagereveal", function (e) {
+      if (e.viewTransition) e.viewTransition.finished.then(vtOver, vtOver);
+      else vtOver();
+    });
+    // Failsafes: never leave the page in a half state.
+    setTimeout(vtOver, 1500);
+    setTimeout(function () { root.classList.remove("eod-nav-resume", "eod-nav-busy"); }, 5000);
+  } catch (e) {}
+})();
+
 // Page transitions. Every page change gets a quick crossfade (shared.css).
 // The long choreography — card captions leaving one by one, the photo
 // gliding to its new spot, then the rest fading in — only belongs to the

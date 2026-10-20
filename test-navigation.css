@@ -427,3 +427,40 @@
     align-self: flex-end;
   }
 }
+
+/* ---- Choosing a page from the open menu (see chrome.js / test-navigation.js) ----
+   The new page's first paint is already in the open state; the screen on
+   the left crossfades from the old page to the new one while the menu
+   (identical on both pages) stays put. Nothing reacts to the pointer
+   meanwhile, so no hover flashes. */
+html.eod-nav-resume body > main {
+  transform: translateX(calc(-1 * var(--menu-width)));
+}
+html.eod-nav-resume .underlay-nav__overlay {
+  visibility: visible;
+}
+html.eod-nav-resume .underlay-nav__dark {
+  opacity: 1;
+}
+html.eod-nav-busy .underlay-nav__menu,
+html.eod-nav-busy .underlay-nav__overlay,
+html.eod-nav-busy [data-main] {
+  pointer-events: none;
+}
+@keyframes eod-nav-fade-out {
+  to { opacity: 0; }
+}
+@keyframes eod-nav-fade-in {
+  from { opacity: 0; }
+}
+html.eod-nav-vt::view-transition-old(root) {
+  animation: eod-nav-fade-out 0.28s ease both;
+}
+html.eod-nav-vt::view-transition-new(root) {
+  animation: eod-nav-fade-in 0.28s ease both;
+  animation-delay: 0s;
+}
+html.eod-nav-vt::view-transition-group(root) {
+  animation-duration: 0.01s;
+  animation-delay: 0s;
+}

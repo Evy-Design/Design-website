@@ -87,7 +87,8 @@
         var force = /[?&]intro\b/.test(location.search);
         var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
         var seen = sessionStorage.getItem("eod-intro-seen");
-        if ((force || !seen) && !reduce && (window.scrollY || 0) === 0) {
+        var viaMenu = sessionStorage.getItem("eod-nav-resume") === "1";
+        if ((force || !seen) && !reduce && !viaMenu && (window.scrollY || 0) === 0) {
           root.setAttribute("data-intro", "pending");
           setTimeout(function () { root.removeAttribute("data-intro"); }, 12000);
         }
@@ -116,13 +117,13 @@
     })();
   </script>
   <link rel="stylesheet" href="shared.css?v=30" />
-  <link rel="stylesheet" href="test-navigation.css?v=19" />
+  <link rel="stylesheet" href="test-navigation.css?v=21" />
   <link rel="stylesheet" href="style.css?v=54" />
   <link rel="stylesheet" href="cart.css?v=6" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
        call window.EOD_CHROME synchronously as the HTML is parsed. -->
-  <script src="chrome.js?v=18"></script>
+  <script src="chrome.js?v=20"></script>
 </head>
 <body>
 
@@ -212,7 +213,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/CustomEase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/Observer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
-  <script src="test-navigation.js?v=15"></script>
+  <script src="test-navigation.js?v=17"></script>
   <script src="sanity-client.js?v=5"></script>
   <script src="content.js?v=58"></script>
   <script src="script.js?v=59"></script>

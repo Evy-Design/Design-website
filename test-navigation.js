@@ -407,7 +407,9 @@
 
     gsap.set(overlayEl, { visibility: "hidden", pointerEvents: "none" });
     gsap.set(darkEl, { autoAlpha: 0 });
-    gsap.set(mainEl, { x: 0 });
+    var resuming = document.documentElement.classList.contains("eod-nav-resume");
+    // When resuming, the CSS has already shifted main to the open position.
+    if (!resuming) gsap.set(mainEl, { x: 0 });
     gsap.set(toggleLabels, { yPercent: 0 });
     gsap.set(toggleBars, { y: 0, rotation: 0 });
     gsap.set(menuBorder, { scaleX: 0 });
@@ -578,6 +580,58 @@
     buildTimeline();
 
     toggleBtn.addEventListener("click", toggle);
+
+    // Choosing a page from the open menu: the screen on the left changes
+    // to the new page while the menu stays put, then the menu closes.
+    document.addEventListener("click", function (e) {
+      if (!isOpen || e.defaultPrevented || e.button !== 0) return;
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var link = e.target.closest && e.target.closest("a[href]");
+      if (!link || !menuEl.contains(link) || (link.target && link.target !== "_self")) return;
+      var url;
+      try { url = new URL(link.href, location.href); } catch (err) { return; }
+      if (url.origin !== location.origin) return;
+      e.preventDefault();
+      if (url.pathname === location.pathname && url.search === location.search) {
+        toggle(); // already here: just close
+        return;
+      }
+      try { sessionStorage.setItem("eod-nav-resume", "1"); } catch (err) {}
+      // The clicked page is the current one from here on, and nothing in
+      // the menu or the page reacts to the pointer until it's all over.
+      document.documentElement.classList.add("eod-nav-busy");
+      document.querySelectorAll(".underlay-nav__link-large").forEach(function (l) {
+        l.classList.toggle("w--current", l === link);
+      });
+      location.href = url.href;
+    });
+
+    // New page after such a choice: render in the open state, fade the page
+    // in on the shifted screen, then close the menu.
+    if (resuming) {
+      isOpen = true;
+      toggleBtn.setAttribute("aria-expanded", "true");
+      toggleBtn.setAttribute("aria-label", "close menu");
+      document.body.setAttribute("data-menu-status", "open");
+      tl.invalidate();
+      tl.time(enterEndTime);
+      document.documentElement.classList.remove("eod-nav-resume");
+      // The screen on the left crossfades to this page (view transition),
+      // then the menu closes straight after it.
+      (window.EOD_NAV_READY || Promise.resolve()).then(function () {
+        gsap.delayedCall(0.08, function () {
+          if (isOpen) toggle();
+          gsap.delayedCall(0.9, function () {
+            document.documentElement.classList.remove("eod-nav-busy");
+          });
+        });
+      });
+    }
+
+    // Back/forward cache: a page restored after choosing from the menu.
+    window.addEventListener("pageshow", function (e) {
+      if (e.persisted) document.documentElement.classList.remove("eod-nav-busy");
+    });
 
     overlayEl.addEventListener("click", function () {
       if (isOpen) toggle();
