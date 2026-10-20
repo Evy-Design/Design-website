@@ -992,6 +992,8 @@
 
     let scrollTicking = false;
     let lastMixedColor = "";
+    const belowHero = hero.nextElementSibling;
+    const pageEl = hero.parentElement;
     function updateScroll() {
       scrollTicking = false;
       const rect = hero.getBoundingClientRect();
@@ -1011,6 +1013,14 @@
         lastMixedColor = mixedColor;
         hero.style.backgroundColor = mixedColor;
         backdrop.style.backgroundColor = mixedColor;
+        // The section right below the hero follows the same colour while
+        // it changes. Otherwise it stays its own (light) colour and you
+        // see a hard edge where the hero ends. Once the colour has
+        // arrived (light) its own CSS background takes over again.
+        if (belowHero) belowHero.style.backgroundColor = easedColor >= 1 ? "" : mixedColor;
+        // And the page behind them, so a sub-pixel seam between the two
+        // shows the same colour instead of the light page background.
+        if (pageEl) pageEl.style.backgroundColor = easedColor >= 1 ? "" : mixedColor;
       }
 
       targetProgress = progress;
