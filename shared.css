@@ -1064,10 +1064,40 @@ body.eod-is-scrolling .eod-btn {
     transform: translateY(1.2em);
   }
 }
+/* Default for every page change: a quick crossfade with a slight rise,
+   the new page already coming in while the old one fades. */
+@keyframes eod-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-0.5em);
+  }
+}
+@keyframes eod-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+  }
+}
 ::view-transition-old(root) {
-  animation: eod-root-out 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+  animation: eod-page-out 0.3s cubic-bezier(0.4, 0, 1, 1) both;
 }
 ::view-transition-new(root) {
+  animation: eod-page-in 0.55s cubic-bezier(0, 0, 0.2, 1) both;
+  animation-delay: 0.12s;
+}
+/* The root group would otherwise keep the transition open (and the page
+   unclickable) for as long as the case flow's slow group animation below. */
+::view-transition-group(root) {
+  animation-duration: 0.01s;
+  animation-delay: 0s;
+}
+
+/* ---- Projects grid <-> a project (html.eod-vt-case, set in chrome.js):
+   the long choreography described below. ---- */
+html.eod-vt-case::view-transition-old(root) {
+  animation: eod-root-out 0.4s cubic-bezier(0.4, 0, 1, 1) both;
+}
+html.eod-vt-case::view-transition-new(root) {
   /* Delayed until the hero image has actually finished landing —
      which itself now only starts once every OUT element below has
      finished leaving (Evy: "pas wanneer de hero image op zijn nieuwe
@@ -1101,7 +1131,7 @@ body.eod-is-scrolling .eod-btn {
    photo uses one, but this is written generically rather than
    against one hardcoded name since the name itself is per-project
    (eod-hero-<slug>, set in content.js). */
-::view-transition-group(*) {
+html.eod-vt-case::view-transition-group(*) {
   animation-duration: 0.6s;
   animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
   /* Waits for the OUT cascade below to actually finish first (last
@@ -1153,12 +1183,13 @@ body.eod-is-scrolling .eod-btn {
    and the move need to happen in the SAME window, not one after the
    other. Now matches the group's own 0.85s delay + 0.6s duration
    exactly. */
-::view-transition-image-pair(*) {
+html.eod-vt-case::view-transition-image-pair(*) {
   animation-name: eod-hero-swap-blur;
   animation-duration: 0.6s;
   animation-delay: 0.85s;
   animation-timing-function: ease-out;
 }
+html.eod-vt-case::view-transition-image-pair(root),
 ::view-transition-image-pair(root) {
   animation-name: none;
 }
@@ -1170,8 +1201,8 @@ body.eod-is-scrolling .eod-btn {
    exact-name ::view-transition-old(root)/new(root) rules elsewhere
    in this file are more specific than this wildcard and keep their
    own timing untouched. */
-::view-transition-old(*),
-::view-transition-new(*) {
+html.eod-vt-case::view-transition-old(*),
+html.eod-vt-case::view-transition-new(*) {
   animation-duration: 0.6s;
   animation-delay: 0.85s;
 }

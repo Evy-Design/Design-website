@@ -93,6 +93,56 @@
   gtag("config", GA_MEASUREMENT_ID);
 })();
 
+// Page transitions. Every page change gets a quick crossfade (shared.css).
+// The long choreography — card captions leaving one by one, the photo
+// gliding to its new spot, then the rest fading in — only belongs to the
+// projects grid <-> a project (and store <-> a product), where a photo
+// actually travels between the two pages. Those navigations get the
+// `eod-vt-case` class on the new page; for every other navigation the
+// elements that carry a view-transition-name are taken out of their own
+// groups, so nothing waits for an animation that has no partner.
+(function () {
+  function pageKey(path) {
+    var p = path.replace(/\/+$/, "");
+    return p.substring(p.lastIndexOf("/") + 1).replace(/\.html$/, "") || "index";
+  }
+  var GRIDS = { projects: 1, store: 1 };
+  var CASES = { project: 1, "store-item": 1 };
+  function isCaseFlow(a, b) {
+    return !!((GRIDS[a] && CASES[b]) || (CASES[a] && GRIDS[b]));
+  }
+  var here = pageKey(location.pathname);
+
+  try {
+    if (document.referrer) {
+      var from = new URL(document.referrer);
+      if (from.origin === location.origin && isCaseFlow(pageKey(from.pathname), here)) {
+        document.documentElement.classList.add("eod-vt-case");
+      }
+    }
+  } catch (e) {}
+
+  function dropNames() {
+    document.querySelectorAll('[style*="view-transition-name"]').forEach(function (el) {
+      el.style.viewTransitionName = "none";
+    });
+  }
+  function leavingTo(url) {
+    try {
+      var u = new URL(url, location.href);
+      if (u.origin !== location.origin || u.pathname === location.pathname) return;
+      if (!isCaseFlow(here, pageKey(u.pathname))) dropNames();
+    } catch (e) {}
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (a) leavingTo(a.href);
+  }, true);
+  window.addEventListener("pageswap", function (e) {
+    if (e.activation && e.activation.entry) leavingTo(e.activation.entry.url);
+  });
+})();
+
 window.EOD_CHROME = (function () {
   var LOGO_SVG =
     '<svg class="underlay-nav__logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1228 244" fill="none">' +

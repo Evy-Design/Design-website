@@ -1075,3 +1075,11 @@
     padding: 0.75em 0 0;
   }
 }
+
+/* The case page's top row waits for the photo to land (inline
+   transition-delay, project.html) — only when the photo actually travels
+   there from the projects grid. Any other way in shows it right away. */
+html:not(.eod-vt-case) .eod-project__hero-top,
+html:not(.eod-vt-case) .eod-project__hero-title-row {
+  transition-delay: 0s !important;
+}

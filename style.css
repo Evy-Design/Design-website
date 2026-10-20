@@ -533,28 +533,9 @@ html[data-intro="pending"] .underlay-nav__header {
 
 /* ===========================================================
    Arriving on the home page from another page (see the head script in
-   index.html). shared.css delays the new page by 1.45s for the
-   projects -> case study flow, which leaves a long empty gap here:
-   crossfade quickly instead. And keep the cards' back faces hidden
-   while the browser captures the 3D tornado as a flat picture.
+   index.html). Keep the cards' back faces hidden while the browser
+   captures the 3D tornado as a flat picture for the page transition.
    =========================================================== */
-@keyframes eod-home-in {
-  from { opacity: 0; }
-}
-/* The root group inherits shared.css's 0.85s delay + 0.6s duration for
-   moving named elements; with nothing named here that only keeps the
-   transition (and the page's clicks) blocked for 1.45s. */
-html.eod-vt-home::view-transition-group(root) {
-  animation-delay: 0s;
-  animation-duration: 0.01s;
-}
-html.eod-vt-home::view-transition-old(root) {
-  animation: eod-root-out 0.3s cubic-bezier(0.4, 0, 1, 1) both;
-}
-html.eod-vt-home::view-transition-new(root) {
-  animation: eod-home-in 0.6s cubic-bezier(0, 0, 0.2, 1) both;
-  animation-delay: 0.12s;
-}
 html.eod-vt-guard .demo-card__face--back {
   visibility: hidden;
 }
