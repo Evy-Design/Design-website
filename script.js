@@ -950,6 +950,7 @@
       return Math.max(HERO_BASE_SVH * stableViewportHeight - stableViewportHeight - bufferPx, 1);
     }
 
+    let heroRefreshTimer = null;
     function applyHeroHeight() {
       if (ejectedItem || !introRow || !state.cardHeight || tornado.offsetHeight <= 0) return;
       const bufferPx = (TAIL_BUFFER_VH / 100) * stableViewportHeight;
@@ -971,7 +972,18 @@
       void hero.offsetHeight;
       hero.classList.remove("eod-measuring");
 
-      hero.style.height = Math.ceil(Math.max(...bottoms) + bufferPx) + "px";
+      const nextHeight = Math.ceil(Math.max(...bottoms) + bufferPx) + "px";
+      if (hero.style.height !== nextHeight) {
+        hero.style.height = nextHeight;
+        // Everything below the hero just moved. ScrollTrigger (the footer
+        // parallax) caches its start/end positions, and without a refresh
+        // the footer's dark overlay never finishes fading out at the
+        // bottom of the page (a grey haze over the footer).
+        if (typeof ScrollTrigger !== "undefined") {
+          clearTimeout(heroRefreshTimer);
+          heroRefreshTimer = setTimeout(() => ScrollTrigger.refresh(), 60);
+        }
+      }
     }
 
     // Landing needs no repositioning: the card is already in its fall
