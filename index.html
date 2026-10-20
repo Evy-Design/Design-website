@@ -94,9 +94,31 @@
       } catch (e) {}
     })();
   </script>
+  <!-- Arriving here from another page of the site runs a cross-document
+       view transition. The browser captures this page as one flat
+       picture for it, which makes every tornado card show its back face
+       (the portrait) — so the back faces stay hidden until the
+       transition is over, and style.css gives arrivals here their own,
+       shorter crossfade (eod-vt-home). -->
+  <script>
+    (function () {
+      try {
+        if (!document.referrer || new URL(document.referrer).origin !== location.origin) return;
+        var root = document.documentElement;
+        root.classList.add("eod-vt-home", "eod-vt-guard");
+        var off = function () { root.classList.remove("eod-vt-guard"); };
+        window.addEventListener("pagereveal", function (e) {
+          if (e.viewTransition) e.viewTransition.finished.then(off, off);
+          else off();
+        });
+        window.addEventListener("scroll", off, { once: true, passive: true });
+        setTimeout(off, 2500);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="stylesheet" href="shared.css?v=29" />
   <link rel="stylesheet" href="test-navigation.css?v=19" />
-  <link rel="stylesheet" href="style.css?v=51" />
+  <link rel="stylesheet" href="style.css?v=53" />
   <link rel="stylesheet" href="cart.css?v=6" />
   <style>body { margin: 0; }</style>
   <!-- Must load before the nav/footer injector scripts below, which
