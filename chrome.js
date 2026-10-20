@@ -250,15 +250,14 @@ window.EOD_CHROME = (function () {
     );
   }
 
-  // Client portal link, bottom right of the menu. Staging only for now —
-  // same hostname gate as STORE_COMING_SOON, so a staging -> production
-  // sync can't expose it before the portal is ready.
-  var PORTAL_LIVE = !/(^|\.)evydiepenbroek\.nl$/.test(location.hostname);
-
+  // Client hub link, bottom right of the menu (another site, hub.evydiepenbroek.nl).
+  // The hub only answers on plain http for now — switch to https once that
+  // subdomain has a certificate.
   function nav() {
-    var portalLink = PORTAL_LIVE
-      ? '<div class="underlay-nav__portal" data-reveal-s>' + externalButton("Go to Client portal", 'href="client-portal.html"') + "</div>"
-      : "";
+    var portalLink =
+      '<div class="underlay-nav__portal" data-reveal-s>' +
+        externalButton("Go to Client hub", 'href="http://hub.evydiepenbroek.nl"') +
+      "</div>";
     var links = NAV_LINKS.map(function (link) {
       if (STORE_COMING_SOON && link.href === "store.html") {
         return (
