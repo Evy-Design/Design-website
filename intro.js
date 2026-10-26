@@ -15,8 +15,8 @@
   var root = document.documentElement;
   if (root.getAttribute("data-intro") !== "pending") return;
 
-  var HOLD_HELLO = 1.0; // seconds "Hi, I'm Evy" stays before leaving
-  var HOLD_WORK = 0.7; // seconds the phrase sits in the middle before splitting
+  var HOLD_HELLO = 0.6; // seconds "Hi, I'm Evy" stays before leaving
+  var HOLD_WORK = 0.35; // seconds the phrase sits in the middle before splitting
 
   var intro = document.querySelector(".eod-intro");
   var hero = document.querySelector(".eod-hero");
@@ -69,26 +69,26 @@
       var tl = gsap.timeline({ onComplete: done });
 
       // 1. Hello
-      tl.to(lines, { yPercent: 0, duration: 1.1, ease: "power4.out", stagger: 0.14 }, 0.3)
-        .to(lines, { yPercent: -115, duration: 0.8, ease: "power3.inOut", stagger: 0.08 }, "+=" + HOLD_HELLO);
+      tl.to(lines, { yPercent: 0, duration: 0.75, ease: "power4.out", stagger: 0.1 }, 0.15)
+        .to(lines, { yPercent: -115, duration: 0.55, ease: "power3.inOut", stagger: 0.06 }, "+=" + HOLD_HELLO);
 
       // 2. The phrase appears, centred — only once the greeting is gone
-      tl.set(work, { visibility: "visible" }, ">+0.15")
-        .to(parts, { opacity: 1, y: 0, duration: 0.9, ease: "power3.out", stagger: 0.12 }, "<");
+      tl.set(work, { visibility: "visible" }, ">+0.05")
+        .to(parts, { opacity: 1, y: 0, duration: 0.65, ease: "power3.out", stagger: 0.08 }, "<");
 
       // 3. It splits in two
       var split = "split";
       tl.addLabel(split, "+=" + HOLD_WORK);
       if (mobile) {
-        tl.to(parts[0], { y: -90, opacity: 0, duration: 1.0, ease: "power3.inOut" }, split)
-          .to(parts[1], { y: 90, opacity: 0, duration: 1.0, ease: "power3.inOut" }, split);
+        tl.to(parts[0], { y: -90, opacity: 0, duration: 0.75, ease: "power3.inOut" }, split)
+          .to(parts[1], { y: 90, opacity: 0, duration: 0.75, ease: "power3.inOut" }, split);
       } else {
-        tl.to(parts[0], { x: moves[0].x, y: moves[0].y, duration: 1.3, ease: "power4.inOut" }, split)
-          .to(parts[1], { x: moves[1].x, y: moves[1].y, duration: 1.3, ease: "power4.inOut" }, split);
+        tl.to(parts[0], { x: moves[0].x, y: moves[0].y, duration: 0.95, ease: "power4.inOut" }, split)
+          .to(parts[1], { x: moves[1].x, y: moves[1].y, duration: 0.95, ease: "power4.inOut" }, split);
       }
 
       // 4. Tornado + menu come in while the halves are still arriving
-      tl.add(function () { root.setAttribute("data-intro", "reveal"); }, split + "+=" + (mobile ? 0.55 : 0.8));
+      tl.add(function () { root.setAttribute("data-intro", "reveal"); }, split + "+=" + (mobile ? 0.4 : 0.55));
     } catch (e) {
       done();
     }
